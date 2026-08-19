@@ -1,18 +1,48 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
+import { Stack, useRouter, useSegments } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
+import { Cores } from '@/constants/theme';
+import { AuthProvider, useAuth } from '@/contexts/auth';
 
-SplashScreen.preventAutoHideAsync();
+/**
+ * Mantem a rota coerente com o estado de login: quem nao tem sessao vai para o
+ * login, e quem tem nao consegue voltar para ele.
+ */
+function GuardaDeRota() {
+  const { sessao, carregando } = useAuth();
+  const segmentos = useSegments();
+  const router = useRouter();
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  useEffect(() => {
+    if (carregando) return;
+
+    const primeiro = segmentos[0];
+    const emRotaPublica = primeiro === 'login' || primeiro === 'cadastro';
+
+    if (!sessao && !emRotaPublica) {
+      router.replace('/login');
+    } else if (sessao && emRotaPublica) {
+      router.replace('/');
+    }
+  }, [sessao, carregando, segmentos, router]);
+
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
-    </ThemeProvider>
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        // Sem isto o fundo branco do navegador pisca entre uma tela e outra.
+        contentStyle: { backgroundColor: Cores.fundo },
+      }}
+    />
+  );
+}
+
+export default function LayoutRaiz() {
+  return (
+    <AuthProvider>
+      <StatusBar style="light" />
+      <GuardaDeRota />
+    </AuthProvider>
   );
 }

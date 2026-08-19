@@ -1,98 +1,77 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
+import { useState } from 'react';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { Botao } from '@/components/botao';
+import { Cores, Espaco } from '@/constants/theme';
+import { useAuth } from '@/contexts/auth';
+import { sair } from '@/lib/auth';
+import { mensagemDeErro } from '@/lib/erros';
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
+/**
+ * Provisoria. A navegacao de tres abas -- Perfil, Jogadores e Sorteio -- entra
+ * na etapa 03, quando existir o que colocar dentro delas.
+ */
+export default function Inicio() {
+  const { sessao } = useAuth();
+  const [saindo, setSaindo] = useState(false);
+
+  // sair() lanca quando o signOut falha. Ligada crua no onPress, a rejeicao
+  // ficaria sem dono e a pessoa seguiria logada sem aviso nenhum.
+  async function aoSair() {
+    setSaindo(true);
+    try {
+      await sair();
+    } catch (e) {
+      Alert.alert('Sair', mensagemDeErro(e, 'Não foi possível sair. Tente de novo.'));
+      setSaindo(false);
+    }
   }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
+
   return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
+    <SafeAreaView edges={['top', 'bottom']} style={estilos.tela}>
+      <View style={estilos.conteudo}>
+        <Text style={estilos.titulo}>Vôlei 4x4</Text>
+        <Text style={estilos.texto}>Você está logado como {sessao?.user.email}.</Text>
+        <Text style={estilos.nota}>
+          Etapa 01 concluída: estrutura, banco e autenticação. As próximas etapas trazem perfil,
+          jogadores, avaliações, rating e o sorteio.
+        </Text>
+      </View>
+      <Botao
+        titulo="Sair"
+        variante="secundario"
+        aoTocar={() => void aoSair()}
+        carregando={saindo}
+      />
+    </SafeAreaView>
   );
 }
 
-export default function HomeScreen() {
-  return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
-
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
-
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
-
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: {
+const estilos = StyleSheet.create({
+  tela: {
+    backgroundColor: Cores.fundo,
     flex: 1,
+    justifyContent: 'space-between',
+    padding: Espaco.quatro,
+  },
+  conteudo: {
+    flex: 1,
+    gap: Espaco.tres,
     justifyContent: 'center',
-    flexDirection: 'row',
   },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
+  titulo: {
+    color: Cores.texto,
+    fontSize: 32,
+    fontWeight: '800',
   },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
+  texto: {
+    color: Cores.areia,
+    fontSize: 16,
   },
-  title: {
-    textAlign: 'center',
-  },
-  code: {
-    textTransform: 'uppercase',
-  },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
+  nota: {
+    color: Cores.textoFraco,
+    fontSize: 14,
+    lineHeight: 21,
   },
 });
