@@ -46,40 +46,31 @@ export const TAMANHO_DA_PARTIDA = 8;
 export const TAMANHO_DO_TIME = 4;
 
 /**
- * Peso de cada atributo no rating final. Somam 1.
+ * O meio da escala. E o valor com que a tela de avaliar abre, antes de a pessoa
+ * mexer em qualquer estrela.
  *
- * Os valores sao a sugestao inicial do documento. Mudar aqui muda o rating de
- * todo mundo na proxima leitura -- o rating nao e gravado, e sempre calculado.
+ * O mesmo numero e o prior da media bayesiana do rating -- mas quem manda nesse
+ * uso e a migracao `0007_rating.sql`, nao esta constante. Ver abaixo.
  */
-export const PESOS: Record<Atributo, number> = {
-  ataque: 0.2,
-  defesa: 0.2,
-  passe: 0.15,
-  saque: 0.1,
-  bloqueio: 0.1,
-  agilidade: 0.1,
-  leitura: 0.1,
-  equipe: 0.05,
-};
+export const NOTA_NEUTRA = 3;
 
-/**
- * Prior da media bayesiana: o meio da escala de estrelas.
- *
- * Uma nota so nao pode mandar no rating. Enquanto ha poucos votos o valor fica
- * puxado para o meio, e vai soltando conforme a amostra cresce. E o que da
- * resistencia a avaliacao injusta sem precisar de estatistica complicada.
- */
-export const PRIOR = 3;
-
-/** Quanto o prior vale, em votos equivalentes. */
-export const PESO_DO_PRIOR = 5;
-
-/** A partir de quantos avaliadores o rating passa a ser considerado firme. */
-export const PISO_DE_CONFIANCA = 5;
-
-// Verificacao de sanidade: peso que nao soma 1 desloca a escala do rating
-// inteiro sem avisar. Barato conferir no import.
-const soma = Object.values(PESOS).reduce((a, b) => a + b, 0);
-if (Math.abs(soma - 1) > 1e-9) {
-  throw new Error(`Os pesos dos atributos precisam somar 1, mas somam ${soma}.`);
-}
+// ---------------------------------------------------------------------------
+// Onde ficam os pesos do rating
+// ---------------------------------------------------------------------------
+//
+// Nao ficam aqui. Vivem em `supabase/migrations/0007_rating.sql`, junto com o
+// prior, o peso do prior e o piso de confianca.
+//
+// Chegaram a morar neste arquivo, e a decisao foi revertida por duas razoes:
+//
+//   O rating precisa ser calculado no banco de qualquer forma, porque `avaliacoes`
+//   so devolve as linhas de quem pergunta -- o app nao consegue somar voto alheio,
+//   e nao deve conseguir.
+//
+//   Peso no cliente e peso forjavel. Bastaria mexer no proprio bundle para
+//   inflar o proprio numero e, na etapa 07, para influenciar os times.
+//
+// Manter os valores nos dois lugares seria pior que escolher um: eles
+// divergiriam em silencio, e o documento do projeto e explicito em nao espalhar
+// esses numeros. O custo e que mudar um peso agora pede uma migracao -- em
+// troca, a mudanca fica versionada.

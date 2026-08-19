@@ -15,10 +15,16 @@ falta. Leia antes de comecar qualquer etapa.
   Perfil), a lista com foto e apelido, e busca por nome ou apelido.
 - **04 — Avaliacoes.** Concluida. Um voto por par, corrigivel, com a tela de
   avaliar e a marca de ja avaliado na lista. Voto e privado: so quem deu le.
-- **05 — Rating.** A formula, no banco.
-- **06 — Motor de balanceamento.** Modulo puro em `src/nucleo/`, com testes.
-- **07 — Tela de sorteio.** Selecionar 8, sortear, mostrar os times.
-- **08 — Historico de partidas.** Registro e resultado.
+- **05 — Rating.** Concluida no codigo. Formula bayesiana com piso de
+  confianca, calculada no banco. Falta rodar a migracao 0007.
+- **06 — Motor de balanceamento.** Concluida. As 35 divisoes, recorte por modo
+  de equilibrio e sorteio ponderado, em `src/nucleo/sorteio.ts`. 11 testes.
+- **07 — Partidas e sorteio.** Selecionar 8, sortear, e GRAVAR a partida com os
+  times. As tabelas nascem aqui, porque o modulo de avaliacao pos-partida
+  depende delas.
+- **08 — Avaliacao pos-partida.** Janela do dia seguinte, autorizacao por
+  participacao, uma avaliacao por par por partida. Substitui a avaliacao global
+  da etapa 04.
 - **09 — Testes.** Cobertura dos casos do documento original.
 - **10 — Polimento e responsividade.**
 
@@ -56,6 +62,28 @@ e a policy do Storage exige que a primeira pasta seja o uid de quem envia.
 **Icone e emoji, nao biblioteca.** Biblioteca de icones costuma trazer fonte ou
 modulo nativo, e isso quebraria a regra do Expo Go. Emoji renderiza igual nos
 tres alvos, sem dependencia.
+
+**A avaliacao passa a ser por partida, nao global.** A etapa 04 entregou
+avaliacao livre: qualquer um avalia qualquer um, a qualquer hora, corrigindo
+para sempre. O modulo de avaliacao pos-partida substitui essa regra -- so avalia
+quem jogou com voce, so no dia seguinte, e a janela fecha em 24h. As chaves sao
+incompativeis: `(avaliador, avaliado)` contra `(partida, avaliador, avaliado)`.
+
+A nota deixa de ser opiniao solta e passa a ser observacao de desempenho numa
+partida concreta, que e o que o rating precisa. O custo e que quem nunca jogou
+fica sem rating ate a primeira partida.
+
+**Os pesos do rating vivem no SQL, nao no TypeScript.** Reverte uma decisao
+anterior. O rating precisa ser calculado no banco de qualquer forma, porque
+`avaliacoes` so devolve as linhas de quem pergunta -- o app nao consegue somar
+voto alheio. E peso no cliente e peso forjavel. Manter nos dois lugares seria
+pior que escolher um: divergiriam em silencio. O custo e que mudar peso pede
+migracao; em troca, fica versionado.
+
+**O motor de sorteio nao sabe o que e React nem rede.** `src/nucleo/sorteio.ts`
+recebe jogadores com rating e devolve dois times. A fonte de aleatoriedade e
+injetavel, o que torna o teste deterministico -- e por isso da para provar que o
+modo rigoroso nunca e pior que o solto, em vez de torcer.
 
 **Autenticacao e do Supabase Auth, nao nossa.** O pedido original era uma tabela
 `User` com `passwordHash`. Guardar senha a mao seria o ponto mais fragil do

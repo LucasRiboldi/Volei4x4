@@ -17,6 +17,7 @@ import { useAuth } from '@/contexts/auth';
 import { listarMinhasAvaliacoes } from '@/lib/avaliacoes';
 import { mensagemDeErro } from '@/lib/erros';
 import { listarJogadores, type Jogador } from '@/lib/jogadores';
+import { mapaDeRatings, type Rating } from '@/lib/ratings';
 
 export default function Jogadores() {
   const { sessao } = useAuth();
@@ -27,18 +28,24 @@ export default function Jogadores() {
   // resposta "nao ha ninguem cadastrado".
   const [jogadores, setJogadores] = useState<Jogador[] | null>(null);
   const [avaliados, setAvaliados] = useState<Set<string>>(new Set());
+  const [ratings, setRatings] = useState<Map<string, Rating>>(new Map());
   const [busca, setBusca] = useState('');
   const [erro, setErro] = useState<string | null>(null);
 
   const carregar = useCallback(async (continuaValendo: () => boolean) => {
     try {
       setErro(null);
-      // Independentes: esperar uma depois da outra dobraria a espera.
-      const [lista, minhas] = await Promise.all([listarJogadores(), listarMinhasAvaliacoes()]);
+      // Independentes: esperar uma depois da outra triplicaria a espera.
+      const [lista, minhas, mapa] = await Promise.all([
+        listarJogadores(),
+        listarMinhasAvaliacoes(),
+        mapaDeRatings(),
+      ]);
       if (!continuaValendo()) return;
 
       setJogadores(lista);
       setAvaliados(new Set(minhas.map((a) => a.avaliado_id)));
+      setRatings(mapa);
     } catch (e) {
       if (continuaValendo()) {
         setErro(mensagemDeErro(e, 'Não foi possível carregar os jogadores.'));
@@ -104,6 +111,7 @@ export default function Jogadores() {
             jogador={item}
             souEu={item.id === meuId}
             jaAvaliei={avaliados.has(item.id)}
+            rating={ratings.get(item.id) ?? null}
             aoTocar={() =>
               router.push({ pathname: '/avaliar/[jogador]', params: { jogador: item.id } })
             }
@@ -136,11 +144,13 @@ function Linha({
   jogador,
   souEu,
   jaAvaliei,
+  rating,
   aoTocar,
 }: {
   jogador: Jogador;
   souEu: boolean;
   jaAvaliei: boolean;
+  rating: Rating | null;
   aoTocar: () => void;
 }) {
   const detalhe = [jogador.apelido, jogador.cidade].filter(Boolean).join(' · ');
@@ -169,16 +179,28 @@ function Linha({
         ) : null}
       </View>
 
-      {/*
-        A marca diz se VOCE ja avaliou, e nada sobre a nota -- ela sai das suas
-        proprias linhas, entao nao revela voto de ninguem. O rating agregado
-        entra na etapa 05.
-      */}
-      {souEu ? null : (
-        <Text style={jaAvaliei ? estilos.avaliado : estilos.aAvaliar}>
-          {jaAvaliei ? '✓ avaliado' : 'avaliar'}
-        </Text>
-      )}
+      <View style={estilos.direita}>
+        {/*
+          O rating so aparece com avaliadores suficientes. Abaixo do piso o
+          banco devolve o valor neutro, e mostra-lo como se fosse medido seria
+          mentira -- alem de, com poucos votos, deixar deduzir voto individual.
+        */}
+        {rating?.confiavel ? (
+          <Text style={estilos.rating}>{rating.rating.toFixed(1)}</Text>
+        ) : (
+          <Text style={estilos.semRating}>–</Text>
+        )}
+
+        {/*
+          A marca diz se VOCE ja avaliou, e nada sobre a nota -- sai das suas
+          proprias linhas, entao nao revela voto de ninguem.
+        */}
+        {souEu ? null : (
+          <Text style={jaAvaliei ? estilos.avaliado : estilos.aAvaliar}>
+            {jaAvaliei ? '✓ avaliado' : 'avaliar'}
+          </Text>
+        )}
+      </View>
     </Pressable>
   );
 }
@@ -252,6 +274,21 @@ const estilos = StyleSheet.create({
   detalhe: {
     color: Cores.textoFraco,
     fontSize: 13,
+  },
+  direita: {
+    alignItems: 'flex-end',
+    gap: 2,
+  },
+  rating: {
+    color: Cores.texto,
+    fontSize: 22,
+    fontVariant: ['tabular-nums'],
+    fontWeight: '800',
+  },
+  semRating: {
+    color: Cores.borda,
+    fontSize: 22,
+    fontWeight: '800',
   },
   avaliado: {
     color: Cores.sucesso,

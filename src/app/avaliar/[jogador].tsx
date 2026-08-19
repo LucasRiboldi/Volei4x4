@@ -9,11 +9,11 @@ import { Cores, Espaco, Raio } from '@/constants/theme';
 import { buscarMinhaAvaliacaoDe, salvarAvaliacao, type Notas } from '@/lib/avaliacoes';
 import { mensagemDeErro } from '@/lib/erros';
 import { listarJogadores, type Jogador } from '@/lib/jogadores';
-import { ATRIBUTOS, PRIOR, ROTULO } from '@/nucleo/atributos';
+import { ATRIBUTOS, NOTA_NEUTRA, ROTULO } from '@/nucleo/atributos';
 
 /** Todas as caracteristicas no meio da escala: o ponto de partida neutro. */
 function notasIniciais(): Notas {
-  return Object.fromEntries(ATRIBUTOS.map((a) => [a, PRIOR])) as Notas;
+  return Object.fromEntries(ATRIBUTOS.map((a) => [a, NOTA_NEUTRA])) as Notas;
 }
 
 export default function Avaliar() {
