@@ -4,6 +4,7 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -14,27 +15,18 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Avatar } from '@/components/avatar';
 import { Botao } from '@/components/botao';
 import { Campo } from '@/components/campo';
-import { Estrelas } from '@/components/estrelas';
-import { Cores, Espaco, Raio } from '@/constants/theme';
+import { Cores, Espaco } from '@/constants/theme';
 import { useAuth } from '@/contexts/auth';
 import { mensagemDeErro } from '@/lib/erros';
+import { enviarFotoDePerfil, escolherImagem } from '@/lib/fotos';
 import {
   APELIDO_MAXIMO,
   CIDADE_MAXIMA,
   NOME_MAXIMO,
   NOME_MINIMO,
-  buscarMinhaAutoavaliacao,
   garantirMeuPerfil,
-  salvarAutoavaliacao,
   salvarPerfil,
-  type Notas,
 } from '@/lib/jogadores';
-import { ATRIBUTOS, PRIOR, ROTULO } from '@/nucleo/atributos';
-
-/** Todas as caracteristicas no meio da escala: o ponto de partida neutro. */
-function notasIniciais(): Notas {
-  return Object.fromEntries(ATRIBUTOS.map((a) => [a, PRIOR])) as Notas;
-}
 
 export default function Perfil() {
   const router = useRouter();
@@ -44,11 +36,10 @@ export default function Perfil() {
   const [apelido, setApelido] = useState('');
   const [cidade, setCidade] = useState('');
   const [fotoUrl, setFotoUrl] = useState<string | null>(null);
-  const [notas, setNotas] = useState<Notas>(notasIniciais);
-  const [jaSeAutoavaliou, setJaSeAutoavaliou] = useState(false);
 
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
+  const [enviandoFoto, setEnviandoFoto] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
 
@@ -57,21 +48,13 @@ export default function Perfil() {
 
     async function carregar() {
       try {
-        // Independentes entre si: esperar uma depois da outra dobraria a espera.
-        const [perfil, auto] = await Promise.all([
-          garantirMeuPerfil(),
-          buscarMinhaAutoavaliacao(),
-        ]);
+        const perfil = await garantirMeuPerfil();
         if (!ativo) return;
 
         setNome(perfil.nome);
         setApelido(perfil.apelido ?? '');
         setCidade(perfil.cidade ?? '');
         setFotoUrl(perfil.foto_url);
-        if (auto) {
-          setNotas(auto);
-          setJaSeAutoavaliou(true);
-        }
       } catch (e) {
         if (ativo) setErro(mensagemDeErro(e, 'Não foi possível carregar seu perfil.'));
       } finally {
@@ -87,18 +70,31 @@ export default function Perfil() {
 
   const nomeValido = nome.trim().length >= NOME_MINIMO;
 
+  async function aoTrocarFoto() {
+    setErro(null);
+    setAviso(null);
+    try {
+      const imagem = await escolherImagem();
+      // Fechar a galeria sem escolher nada nao e erro que valha uma mensagem.
+      if (!imagem) return;
+
+      setEnviandoFoto(true);
+      setFotoUrl(await enviarFotoDePerfil(imagem));
+      setAviso('Foto atualizada.');
+    } catch (e) {
+      setErro(mensagemDeErro(e, 'Não foi possível enviar a foto. Tente de novo.'));
+    } finally {
+      setEnviandoFoto(false);
+    }
+  }
+
   async function aoSalvar() {
     if (!nomeValido) return;
     setErro(null);
     setAviso(null);
     setSalvando(true);
     try {
-      // As duas escritas sao em tabelas diferentes e o PostgREST nao abre
-      // transacao entre elas. Em serie de proposito: se a segunda falhar, a
-      // pessoa ve o erro com o perfil ja salvo, que e o menos ruim dos dois.
       await salvarPerfil({ nome, apelido, cidade });
-      await salvarAutoavaliacao(notas);
-      setJaSeAutoavaliou(true);
       setAviso('Perfil salvo.');
     } catch (e) {
       setErro(mensagemDeErro(e, 'Não foi possível salvar. Tente de novo.'));
@@ -122,10 +118,26 @@ export default function Perfil() {
         style={estilos.flex}>
         <ScrollView contentContainerStyle={estilos.conteudo} keyboardShouldPersistTaps="handled">
           <View style={estilos.cabecalho}>
-            <Avatar nome={nome} fotoUrl={fotoUrl} tamanho={72} />
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Trocar foto de perfil"
+              disabled={enviandoFoto}
+              onPress={() => void aoTrocarFoto()}
+              style={({ pressed }) => [estilos.alvoDaFoto, pressed && estilos.pressionado]}>
+              <Avatar nome={nome} fotoUrl={fotoUrl} tamanho={88} />
+              {enviandoFoto ? (
+                <View style={estilos.sobreposicaoDaFoto}>
+                  <ActivityIndicator color={Cores.texto} />
+                </View>
+              ) : null}
+            </Pressable>
+
             <View style={estilos.identificacao}>
               <Text style={estilos.titulo}>Meu perfil</Text>
               <Text style={estilos.email}>{sessao?.user.email}</Text>
+              <Text style={estilos.dicaDaFoto} onPress={() => void aoTrocarFoto()}>
+                {fotoUrl ? 'Trocar foto' : 'Adicionar foto'}
+              </Text>
             </View>
           </View>
 
@@ -158,27 +170,6 @@ export default function Perfil() {
               placeholder="Onde você joga"
               value={cidade}
             />
-          </View>
-
-          <View style={estilos.cartao}>
-            <Text style={estilos.tituloDaSecao}>Suas características</Text>
-            <Text style={estilos.explicacao}>
-              {jaSeAutoavaliou
-                ? 'Esta é a sua autoavaliação. Ela vale menos que as notas que o pessoal te dá, e vai perdendo peso conforme você é avaliado.'
-                : 'Dê uma nota inicial para si mesmo. Ela serve de ponto de partida enquanto o pessoal ainda não te avaliou.'}
-            </Text>
-
-            <View style={estilos.caracteristicas}>
-              {ATRIBUTOS.map((atributo) => (
-                <Estrelas
-                  key={atributo}
-                  rotulo={ROTULO[atributo]}
-                  valor={notas[atributo]}
-                  desativado={salvando}
-                  aoMudar={(valor) => setNotas((atual) => ({ ...atual, [atributo]: valor }))}
-                />
-              ))}
-            </View>
           </View>
 
           {erro ? <Text style={estilos.erro}>{erro}</Text> : null}
@@ -220,6 +211,23 @@ const estilos = StyleSheet.create({
     flexDirection: 'row',
     gap: Espaco.tres,
   },
+  alvoDaFoto: {
+    position: 'relative',
+  },
+  sobreposicaoDaFoto: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    borderRadius: 44,
+    bottom: 0,
+    justifyContent: 'center',
+    left: 0,
+    position: 'absolute',
+    right: 0,
+    top: 0,
+  },
+  pressionado: {
+    opacity: 0.7,
+  },
   identificacao: {
     flex: 1,
     gap: Espaco.um,
@@ -233,28 +241,14 @@ const estilos = StyleSheet.create({
     color: Cores.textoFraco,
     fontSize: 14,
   },
+  dicaDaFoto: {
+    color: Cores.mar,
+    fontSize: 14,
+    fontWeight: '600',
+    marginTop: Espaco.um,
+  },
   grupo: {
     gap: Espaco.tres,
-  },
-  cartao: {
-    backgroundColor: Cores.fundoCartao,
-    borderRadius: Raio.grande,
-    gap: Espaco.dois,
-    padding: Espaco.tres,
-  },
-  tituloDaSecao: {
-    color: Cores.texto,
-    fontSize: 18,
-    fontWeight: '700',
-  },
-  explicacao: {
-    color: Cores.textoFraco,
-    fontSize: 13,
-    lineHeight: 19,
-  },
-  caracteristicas: {
-    gap: Espaco.tres,
-    marginTop: Espaco.dois,
   },
   acoes: {
     gap: Espaco.dois,

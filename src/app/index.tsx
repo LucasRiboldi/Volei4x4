@@ -36,7 +36,7 @@ export default function Inicio() {
         <Text style={estilos.titulo}>Vôlei 4x4</Text>
         <Text style={estilos.texto}>Você está logado como {sessao?.user.email}.</Text>
         <Text style={estilos.nota}>
-          Etapa 02 concluída: perfil e autoavaliação. As próximas etapas trazem a lista de
+          Etapa 02 concluída: perfil com foto. As próximas etapas trazem a lista de
           jogadores, as avaliações, o rating e o sorteio.
         </Text>
       </View>

@@ -1,5 +1,3 @@
-import { ATRIBUTOS, type Atributo } from '@/nucleo/atributos';
-
 import { supabase } from './supabase';
 
 export type Jogador = {
@@ -10,11 +8,7 @@ export type Jogador = {
   foto_url: string | null;
 };
 
-/** As oito notas, no formato em que vao e voltam do banco. */
-export type Notas = Record<Atributo, number>;
-
 const COLUNAS = 'id, nome, apelido, cidade, foto_url';
-const COLUNAS_DE_NOTA = ATRIBUTOS.join(', ');
 
 export const NOME_MINIMO = 2;
 export const NOME_MAXIMO = 60;
@@ -103,32 +97,9 @@ export async function salvarPerfil(entrada: {
   if (error) throw error;
 }
 
-/** Null quando a pessoa ainda nao se autoavaliou. */
-export async function buscarMinhaAutoavaliacao(): Promise<Notas | null> {
-  const { data: sessao } = await supabase.auth.getUser();
-  const id = sessao.user?.id;
-  if (!id) throw new Error('Você precisa estar logado.');
-
-  const { data, error } = await supabase
-    .from('autoavaliacoes')
-    .select(COLUNAS_DE_NOTA)
-    .eq('jogador_id', id)
-    .maybeSingle<Notas>();
-
-  if (error) throw error;
-  return data;
-}
-
-export async function salvarAutoavaliacao(notas: Notas): Promise<void> {
-  const { data: sessao } = await supabase.auth.getUser();
-  const id = sessao.user?.id;
-  if (!id) throw new Error('Você precisa estar logado.');
-
-  // upsert porque a autoavaliacao e uma linha so por jogador, que a pessoa
-  // revisita: a primeira vez insere, as seguintes corrigem.
-  const { error } = await supabase
-    .from('autoavaliacoes')
-    .upsert({ jogador_id: id, ...notas }, { onConflict: 'jogador_id' });
-
-  if (error) throw error;
-}
+// A autoavaliacao saiu do produto: o perfil nao pede mais que a pessoa se
+// pontue. As funcoes que liam e gravavam foram removidas em vez de ficarem
+// paradas aqui dizendo que existe uma tela para elas.
+//
+// A tabela `autoavaliacoes` continua no banco, vazia e sem custo. Se a ideia
+// voltar, o que falta e a tela -- nao o esquema.
