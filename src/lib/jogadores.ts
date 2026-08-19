@@ -22,10 +22,7 @@ export const APELIDO_MAXIMO = 30;
 export const CIDADE_MAXIMA = 60;
 
 /**
- * O perfil de quem esta logado.
- *
- * Devolve null so se o gatilho de cadastro nao tiver rodado -- o que seria um
- * defeito, nao um estado normal. Quem chama decide como reagir.
+ * O perfil de quem esta logado, ou null se a linha ainda nao existe.
  */
 export async function buscarMeuPerfil(): Promise<Jogador | null> {
   const { data: sessao } = await supabase.auth.getUser();
@@ -37,6 +34,47 @@ export async function buscarMeuPerfil(): Promise<Jogador | null> {
     .select(COLUNAS)
     .eq('id', id)
     .maybeSingle<Jogador>();
+
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * O perfil de quem esta logado, criando a linha se ela faltar.
+ *
+ * A via normal e o gatilho `ao_criar_usuario` do banco, que insere o jogador
+ * junto com a conta. Mas ele mora em `auth.users`, e instalar gatilho ali
+ * depende de um privilegio que nem todo projeto do Supabase concede. Sem esta
+ * rede, um projeto onde o gatilho nao entrou deixaria a pessoa logada e sem
+ * perfil -- conta que existe, jogador que nao.
+ *
+ * Inserir aqui e seguro porque a policy `jogadores_cria_o_proprio` amarra a
+ * linha ao dono: ninguem cria perfil para terceiro, mesmo chamando a API na
+ * mao.
+ */
+export async function garantirMeuPerfil(): Promise<Jogador> {
+  const existente = await buscarMeuPerfil();
+  if (existente) return existente;
+
+  const { data: sessao } = await supabase.auth.getUser();
+  const usuario = sessao.user;
+  if (!usuario) throw new Error('Você precisa estar logado.');
+
+  // A mesma ordem de preferencia do gatilho, para o nome sair igual pelos dois
+  // caminhos.
+  const metadados = usuario.user_metadata ?? {};
+  const nome =
+    [metadados.nome, metadados.full_name, metadados.name]
+      .map((v) => (typeof v === 'string' ? v.trim() : ''))
+      .find((v) => v !== '') ??
+    usuario.email?.split('@')[0] ??
+    'Jogador';
+
+  const { data, error } = await supabase
+    .from('jogadores')
+    .insert({ id: usuario.id, nome: nome.slice(0, NOME_MAXIMO) })
+    .select(COLUNAS)
+    .single<Jogador>();
 
   if (error) throw error;
   return data;

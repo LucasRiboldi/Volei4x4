@@ -23,8 +23,8 @@ import {
   CIDADE_MAXIMA,
   NOME_MAXIMO,
   NOME_MINIMO,
-  buscarMeuPerfil,
   buscarMinhaAutoavaliacao,
+  garantirMeuPerfil,
   salvarAutoavaliacao,
   salvarPerfil,
   type Notas,
@@ -59,17 +59,15 @@ export default function Perfil() {
       try {
         // Independentes entre si: esperar uma depois da outra dobraria a espera.
         const [perfil, auto] = await Promise.all([
-          buscarMeuPerfil(),
+          garantirMeuPerfil(),
           buscarMinhaAutoavaliacao(),
         ]);
         if (!ativo) return;
 
-        if (perfil) {
-          setNome(perfil.nome);
-          setApelido(perfil.apelido ?? '');
-          setCidade(perfil.cidade ?? '');
-          setFotoUrl(perfil.foto_url);
-        }
+        setNome(perfil.nome);
+        setApelido(perfil.apelido ?? '');
+        setCidade(perfil.cidade ?? '');
+        setFotoUrl(perfil.foto_url);
         if (auto) {
           setNotas(auto);
           setJaSeAutoavaliou(true);

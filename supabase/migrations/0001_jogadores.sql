@@ -10,7 +10,13 @@
 -- O e-mail nunca e chave de nada. A chave e o uuid interno, e ele nao muda se
 -- a pessoa trocar de e-mail ou passar a entrar pelo Google.
 --
--- Este arquivo e idempotente: pode rodar de novo sem quebrar.
+-- Este arquivo NAO toca no schema `auth`. O gatilho que cria o perfil no
+-- cadastro vive na migracao 0003, sozinho, porque mexer em `auth.users` exige
+-- privilegio que nem todo projeto concede -- e o editor de SQL do Supabase roda
+-- o script inteiro em uma transacao, entao um erro la derrubaria estas tabelas
+-- junto.
+--
+-- Idempotente: pode rodar de novo sem quebrar.
 
 create table if not exists public.jogadores (
   id uuid primary key references auth.users (id) on delete cascade,
@@ -39,55 +45,14 @@ create policy "jogadores_cada_um_edita_o_seu"
   using (id = (select auth.uid()))
   with check (id = (select auth.uid()));
 
--- Sem policy de INSERT: quem cria a linha e o gatilho abaixo, para nao existir
--- conta sem jogador. Sem policy de DELETE: o perfil morre junto com a conta,
--- por cascata.
-
--- ---------------------------------------------------------------------------
--- Perfil automatico no cadastro
--- ---------------------------------------------------------------------------
-
-create or replace function public.criar_jogador_do_novo_usuario()
-returns trigger
-language plpgsql
-security definer
--- `security definer` sem search_path fixo e buraco de seguranca: a funcao roda
--- como dona do banco, e um schema no caminho de busca poderia sequestrar a
--- resolucao de nome.
-set search_path = ''
-as $$
-begin
-  insert into public.jogadores (id, nome)
-  values (
-    new.id,
-    -- `nome` vem do cadastro por e-mail. `full_name` e `name` cobrem provedores
-    -- OAuth, para o dia em que o Google entrar. O e-mail e o ultimo recurso,
-    -- porque jogador sem nome quebraria as listas.
-    left(coalesce(
-      nullif(trim(new.raw_user_meta_data ->> 'nome'), ''),
-      nullif(trim(new.raw_user_meta_data ->> 'full_name'), ''),
-      nullif(trim(new.raw_user_meta_data ->> 'name'), ''),
-      nullif(split_part(new.email, '@', 1), ''),
-      'Jogador'
-    ), 60)
-  )
-  on conflict (id) do nothing;
-
-  return new;
-end;
-$$;
-
-drop trigger if exists ao_criar_usuario on auth.users;
-create trigger ao_criar_usuario
-  after insert on auth.users
-  for each row execute function public.criar_jogador_do_novo_usuario();
-
--- ---------------------------------------------------------------------------
--- Permissoes
+-- Cada um cria so a propria linha, e so com o proprio id.
 --
--- Privilegio de execucao vem de duas fontes: o EXECUTE que o Postgres da a
--- PUBLIC em toda funcao nova, e o que o Supabase da a anon e authenticated por
--- alter default privileges. Revogar so de uma deixa a outra passar.
--- ---------------------------------------------------------------------------
+-- Esta policy e a rede de seguranca do gatilho da 0003: se ele nao puder ser
+-- instalado, o aplicativo cria o perfil no primeiro acesso. O `with check`
+-- amarra a linha ao dono, entao ninguem inventa perfil para terceiro.
+drop policy if exists "jogadores_cria_o_proprio" on public.jogadores;
+create policy "jogadores_cria_o_proprio"
+  on public.jogadores for insert to authenticated
+  with check (id = (select auth.uid()));
 
-revoke all on function public.criar_jogador_do_novo_usuario() from public, anon, authenticated;
+-- Sem policy de DELETE: o perfil morre junto com a conta, por cascata.
