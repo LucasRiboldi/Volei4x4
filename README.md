@@ -131,38 +131,47 @@ o porquê disso não fechar a porta.
 
 ## Estado atual
 
-Levantamento de 19/08/2026, conferido contra o banco e o deploy — não de
-memória. O detalhe de cada etapa está em [docs/plano.md](docs/plano.md).
+Levantamento de 19/08/2026, conferido contra o banco, a interface e o deploy —
+não de memória. O detalhe de cada etapa está em [docs/plano.md](docs/plano.md).
 
-### ✅ Funciona, e foi testado de ponta a ponta
+### ✅ Funciona, verificado na interface
 
-Verificado contra o Supabase real, não só compilando.
+Exercitado clicando na tela, com o banco real por trás.
 
-| O que | Como foi verificado |
+| O que | O que foi observado |
 |---|---|
-| Cadastro e login por e-mail e senha | conta criada e sessão obtida pela API e pela tela |
-| Guarda de rota | sem sessão vai para o login; com sessão não volta para ele |
-| Perfil: nome, apelido, cidade | gravados e relidos |
-| Criação automática do perfil no 1º acesso | linha criada quando o gatilho não existe |
-| Lista de jogadores e busca | 15 cadastrados, filtro por nome e apelido |
+| Cadastro, login e guarda de rota | entra, e sem sessão volta para o login |
+| Perfil: nome, apelido, cidade | grava e relê |
+| Lista de jogadores | 15 cadastrados, com apelido e cidade |
+| Busca | filtra por nome e por apelido |
+| Rating na lista | `–` e a contagem de avaliadores por jogador |
 | Navegação entre as três abas | as três carregam |
-| **RLS: criar perfil com id alheio** | **bloqueado, HTTP 403** |
-| **RLS: editar perfil alheio** | **0 linhas, dado intacto** |
-| **RLS: ler autoavaliação alheia** | **vazio** |
-| **RLS: avaliar a si mesmo / em nome de outro** | **bloqueado, HTTP 403** |
-| **RLS: usuário novo lê ou conta avaliações** | **vazio, contagem 0** |
-| Notas fora de 1–5 | recusadas pelo banco |
-| Cálculo do rating | 15 jogadores, neutro em 6,0 — 3 estrelas convertidas |
+| **Aviso de avaliação pendente** | **"6 jogadores aguardam sua avaliação"** |
+| **Tela de avaliar a partida** | **progresso "1 de 7", prazo, quem já foi avaliado** |
+| Seleção de 8 no sorteio | contador "8 de 8", e não deixa passar disso |
+| **Sorteio** | **Time A 24,00 × Time B 24,00, diferença 0,00** |
+
+### ✅ Funciona, verificado pela API
+
+Regra de banco, provada com requisição direta — é onde a garantia realmente vive.
+
+| O que | Resultado |
+|---|---|
+| Cálculo do rating | 15 jogadores, neutro em 6,0 — 3 estrelas em escala 0–10 |
 | Piso de confiança | com 1 avaliador o número segue oculto |
-| Registrar partida | 4×4 gravado, com o rating congelado no momento |
+| Registrar partida | 4×4 gravado, rating congelado no momento |
 | Escalação inválida (5 num time) | recusada com mensagem clara |
-| **Avaliar quem jogou com você** | **aceito, HTTP 201** |
-| **Avaliar a si mesmo** | **bloqueado, HTTP 403** |
-| **Avaliar quem não jogou a partida** | **bloqueado, HTTP 403** |
-| **Votar em nome de outra pessoa** | **bloqueado, HTTP 403** |
-| **Avaliar no dia da partida** | **bloqueado, HTTP 403 — janela fechada** |
-| **Avaliar 5 dias depois** | **bloqueado, HTTP 403 — janela fechada** |
-| Corrigir a nota dentro da janela | atualiza, sem duplicar linha |
+| Corrigir nota dentro da janela | atualiza, sem duplicar linha |
+| **Criar perfil com id alheio** | **403** |
+| **Editar perfil alheio** | **0 linhas, dado intacto** |
+| **Ler avaliação alheia** | **vazio, e contagem 0** |
+| **Avaliar quem jogou com você** | **201** |
+| **Avaliar a si mesmo** | **403** |
+| **Avaliar quem não jogou a partida** | **403** |
+| **Votar em nome de outra pessoa** | **403** |
+| **Avaliar no dia da partida** | **403 — janela fechada** |
+| **Avaliar 5 dias depois** | **403 — janela fechada** |
+| Notas fora de 1–5 | recusadas |
 
 ### 🧪 Coberto por teste automatizado
 
@@ -175,33 +184,33 @@ Verificado contra o Supabase real, não só compilando.
   exatas, o dia da partida inteiro bloqueado e a janela que não reabre.
 - **Contraste WCAG AA** (42) — cada par de cor dos dois temas, medido.
 
-### ⚠️ Escrito, porém **não testado** contra o banco
+### ⚠️ Escrito, porém **não testado**
 
-O código existe e compila, mas o comportamento real nunca rodou.
-
-- Papel de administrador — ninguém está promovido ainda, ver erro 1
-- Envio de foto de perfil pela tela
-- As telas de partida, sorteio e avaliação pós-partida: a regra do banco está
-  verificada, mas os fluxos foram exercitados pela API, não pela interface
+- **Papel de administrador** — ninguém está promovido, ver erro 1. A regra existe
+  no banco, mas nunca foi exercida por uma conta admin de verdade.
+- **Envio de foto de perfil pela tela** — o bucket existe e as policies estão
+  postas; o seletor de imagem nunca foi acionado.
+- **Registrar a partida pela tela** — o botão existe e a função do banco foi
+  testada pela API, mas o caminho tela → banco não.
+- **Salvar avaliação pela tela** — mesmo caso.
 
 ### 🔴 Erros conhecidos
 
 **1. Ninguém é administrador, e a migração não avisou.**
-A `0009` terminava com um `update ... where id = (select ... from auth.users)`.
-A conta existia em `auth.users`, mas não tinha linha em `jogadores` — o gatilho
-da `0003` nunca foi instalado, e a conta foi criada pela API sem nunca abrir o
-app. O update casou com **zero linhas**, e zero linhas não é erro: a migração
-passou verde sem promover ninguém.
+A `0009` fazia `update ... where id = (select ... from auth.users)`. A conta
+existia em `auth.users` mas não tinha linha em `jogadores` — o gatilho da `0003`
+nunca foi instalado, e a conta foi criada pela API sem nunca abrir o app. O
+update casou com **zero linhas**, e zero linhas não é erro: a migração passou
+verde sem promover ninguém.
 
-É a mesma armadilha que já apareceu aqui com o PostgREST — operação que não
-encontra alvo é sucesso, não falha. A `0011` corrige: cria o perfil de qualquer
-conta que não tenha, e faz a promoção dentro de um bloco que **lança exceção se
-não alterar exatamente uma linha**. 🧑 Falta rodar.
+A `0011` corrige em duas frentes: cria o perfil de qualquer conta que não tenha,
+e faz a promoção dentro de um bloco que **lança exceção se não alterar
+exatamente uma linha**. 🧑 **Falta rodar.**
 
 **2. O deploy do Vercel está atrás de autenticação.**
 `volei4x4-r9ww5q2fc-lucasriboldis-projects.vercel.app` responde **302** para
 `vercel.com/sso-api`: é a Deployment Protection. Ninguém do grupo abre o app sem
-ter conta na Vercel. Desligar em *Project Settings → Deployment Protection*.
+conta na Vercel. Desligar em *Project Settings → Deployment Protection*.
 
 **3. O projeto não tem como ser construído pela Vercel.**
 Não há `vercel.json` nem script de build. Expo web precisa de
@@ -209,43 +218,49 @@ Não há `vercel.json` nem script de build. Expo web precisa de
 publicar.
 
 **4. As variáveis de ambiente provavelmente faltam na Vercel.**
-Não consigo verificar de fora. Mas sem `EXPO_PUBLIC_SUPABASE_URL` e
+Não dá para verificar de fora. Mas sem `EXPO_PUBLIC_SUPABASE_URL` e
 `EXPO_PUBLIC_SUPABASE_ANON_KEY`, `src/lib/supabase.ts` lança no import e a
 página fica em branco.
 
 **5. O gatilho de criação de perfil (`0003`) não está instalado.**
 Contas criadas fora do app ficam sem linha em `jogadores` até abrirem a tela de
-Perfil, quando `garantirMeuPerfil()` cria. Funciona, mas foi o que causou o
-erro 1. A `0011` preenche o que ficou para trás.
+Perfil, quando `garantirMeuPerfil()` cria. Funciona, mas foi a causa do erro 1.
 
 **6. Os 13 jogadores de demonstração estão sem foto.**
-Foram semeados antes de o bucket existir. Basta rodar `python scripts/semear.py`
-de novo — o script é idempotente.
+Semeados antes de o bucket existir. Basta rodar `python scripts/semear.py` de
+novo — é idempotente.
 
 **7. As telas ainda não usam o design system.**
 `src/design/tokens.ts` existe e está coberto por teste, mas nenhuma tela o
-consome: elas ainda leem `src/constants/theme.ts`, a paleta escura antiga.
+consome: elas leem `src/constants/theme.ts`, a paleta escura antiga.
 
 **8. `app.json` declara tema claro, telas continuam escuras.**
-Consequência do item 6. A inconsistência é minha e se resolve nas fases visuais.
+Consequência do item 7. A inconsistência é minha e se resolve nas fases visuais.
 
-**9. Contas de teste no banco.**
-Nove contas `volei4x4.*@gmail.com` criadas durante os testes, além dos 13
-fictícios em `@volei4x4-teste.com`. Remover exige `service_role`.
+**9. Rating sem base real.**
+Existe uma avaliação no banco, criada em teste. Nenhum jogador chega ao piso de
+5 avaliadores, então a lista inteira mostra `–`. É o comportamento correto, mas
+significa que a fórmula nunca foi vista produzindo número de verdade.
+
+**10. Contas de teste no banco.**
+Dez contas `volei4x4.*@gmail.com`, três partidas e uma avaliação, criadas em
+teste. Remover exige `service_role`.
 
 ### 📋 Falta criar
 
-**Publicação**
+**Publicação — é o que impede o app de chegar em alguém**
 - `vercel.json` e script de build com `expo export -p web`
 - Variáveis de ambiente na Vercel
 - Desligar a Deployment Protection
 - Manifest de PWA, para instalar na tela inicial
 
 **Produto**
-- Registrar placar da partida pela tela (o banco já aceita)
+- Registrar o placar pela tela — o banco já aceita, falta a interface
 - Perfil público do jogador, com as características agregadas
 - Indicador de quem venceu, no histórico
-- Aviso de avaliação pendente na barra de navegação
+- Marcador de pendência na barra de navegação
+- Link para o histórico de partidas a partir de alguma aba (hoje `/partidas`
+  existe mas nada leva até ela)
 
 **Visual — fases 3 a 9 do brief**
 - Componentes: `Button`, `Card`, `Badge`, `RatingStars`, `Skeleton`,
@@ -254,13 +269,12 @@ fictícios em `@volei4x4-teste.com`. Remover exige `service_role`.
 - Animação do sorteio (0,8–1,5 s)
 - Estados vazios e *skeletons* de carregamento
 - Layout de tablet e desktop
-- Revisão de acessibilidade: foco visível, navegação por teclado, *reduced
-  motion*
+- Acessibilidade: foco visível, navegação por teclado, *reduced motion*
 
-**Testes que faltam**
-- Os fluxos pela interface: sortear, registrar partida e avaliar pela tela
-  (hoje verificados pela API)
-- Rating com 5 ou mais avaliadores, para ver o piso de confiança liberar
+**Falta testar**
+- Registrar partida, salvar avaliação e enviar foto **pela tela**
+- Rating com 5 ou mais avaliadores, para ver o piso liberar o número
+- Administrador editando o perfil de outra pessoa
 - Responsividade em 360px
 
 ## Configuração
