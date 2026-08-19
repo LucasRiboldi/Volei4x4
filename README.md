@@ -8,58 +8,111 @@ não serem sempre os mesmos.
 Roda no navegador, em qualquer celular ou computador. É feito para ser usado em
 pé, na beira da quadra, com o celular na mão.
 
-## O que o app faz
+---
 
-**Conta e perfil.** Você cria conta com e-mail e senha, informa nome, apelido e
-cidade, e faz uma autoavaliação inicial nas oito características de jogo.
+# Como usar
 
-**Características de jogo.** Ataque, defesa, passe, saque, bloqueio, agilidade,
-leitura de jogo e trabalho em equipe — cada uma de 1 a 5 estrelas. Não existe
-posição: em 4x4 de areia todo mundo faz tudo, então o equilíbrio olha para as
-características gerais, não para levantador ou líbero.
+## Criar sua conta
 
-**Avaliação entre jogadores.** Cada pessoa avalia as outras nas mesmas oito
-características. Ninguém avalia a si mesmo, e dá para voltar e corrigir a sua
-avaliação quando quiser — a nota é uma opinião que amadurece, não um voto único.
+Na primeira vez, toque em **Criar conta** e informe nome, e-mail e uma senha de
+pelo menos 8 caracteres. Você entra direto, sem precisar confirmar e-mail.
 
-**Rating.** A partir das avaliações recebidas, o app calcula um rating interno
-por jogador. Quanto mais o grupo joga e avalia, melhor o sistema conhece o nível
-de cada um.
+## Perfil
 
-**Sorteio inteligente.** Você marca exatamente 8 presentes e o app monta Time A
-e Time B. Ele não sorteia no acaso: avalia todas as divisões possíveis, separa
-as mais equilibradas e sorteia entre elas. Equilíbrio e variedade ao mesmo
-tempo.
+A aba **Perfil** é onde você se apresenta ao grupo.
 
-**Histórico.** Placar, vencedor e quem jogou em cada time ficam registrados,
-para o sistema melhorar com o tempo.
+- **Foto** — toque no círculo com suas iniciais para escolher uma imagem do
+  aparelho. Ela aparece nas listas e nos times sorteados.
+- **Nome, apelido e cidade** — o apelido é o que aparece na tela de sorteio,
+  onde o espaço é curto.
+- **Sair da conta** fica no fim da tela.
 
-## Como a autoavaliação entra na conta
+Você só edita o seu próprio perfil. Ninguém mexe no seu.
 
-A nota que você dá a si mesmo **não** vale o mesmo que a que os outros te dão.
-Ela serve de ponto de partida enquanto você ainda tem poucas avaliações
-recebidas, e vai perdendo influência conforme o grupo te avalia.
+## Jogadores
 
-## O rating não é uma sentença
+A aba **Jogadores** mostra todo mundo do grupo, com foto, apelido, cidade e a
+nota geral de cada um.
 
-O objetivo não é decidir quem é o melhor jogador — é montar partidas
-equilibradas e divertidas. Por isso o app mostra médias e não expõe quem deu
-qual nota, e um voto isolado muito fora da curva não derruba nem infla o rating
-de ninguém: a média é puxada para o meio da escala enquanto a amostra é pequena.
+- O número grande é o **rating**, de 0 a 10.
+- Um traço (`–`) no lugar do número quer dizer **ainda não há avaliações
+  suficientes**. Não é nota zero: é o app dizendo que ainda não sabe o
+  bastante para arriscar um número.
+- Abaixo aparece quantas pessoas já avaliaram aquele jogador.
+- A busca filtra por nome ou apelido.
 
-## O fluxo
+Quando você tem avaliações pendentes, um aviso aparece no topo desta aba.
 
-```text
-CRIAR CONTA → PERFIL → AVALIAR O GRUPO → RATING
-                                            ↓
-                              SELECIONAR 8 PRESENTES
-                                            ↓
-                                   TIME A  ×  TIME B
-                                            ↓
-                                    RESULTADO
-                                            ↓
-                                 NOVAS AVALIAÇÕES
-```
+## Sorteio
+
+A aba **Sorteio** é onde a partida nasce.
+
+1. Escolha o **modo**: *Equilíbrio* busca os times mais parelhos possíveis,
+   *Variedade* aceita um pouco mais de diferença em troca de escalações
+   diferentes a cada semana, e *Meio-termo* fica entre os dois.
+2. Marque **exatamente 8 jogadores**. O contador no topo mostra quantos faltam,
+   e o app não deixa passar de oito.
+3. Toque em **Sortear times**.
+
+O app não sorteia no acaso. Ele calcula todas as 35 formas possíveis de dividir
+aqueles 8 jogadores em dois times de 4, mede a diferença de força de cada
+divisão, separa as melhores e sorteia entre elas. Por isso os times ficam
+parelhos e ainda assim mudam de uma semana para a outra.
+
+Na tela de resultado você vê os dois times, a força estimada de cada um e a
+diferença entre eles. **Sortear de novo** mantém as mesmas 8 pessoas e tenta
+outra divisão.
+
+**Registrar partida** grava aquele jogo — e é isso que libera as avaliações
+depois.
+
+## Avaliar depois da partida
+
+Esta é a parte que faz o app melhorar com o tempo.
+
+**Só quem jogou avalia, e só no dia seguinte.**
+
+- No **dia da partida**, ninguém avalia. Nem quem jogou.
+- Na **virada para o dia seguinte**, a avaliação abre para os 8 participantes.
+- Na **virada seguinte**, fecha. O que foi salvo fica; nada mais entra.
+
+A janela depende da **data** do jogo, não do horário. Uma partida às 8 da manhã
+e outra às 22:30 do mesmo dia abrem para avaliação exatamente no mesmo momento.
+
+Quando a janela abre, um aviso aparece na aba Jogadores. Você avalia cada
+companheiro em oito características — ataque, defesa, passe, saque, bloqueio,
+agilidade, leitura de jogo e trabalho em equipe —, de 1 a 5 estrelas.
+
+Não precisa avaliar todo mundo. O que você salvar conta; o resto simplesmente
+não entra. Enquanto a janela estiver aberta, dá para voltar e corrigir.
+
+Você avalia **o desempenho naquela partida**, e não a pessoa em geral. Por isso
+a mesma pessoa pode receber notas diferentes em jogos diferentes — e o rating é
+a média de tudo isso.
+
+## Partidas
+
+O histórico mostra os jogos anteriores, com os times, o placar quando informado
+e o estado da avaliação de cada um: *amanhã*, *aberta* ou *encerrada*.
+
+## Ninguém descobre quem deu qual nota
+
+Isso não é promessa da tela, é regra do banco de dados.
+
+- Você lê **apenas as notas que você mesmo deu**.
+- Ninguém lê as suas — nem a pessoa avaliada, nem o administrador.
+- O que o grupo enxerga é a **média**, nunca o voto individual.
+- Enquanto um jogador tem poucos avaliadores, o app mostra `–` em vez de um
+  número. Com poucos votos, qualquer média entregaria quem votou o quê.
+
+## Administrador
+
+Uma conta pode ser marcada como administradora. Ela pode corrigir nome, apelido
+e cidade de qualquer jogador — útil quando alguém digita errado no cadastro.
+
+O administrador **não** vê avaliações, **não** troca a foto de outra pessoa e
+**não** avalia fora da janela. Privilégio administrativo não é o mesmo que ver
+tudo.
 
 ---
 
@@ -74,8 +127,8 @@ o porquê disso não fechar a porta.
 
 ## Estado atual
 
-Etapas 01 e 02 concluídas: estrutura, banco, autenticação por e-mail e senha, e
-o perfil com autoavaliação. As demais estão em [docs/plano.md](docs/plano.md).
+Etapas 01 a 07 concluídas, mais o módulo de avaliação pós-partida e o papel de
+administrador. O detalhe de cada uma está em [docs/plano.md](docs/plano.md).
 
 ## Configuração
 
@@ -108,72 +161,29 @@ o perfil com autoavaliação. As demais estão em [docs/plano.md](docs/plano.md)
    Abra `http://localhost:8081`. A primeira compilação leva algo como meio
    minuto; depois é imediata.
 
+## Dados de demonstração
+
+Para encher o banco com jogadores fictícios durante o desenvolvimento:
+
+```bash
+python scripts/gerar-avatares.py
+python scripts/semear.py
+```
+
+Todos ficam sob o domínio `@volei4x4-teste.com`, para nunca serem confundidos
+com pessoas reais. Os avatares são gerados — círculo colorido com iniciais —, e
+não fotos de gente de verdade.
+
 ## Virar app de celular depois
 
 O projeto é Expo, então o mesmo código que roda no navegador gera aplicativo
-Android e iOS — `npm run android` e `npm run ios` já estão no `package.json` e
-continuam funcionando. Não há migração a fazer no dia em que isso for desejado.
+Android e iOS — `npm run android` e `npm run ios` já estão no `package.json`.
+Não há migração a fazer no dia em que isso for desejado.
 
 Para que continue assim, vale **uma regra**: só usar bibliotecas que existam
-dentro do Expo Go. Hoje todas as dependências satisfazem isso, o que significa
-que o app roda em qualquer celular apenas instalando o Expo Go e lendo um QR
-Code, sem gerar build e sem conta paga de loja.
-
-Assim que entrar um pacote com código nativo próprio, esse caminho barato
-acaba: passa a ser necessário um *development build*, e o iOS exige o Apple
-Developer Program (US$ 99/ano). Por isso a regra vale a pena.
-
-## Autenticação, e por que não é uma tabela de senhas
-
-O documento do projeto pedia uma tabela `User` com `passwordHash` próprio. Aqui
-quem guarda credencial é o Supabase Auth, e a razão é direta: escrever hash de
-senha à mão seria o ponto mais frágil do sistema, e não há nada a ganhar com
-isso.
-
-O que importava no pedido está mantido:
-
-- **identidade e jogador são coisas separadas** — `auth.users` é a identidade,
-  `public.jogadores` é a pessoa dentro do jogo;
-- **o e-mail não é chave de nada**; a chave é um uuid interno que sobrevive a
-  troca de e-mail e a troca de provedor;
-- **nada do aplicativo sabe como a pessoa entrou.** Telas, avaliações, rating e
-  sorteio falam com `src/lib/auth.ts` e nunca com o Supabase Auth direto.
-
-Acrescentar "Entrar com Google" depois é escrever uma função em
-`src/lib/auth.ts` e um botão no login. Jogadores, avaliações, rating, partidas e
-sorteio não mudam.
-
-## Onde fica cada coisa
-
-| Caminho | O que tem |
-|---|---|
-| `src/app/` | Rotas, e só rotas — telas e layout do expo-router |
-| `src/nucleo/` | Regra pura e testável: atributos, pesos, rating, sorteio |
-| `src/lib/` | Conversa com o Supabase: auth, jogadores, avaliações |
-| `src/components/` | Componentes de interface reaproveitados |
-| `src/contexts/` | Sessão de autenticação |
-| `src/constants/` | Paleta e espaçamentos |
-| `supabase/migrations/` | Esquema, RLS e funções — aplicadas à mão |
-
-`src/nucleo/` é a parte que não depende de React nem de rede. O motor de
-balanceamento vive lá justamente para poder ser testado sozinho, sem subir o
-app.
-
-## Decisões que valem saber
-
-**Os pesos das características ficam em um lugar só**, em
-`src/nucleo/atributos.ts`. O rating nunca é gravado no banco — é sempre
-calculado —, então mudar um peso muda o rating de todo mundo na leitura
-seguinte, sem migração.
-
-**A web roda como SPA** (`web.output: "single"`), e não com pré-render. O app
-inteiro fica atrás de login: não há o que um render de servidor entregar, e o
-pré-render ainda quebraria no cliente do Supabase, que precisa de `window`.
-
-**Não existe script de lint.** O `expo lint` que vem no template não tem eslint
-declarado como dependência: ao rodar, ele grava as dependências no
-`package.json` sem tocar no lockfile, e isso quebra o `npm ci`. Se um dia o
-projeto adotar eslint, será com as dependências e o lockfile no commit.
+dentro do Expo Go. Assim que entrar um pacote com código nativo próprio, esse
+caminho barato acaba: passa a ser necessário um *development build*, e o iOS
+exige o Apple Developer Program (US$ 99/ano).
 
 ## Antes de commitar
 
@@ -181,6 +191,50 @@ projeto adotar eslint, será com as dependências e o lockfile no commit.
 npx tsc --noEmit
 npm run teste
 ```
+
+**O `tsc` precisa que o servidor tenha rodado pelo menos uma vez.** Os tipos
+gerados — `expo-env.d.ts` e `.expo/types/` — nascem do `npx expo start` e estão
+no `.gitignore`. Em árvore recém-clonada, antes disso, o `tsc` acusa rota
+inexistente. O mesmo vale ao criar uma rota nova: reinicie o servidor.
+
+## Onde fica cada coisa
+
+| Caminho | O que tem |
+|---|---|
+| `src/app/` | Rotas, e só rotas — telas e layout do expo-router |
+| `src/nucleo/` | Regra pura e testável: atributos, sorteio, janela de avaliação |
+| `src/lib/` | Conversa com o Supabase: auth, jogadores, partidas, avaliações |
+| `src/components/` | Componentes de interface reaproveitados |
+| `src/contexts/` | Sessão de autenticação |
+| `src/constants/` | Paleta e espaçamentos |
+| `scripts/` | Semeadura de dados de demonstração |
+| `supabase/migrations/` | Esquema, RLS e funções — aplicadas à mão |
+
+`src/nucleo/` é a parte que não depende de React nem de rede. O motor de
+balanceamento e a regra da janela de avaliação vivem lá justamente para poderem
+ser testados sozinhos, sem subir o app.
+
+## Decisões que valem saber
+
+**As regras de autorização vivem no banco, não na tela.** Quem pode avaliar
+quem, quando, e quem pode editar qual perfil é decidido por policies de RLS.
+Interface escondida não protege nada — um `curl` com a chave pública bateria na
+mesma parede.
+
+**O rating nunca é gravado.** É sempre calculado a partir das avaliações. Os
+pesos das oito características vivem em `supabase/migrations/0007_rating.sql`,
+e não no TypeScript: peso no cliente seria peso forjável.
+
+**A janela de avaliação é gravada na criação da partida**, não calculada na
+hora, e não depende de cron. Se está aberta é uma comparação entre o instante
+atual e os dois marcos gravados, feita pelo servidor.
+
+**A web roda como SPA** (`web.output: "single"`). O app inteiro fica atrás de
+login: não há o que um render de servidor entregar.
+
+**Não existe script de lint.** O `expo lint` do template não tem eslint como
+dependência: ao rodar, grava as dependências no `package.json` sem tocar no
+lockfile, e isso quebra o `npm ci`.
 
 ## Convenções
 

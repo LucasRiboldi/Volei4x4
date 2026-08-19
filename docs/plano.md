@@ -22,11 +22,12 @@ falta. Leia antes de comecar qualquer etapa.
 - **07 — Partidas e sorteio.** Selecionar 8, sortear, e GRAVAR a partida com os
   times. As tabelas nascem aqui, porque o modulo de avaliacao pos-partida
   depende delas.
-- **08 — Avaliacao pos-partida.** Janela do dia seguinte, autorizacao por
-  participacao, uma avaliacao por par por partida. Substitui a avaliacao global
-  da etapa 04.
-- **09 — Testes.** Cobertura dos casos do documento original.
-- **10 — Polimento e responsividade.**
+- **08 — Avaliacao pos-partida.** Concluida. Janela do dia seguinte,
+  autorizacao por participacao na policy, uma avaliacao por par por partida.
+  Substituiu a avaliacao global da etapa 04, e o rating passou a ler dela.
+- **09 — Design system e interface.** Tokens, identidade visual e as telas
+  refeitas sobre esses componentes.
+- **10 — Polimento, acessibilidade e responsividade.**
 
 ## Decisoes fechadas
 

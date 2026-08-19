@@ -6,7 +6,7 @@ import { Avatar } from '@/components/avatar';
 import { Botao } from '@/components/botao';
 import { Estrelas } from '@/components/estrelas';
 import { Cores, Espaco, Raio } from '@/constants/theme';
-import { buscarMinhaAvaliacaoDe, salvarAvaliacao, type Notas } from '@/lib/avaliacoes';
+import { avaliarNaPartida, minhasNotasNaPartida, type Notas } from '@/lib/avaliacoes-de-partida';
 import { mensagemDeErro } from '@/lib/erros';
 import { listarJogadores, type Jogador } from '@/lib/jogadores';
 import { ATRIBUTOS, NOTA_NEUTRA, ROTULO } from '@/nucleo/atributos';
@@ -20,7 +20,7 @@ export default function Avaliar() {
   // O generic com a string da rota devolveria string | string[], porque o
   // codegen nao distingue [jogador] de [...jogador]. Segmento simples e sempre
   // um valor so, entao o formato de params e o que descreve a rota de verdade.
-  const { jogador } = useLocalSearchParams<{ jogador: string }>();
+  const { partida, jogador } = useLocalSearchParams<{ partida: string; jogador: string }>();
   const router = useRouter();
 
   const [pessoa, setPessoa] = useState<Jogador | null>(null);
@@ -35,16 +35,17 @@ export default function Avaliar() {
 
     async function carregar() {
       try {
-        const [lista, minha] = await Promise.all([
+        const [lista, minhas] = await Promise.all([
           listarJogadores(),
-          buscarMinhaAvaliacaoDe(jogador),
+          minhasNotasNaPartida(partida),
         ]);
         if (!ativo) return;
 
         setPessoa(lista.find((j) => j.id === jogador) ?? null);
 
-        // Abre com o que voce deu da ultima vez, para a avaliacao ser correcao
-        // e nao chute novo a cada rodada.
+        // Abre com o que voce deu nesta partida, para o segundo toque ser
+        // correcao e nao chute novo.
+        const minha = minhas.get(jogador);
         if (minha) {
           setNotas(minha);
           setJaAvaliei(true);
@@ -60,17 +61,17 @@ export default function Avaliar() {
     return () => {
       ativo = false;
     };
-  }, [jogador]);
+  }, [partida, jogador]);
 
   async function aoSalvar() {
     setErro(null);
     setSalvando(true);
     try {
-      await salvarAvaliacao(jogador, notas);
+      await avaliarNaPartida(partida, jogador, notas);
       // A lista recarrega sozinha ao voltar a ter foco.
       router.back();
     } catch (e) {
-      setErro(mensagemDeErro(e, 'Não foi possível salvar a avaliação.'));
+      setErro(mensagemDeErro(e, 'Não foi possível salvar. A janela de avaliação pode ter fechado.'));
       setSalvando(false);
     }
   }
@@ -114,8 +115,9 @@ export default function Avaliar() {
           </View>
 
           <Text style={estilos.aviso}>
-            Ninguém vê a nota que você deu — nem a pessoa avaliada. O que o grupo enxerga é a
-            média de todo mundo. Dá para voltar aqui e mudar quando quiser.
+            Como foi o jogo dele nesta partida? Ninguém vê a nota que você deu — nem a pessoa
+            avaliada. O que o grupo enxerga é a média de todo mundo. Dá para corrigir enquanto a
+            janela estiver aberta.
           </Text>
 
           {erro ? <Text style={estilos.erro}>{erro}</Text> : null}

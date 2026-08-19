@@ -14,7 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Avatar } from '@/components/avatar';
 import { Cores, Espaco, Raio } from '@/constants/theme';
 import { useAuth } from '@/contexts/auth';
-import { listarMinhasAvaliacoes } from '@/lib/avaliacoes';
+import { minhasPartidasParaAvaliar, type PartidaParaAvaliar } from '@/lib/avaliacoes-de-partida';
 import { mensagemDeErro } from '@/lib/erros';
 import { listarJogadores, type Jogador } from '@/lib/jogadores';
 import { mapaDeRatings, type Rating } from '@/lib/ratings';
@@ -27,7 +27,7 @@ export default function Jogadores() {
   // null enquanto a primeira busca nao voltou -- diferente de [], que ja e a
   // resposta "nao ha ninguem cadastrado".
   const [jogadores, setJogadores] = useState<Jogador[] | null>(null);
-  const [avaliados, setAvaliados] = useState<Set<string>>(new Set());
+  const [pendentes, setPendentes] = useState<PartidaParaAvaliar[]>([]);
   const [ratings, setRatings] = useState<Map<string, Rating>>(new Map());
   const [busca, setBusca] = useState('');
   const [erro, setErro] = useState<string | null>(null);
@@ -36,16 +36,16 @@ export default function Jogadores() {
     try {
       setErro(null);
       // Independentes: esperar uma depois da outra triplicaria a espera.
-      const [lista, minhas, mapa] = await Promise.all([
+      const [lista, mapa, aAvaliar] = await Promise.all([
         listarJogadores(),
-        listarMinhasAvaliacoes(),
         mapaDeRatings(),
+        minhasPartidasParaAvaliar(),
       ]);
       if (!continuaValendo()) return;
 
       setJogadores(lista);
-      setAvaliados(new Set(minhas.map((a) => a.avaliado_id)));
       setRatings(mapa);
+      setPendentes(aAvaliar.filter((p) => p.pendentes > 0));
     } catch (e) {
       if (continuaValendo()) {
         setErro(mensagemDeErro(e, 'Não foi possível carregar os jogadores.'));
@@ -95,6 +95,26 @@ export default function Jogadores() {
         value={busca}
       />
 
+      {pendentes.length > 0 ? (
+        <Pressable
+          accessibilityRole="button"
+          onPress={() =>
+            router.push({
+              pathname: '/partida/[partida]/avaliar',
+              params: { partida: pendentes[0].partida.id },
+            })
+          }
+          style={({ pressed }) => [estilos.pendencia, pressed && estilos.pressionado]}>
+          <Text style={estilos.tituloDaPendencia}>Avaliações abertas</Text>
+          <Text style={estilos.textoDaPendencia}>
+            {pendentes[0].pendentes}{' '}
+            {pendentes[0].pendentes === 1 ? 'jogador aguarda' : 'jogadores aguardam'} sua avaliação
+            da última partida.
+          </Text>
+          <Text style={estilos.acaoDaPendencia}>Avaliar agora →</Text>
+        </Pressable>
+      ) : null}
+
       <FlatList
         contentContainerStyle={estilos.lista}
         data={filtrados}
@@ -110,11 +130,7 @@ export default function Jogadores() {
           <Linha
             jogador={item}
             souEu={item.id === meuId}
-            jaAvaliei={avaliados.has(item.id)}
             rating={ratings.get(item.id) ?? null}
-            aoTocar={() =>
-              router.push({ pathname: '/avaliar/[jogador]', params: { jogador: item.id } })
-            }
           />
         )}
       />
@@ -143,26 +159,16 @@ function Vazio({
 function Linha({
   jogador,
   souEu,
-  jaAvaliei,
   rating,
-  aoTocar,
 }: {
   jogador: Jogador;
   souEu: boolean;
-  jaAvaliei: boolean;
   rating: Rating | null;
-  aoTocar: () => void;
 }) {
   const detalhe = [jogador.apelido, jogador.cidade].filter(Boolean).join(' · ');
 
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={souEu ? jogador.nome : `Avaliar ${jogador.nome}`}
-      // Ninguem avalia a si mesmo, entao a propria linha nao leva a lugar nenhum.
-      disabled={souEu}
-      onPress={aoTocar}
-      style={({ pressed }) => [estilos.cartao, pressed && !souEu && estilos.pressionado]}>
+    <View style={estilos.cartao}>
       <Avatar nome={jogador.nome} fotoUrl={jogador.foto_url} tamanho={48} />
 
       <View style={estilos.identificacao}>
@@ -191,17 +197,13 @@ function Linha({
           <Text style={estilos.semRating}>–</Text>
         )}
 
-        {/*
-          A marca diz se VOCE ja avaliou, e nada sobre a nota -- sai das suas
-          proprias linhas, entao nao revela voto de ninguem.
-        */}
-        {souEu ? null : (
-          <Text style={jaAvaliei ? estilos.avaliado : estilos.aAvaliar}>
-            {jaAvaliei ? '✓ avaliado' : 'avaliar'}
-          </Text>
-        )}
+        <Text style={estilos.avaliadores}>
+          {rating && rating.avaliadores > 0
+            ? `${rating.avaliadores} ${rating.avaliadores === 1 ? 'avaliador' : 'avaliadores'}`
+            : 'sem avaliações'}
+        </Text>
       </View>
-    </Pressable>
+    </View>
   );
 }
 
@@ -275,6 +277,18 @@ const estilos = StyleSheet.create({
     color: Cores.textoFraco,
     fontSize: 13,
   },
+  pendencia: {
+    backgroundColor: Cores.fundoCartao,
+    borderColor: Cores.areia,
+    borderRadius: Raio.grande,
+    borderWidth: 1,
+    gap: 2,
+    marginTop: Espaco.tres,
+    padding: Espaco.tres,
+  },
+  tituloDaPendencia: { color: Cores.areia, fontSize: 15, fontWeight: '800' },
+  textoDaPendencia: { color: Cores.texto, fontSize: 14, lineHeight: 20 },
+  acaoDaPendencia: { color: Cores.mar, fontSize: 13, fontWeight: '700', paddingTop: Espaco.um },
   direita: {
     alignItems: 'flex-end',
     gap: 2,
@@ -290,15 +304,9 @@ const estilos = StyleSheet.create({
     fontSize: 22,
     fontWeight: '800',
   },
-  avaliado: {
-    color: Cores.sucesso,
-    fontSize: 13,
-    fontWeight: '700',
-  },
-  aAvaliar: {
-    color: Cores.mar,
-    fontSize: 13,
-    fontWeight: '700',
+  avaliadores: {
+    color: Cores.textoFraco,
+    fontSize: 12,
   },
   pressionado: {
     opacity: 0.7,
