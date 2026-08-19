@@ -75,6 +75,20 @@ dependencia: rodar grava as deps no `package.json` sem tocar no lockfile, e
   derruba o processo, porque isso acontece fora de qualquer try. Ha uma guarda
   em `src/lib/supabase.ts`. Vale mesmo com a web em SPA, porque a guarda tambem
   protege qualquer execucao em Node.
+- **Tabela sem `grant` some da API, e o erro nao diz isso.** Criar a tabela e
+  ligar a RLS nao basta: sem privilegio de tabela para `authenticated`, o
+  PostgREST nao inclui a tabela no cache de schema e responde
+
+      PGRST205: Could not find the table 'public.jogadores' in the schema cache
+
+  que parece tabela inexistente. As duas travas sao diferentes: `grant` decide
+  SE a tabela e alcancavel, RLS decide QUAIS LINHAS. Toda tabela nova precisa
+  das duas. Ver `0004_permissoes.sql`, que tambem deixa um
+  `alter default privileges` para as proximas.
+- **`create trigger` em `auth.users` pode derrubar a migracao inteira.** O
+  editor de SQL do Supabase roda o script em uma transacao: um erro de
+  privilegio no gatilho reverte as tabelas criadas antes dele. Por isso o
+  gatilho vive sozinho na 0003.
 - **`security definer` sem `set search_path = ''` e buraco de seguranca.** A
   funcao roda como dona do banco e um schema no caminho de busca pode sequestrar
   a resolucao de nome.
