@@ -8,9 +8,9 @@ falta. Leia antes de comecar qualquer etapa.
 - **01 — Estrutura, banco e autenticacao.** Concluida. Scaffold Expo limpo,
   `jogadores` com RLS e gatilho de perfil, autenticacao por e-mail e senha,
   telas de login e cadastro, guarda de rota.
-- **02 — Perfil do jogador.** Concluida. Nome, apelido, cidade e a
-  autoavaliacao nas oito caracteristicas. A foto ficou de fora: depende de
-  bucket no Storage, e entra quando houver etapa propria para ela.
+- **02 — Perfil do jogador.** Concluida. Nome, apelido, cidade e foto, com a
+  imagem no bucket `avatares` do Storage. A autoavaliacao chegou a existir aqui
+  e foi retirada do produto -- ver as decisoes abaixo.
 - **03 — Lista de jogadores.** Concluida. As tres abas (Jogadores, Sorteio,
   Perfil), a lista com foto e apelido, e busca por nome ou apelido.
 - **04 — Avaliacoes.** Um voto por par, editavel.
@@ -40,9 +40,17 @@ o Apple Developer Program, US$ 99/ano. Antes de acrescentar dependencia, conferi
 se ela roda no Expo Go.
 
 **A autoavaliacao saiu do produto.** O perfil nao pede mais que a pessoa se
-pontue. A tabela  continua no banco, vazia, caso a ideia volte.
-A consequencia esta na etapa 05: jogador sem avaliacao nenhuma cai no valor
-neutro, e nao no proprio palpite.
+pontue. A tabela `autoavaliacoes` continua no banco, vazia e sem custo, caso a
+ideia volte -- o que faltaria seria a tela, nao o esquema.
+
+A consequencia real esta na etapa 05: jogador sem avaliacao nenhuma passa a cair
+no valor neutro, e nao no proprio palpite. Tende a ser melhor, porque
+autoavaliacao e enviesada, mas e mudanca de premissa e nao detalhe de tela.
+
+**A foto e publica para leitura.** O bucket `avatares` e publico porque a imagem
+aparece em listas com dezenas de fotos, e URL assinada por foto custaria uma ida
+ao servidor cada. O que tem regra e a escrita: o caminho e `<uid>/avatar.<ext>`,
+e a policy do Storage exige que a primeira pasta seja o uid de quem envia.
 
 **Icone e emoji, nao biblioteca.** Biblioteca de icones costuma trazer fonte ou
 modulo nativo, e isso quebraria a regra do Expo Go. Emoji renderiza igual nos
