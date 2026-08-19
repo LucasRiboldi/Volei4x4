@@ -10,6 +10,25 @@ export type Jogador = {
 
 const COLUNAS = 'id, nome, apelido, cidade, foto_url';
 
+/**
+ * Todos os jogadores cadastrados, em ordem alfabetica.
+ *
+ * Nao ha filtro de usuario aqui e isso e proposital: a policy de select em
+ * `jogadores` ja decide quem enxerga o que. Repetir a regra no cliente
+ * sugeriria que a separacao depende de o aplicativo estar correto, quando ela e
+ * do banco.
+ */
+export async function listarJogadores(): Promise<Jogador[]> {
+  const { data, error } = await supabase
+    .from('jogadores')
+    .select(COLUNAS)
+    .order('nome', { ascending: true })
+    .returns<Jogador[]>();
+
+  if (error) throw error;
+  return data ?? [];
+}
+
 export const NOME_MINIMO = 2;
 export const NOME_MAXIMO = 60;
 export const APELIDO_MAXIMO = 30;

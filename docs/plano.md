@@ -11,7 +11,8 @@ falta. Leia antes de comecar qualquer etapa.
 - **02 — Perfil do jogador.** Concluida. Nome, apelido, cidade e a
   autoavaliacao nas oito caracteristicas. A foto ficou de fora: depende de
   bucket no Storage, e entra quando houver etapa propria para ela.
-- **03 — Lista de jogadores.** As tres abas (Perfil, Jogadores, Sorteio).
+- **03 — Lista de jogadores.** Concluida. As tres abas (Jogadores, Sorteio,
+  Perfil), a lista com foto e apelido, e busca por nome ou apelido.
 - **04 — Avaliacoes.** Um voto por par, editavel.
 - **05 — Rating.** A formula, no banco.
 - **06 — Motor de balanceamento.** Modulo puro em `src/nucleo/`, com testes.
@@ -37,6 +38,15 @@ Code -- sem build, sem loja, sem custo. O primeiro pacote com codigo nativo
 proprio acaba com isso: passa a exigir development build, e o iOS passa a exigir
 o Apple Developer Program, US$ 99/ano. Antes de acrescentar dependencia, conferir
 se ela roda no Expo Go.
+
+**A autoavaliacao saiu do produto.** O perfil nao pede mais que a pessoa se
+pontue. A tabela  continua no banco, vazia, caso a ideia volte.
+A consequencia esta na etapa 05: jogador sem avaliacao nenhuma cai no valor
+neutro, e nao no proprio palpite.
+
+**Icone e emoji, nao biblioteca.** Biblioteca de icones costuma trazer fonte ou
+modulo nativo, e isso quebraria a regra do Expo Go. Emoji renderiza igual nos
+tres alvos, sem dependencia.
 
 **Autenticacao e do Supabase Auth, nao nossa.** O pedido original era uma tabela
 `User` com `passwordHash`. Guardar senha a mao seria o ponto mais fragil do

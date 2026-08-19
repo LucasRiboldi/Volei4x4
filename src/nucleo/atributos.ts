@@ -36,6 +36,16 @@ export const NOTA_MINIMA = 1;
 export const NOTA_MAXIMA = 5;
 
 /**
+ * Quantos jogadores entram numa partida, e quantos ficam em cada time.
+ *
+ * Oito e quatro nao sao numeros soltos: e deles que saem as 35 divisoes unicas
+ * que o motor da etapa 06 vai percorrer inteiras. Quem precisar desses valores
+ * le daqui, em vez de repetir o numero e deixar os dois divergirem.
+ */
+export const TAMANHO_DA_PARTIDA = 8;
+export const TAMANHO_DO_TIME = 4;
+
+/**
  * Peso de cada atributo no rating final. Somam 1.
  *
  * Os valores sao a sugestao inicial do documento. Mudar aqui muda o rating de

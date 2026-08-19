@@ -1,7 +1,7 @@
-import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -17,6 +17,7 @@ import { Botao } from '@/components/botao';
 import { Campo } from '@/components/campo';
 import { Cores, Espaco } from '@/constants/theme';
 import { useAuth } from '@/contexts/auth';
+import { sair } from '@/lib/auth';
 import { mensagemDeErro } from '@/lib/erros';
 import { enviarFotoDePerfil, escolherImagem } from '@/lib/fotos';
 import {
@@ -29,7 +30,6 @@ import {
 } from '@/lib/jogadores';
 
 export default function Perfil() {
-  const router = useRouter();
   const { sessao } = useAuth();
 
   const [nome, setNome] = useState('');
@@ -40,6 +40,7 @@ export default function Perfil() {
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
   const [enviandoFoto, setEnviandoFoto] = useState(false);
+  const [saindo, setSaindo] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
 
@@ -85,6 +86,19 @@ export default function Perfil() {
       setErro(mensagemDeErro(e, 'Não foi possível enviar a foto. Tente de novo.'));
     } finally {
       setEnviandoFoto(false);
+    }
+  }
+
+  // sair() lanca quando o signOut falha. Ligada crua no onPress, a rejeicao
+  // ficaria sem dono e a pessoa seguiria logada sem aviso nenhum.
+  async function aoSair() {
+    setSaindo(true);
+    try {
+      await sair();
+      // Nao navegamos daqui: o guarda de rota reage a sessao nula.
+    } catch (e) {
+      Alert.alert('Sair', mensagemDeErro(e, 'Não foi possível sair. Tente de novo.'));
+      setSaindo(false);
     }
   }
 
@@ -182,7 +196,12 @@ export default function Perfil() {
               carregando={salvando}
               desativado={!nomeValido}
             />
-            <Botao titulo="Voltar" variante="secundario" aoTocar={() => router.back()} />
+            <Botao
+              titulo="Sair da conta"
+              variante="secundario"
+              aoTocar={() => void aoSair()}
+              carregando={saindo}
+            />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
