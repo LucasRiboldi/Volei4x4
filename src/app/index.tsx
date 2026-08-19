@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -14,6 +15,7 @@ import { mensagemDeErro } from '@/lib/erros';
  */
 export default function Inicio() {
   const { sessao } = useAuth();
+  const router = useRouter();
   const [saindo, setSaindo] = useState(false);
 
   // sair() lanca quando o signOut falha. Ligada crua no onPress, a rejeicao
@@ -34,16 +36,19 @@ export default function Inicio() {
         <Text style={estilos.titulo}>Vôlei 4x4</Text>
         <Text style={estilos.texto}>Você está logado como {sessao?.user.email}.</Text>
         <Text style={estilos.nota}>
-          Etapa 01 concluída: estrutura, banco e autenticação. As próximas etapas trazem perfil,
-          jogadores, avaliações, rating e o sorteio.
+          Etapa 02 concluída: perfil e autoavaliação. As próximas etapas trazem a lista de
+          jogadores, as avaliações, o rating e o sorteio.
         </Text>
       </View>
-      <Botao
-        titulo="Sair"
-        variante="secundario"
-        aoTocar={() => void aoSair()}
-        carregando={saindo}
-      />
+      <View style={estilos.acoes}>
+        <Botao titulo="Meu perfil" aoTocar={() => router.push('/perfil')} />
+        <Botao
+          titulo="Sair"
+          variante="secundario"
+          aoTocar={() => void aoSair()}
+          carregando={saindo}
+        />
+      </View>
     </SafeAreaView>
   );
 }
@@ -73,5 +78,8 @@ const estilos = StyleSheet.create({
     color: Cores.textoFraco,
     fontSize: 14,
     lineHeight: 21,
+  },
+  acoes: {
+    gap: Espaco.dois,
   },
 });
