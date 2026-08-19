@@ -1,71 +1,354 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
+import { ActivityIndicator, FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { Avatar } from '@/components/avatar';
+import { Botao } from '@/components/botao';
 import { Cores, Espaco, Raio } from '@/constants/theme';
+import { mensagemDeErro } from '@/lib/erros';
+import { listarJogadores, type Jogador } from '@/lib/jogadores';
+import { criarPartida } from '@/lib/partidas';
+import { mapaDeRatings, type Rating } from '@/lib/ratings';
 import { TAMANHO_DA_PARTIDA } from '@/nucleo/atributos';
+import { sortearTimes, type Divisao, type ModoDeEquilibrio } from '@/nucleo/sorteio';
 
-/**
- * A aba existe desde agora para a navegacao ficar completa, mas a tela de
- * verdade e a etapa 07 -- e ela depende do rating (05) e do motor de
- * balanceamento (06).
- *
- * O que esta aqui e um aviso honesto do que falta, e nao uma lista de jogadores
- * com um botao que nao sorteia. O documento do projeto e explicito: nao criar
- * tela que apenas parece funcionar.
- */
+const MODOS: { valor: ModoDeEquilibrio; rotulo: string }[] = [
+  { valor: 'muito-equilibrado', rotulo: 'Equilíbrio' },
+  { valor: 'equilibrado', rotulo: 'Meio-termo' },
+  { valor: 'mais-aleatorio', rotulo: 'Variedade' },
+];
+
 export default function Sorteio() {
+  const [jogadores, setJogadores] = useState<Jogador[] | null>(null);
+  const [ratings, setRatings] = useState<Map<string, Rating>>(new Map());
+  const [escolhidos, setEscolhidos] = useState<Set<string>>(new Set());
+  const [modo, setModo] = useState<ModoDeEquilibrio>('equilibrado');
+  const [divisao, setDivisao] = useState<Divisao | null>(null);
+  const [salvando, setSalvando] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
+  const [aviso, setAviso] = useState<string | null>(null);
+
+  const carregar = useCallback(async (continuaValendo: () => boolean) => {
+    try {
+      setErro(null);
+      const [lista, mapa] = await Promise.all([listarJogadores(), mapaDeRatings()]);
+      if (!continuaValendo()) return;
+      setJogadores(lista);
+      setRatings(mapa);
+    } catch (e) {
+      if (continuaValendo()) setErro(mensagemDeErro(e, 'Não foi possível carregar os jogadores.'));
+    }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      let ativo = true;
+      void carregar(() => ativo);
+      return () => {
+        ativo = false;
+      };
+    }, [carregar])
+  );
+
+  const total = escolhidos.size;
+  const completo = total === TAMANHO_DA_PARTIDA;
+
+  function alternar(id: string) {
+    setAviso(null);
+    setEscolhidos((atual) => {
+      const proximo = new Set(atual);
+      if (proximo.has(id)) proximo.delete(id);
+      // Sem passar de oito: bloquear aqui evita o erro depois do toque.
+      else if (proximo.size < TAMANHO_DA_PARTIDA) proximo.add(id);
+      return proximo;
+    });
+  }
+
+  function aoSortear() {
+    if (!completo) return;
+    setErro(null);
+    setAviso(null);
+
+    const comRating = [...escolhidos].map((id) => ({
+      id,
+      // Quem ainda nao tem avaliadores suficientes entra pelo valor neutro que o
+      // banco devolve. Chutar outro numero aqui inventaria diferenca que nao existe.
+      rating: ratings.get(id)?.rating ?? 0,
+    }));
+
+    setDivisao(sortearTimes(comRating, modo));
+  }
+
+  async function aoRegistrar() {
+    if (!divisao) return;
+    setErro(null);
+    setSalvando(true);
+    try {
+      await criarPartida(divisao);
+      setAviso('Partida registrada. As avaliações abrem amanhã.');
+    } catch (e) {
+      setErro(mensagemDeErro(e, 'Não foi possível registrar a partida.'));
+    } finally {
+      setSalvando(false);
+    }
+  }
+
+  if (jogadores === null) {
+    return (
+      <SafeAreaView edges={['top']} style={[estilos.tela, estilos.centralizado]}>
+        <ActivityIndicator color={Cores.areia} />
+      </SafeAreaView>
+    );
+  }
+
+  if (divisao) {
+    return (
+      <SafeAreaView edges={['top']} style={estilos.tela}>
+        <ScrollView contentContainerStyle={estilos.resultado}>
+          <Text style={estilos.titulo}>Times definidos</Text>
+
+          <CartaDoTime
+            nome="Time A"
+            ids={divisao.timeA}
+            forca={divisao.forcaA}
+            jogadores={jogadores}
+          />
+          <CartaDoTime
+            nome="Time B"
+            ids={divisao.timeB}
+            forca={divisao.forcaB}
+            jogadores={jogadores}
+          />
+
+          <View style={estilos.diferenca}>
+            <Text style={estilos.rotuloDaDiferenca}>Diferença entre os times</Text>
+            <Text style={estilos.valorDaDiferenca}>{divisao.diferenca.toFixed(2)}</Text>
+            <Text style={estilos.explicacao}>
+              A força é uma estimativa a partir das avaliações do grupo, não uma medida exata.
+            </Text>
+          </View>
+
+          {erro ? <Text style={estilos.erro}>{erro}</Text> : null}
+          {aviso ? <Text style={estilos.aviso}>{aviso}</Text> : null}
+
+          <View style={estilos.acoes}>
+            <Botao
+              titulo="Registrar partida"
+              aoTocar={() => void aoRegistrar()}
+              carregando={salvando}
+              desativado={aviso !== null}
+            />
+            <Botao titulo="Sortear de novo" variante="secundario" aoTocar={aoSortear} />
+            <Botao
+              titulo="Mudar quem joga"
+              variante="secundario"
+              aoTocar={() => {
+                setDivisao(null);
+                setAviso(null);
+              }}
+            />
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView edges={['top']} style={estilos.tela}>
-      <Text style={estilos.titulo}>Sorteio</Text>
+      <View style={estilos.cabecalho}>
+        <Text style={estilos.titulo}>Sorteio</Text>
+        <Text style={estilos.contagem}>
+          {total} de {TAMANHO_DA_PARTIDA}
+        </Text>
+      </View>
 
-      <View style={estilos.cartao}>
-        <Text style={estilos.emoji}>🏐</Text>
-        <Text style={estilos.chamada}>
-          Aqui você vai marcar os {TAMANHO_DA_PARTIDA} presentes e receber dois times de{' '}
-          {TAMANHO_DA_PARTIDA / 2}.
-        </Text>
-        <Text style={estilos.explicacao}>
-          Ainda falta o que faz o sorteio valer a pena: as avaliações entre jogadores e o
-          rating que sai delas. Sem isso, sortear seria só embaralhar nomes.
-        </Text>
+      <View style={estilos.modos}>
+        {MODOS.map((m) => (
+          <Pressable
+            key={m.valor}
+            accessibilityRole="button"
+            accessibilityState={{ selected: modo === m.valor }}
+            onPress={() => setModo(m.valor)}
+            style={[estilos.modo, modo === m.valor && estilos.modoAtivo]}>
+            <Text style={[estilos.textoDoModo, modo === m.valor && estilos.textoDoModoAtivo]}>
+              {m.rotulo}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
+
+      <FlatList
+        contentContainerStyle={estilos.lista}
+        data={jogadores}
+        keyExtractor={(j) => j.id}
+        ListEmptyComponent={<Text style={estilos.vazio}>Ninguém cadastrado ainda.</Text>}
+        renderItem={({ item }) => (
+          <LinhaDePresenca
+            jogador={item}
+            rating={ratings.get(item.id) ?? null}
+            marcado={escolhidos.has(item.id)}
+            bloqueado={!escolhidos.has(item.id) && completo}
+            aoTocar={() => alternar(item.id)}
+          />
+        )}
+      />
+
+      <View style={estilos.rodape}>
+        {erro ? <Text style={estilos.erro}>{erro}</Text> : null}
+        <Botao
+          titulo={completo ? 'Sortear times' : `Escolha mais ${TAMANHO_DA_PARTIDA - total}`}
+          aoTocar={aoSortear}
+          desativado={!completo}
+        />
       </View>
     </SafeAreaView>
   );
 }
 
+function LinhaDePresenca({
+  jogador,
+  rating,
+  marcado,
+  bloqueado,
+  aoTocar,
+}: {
+  jogador: Jogador;
+  rating: Rating | null;
+  marcado: boolean;
+  bloqueado: boolean;
+  aoTocar: () => void;
+}) {
+  return (
+    <Pressable
+      accessibilityRole="checkbox"
+      accessibilityState={{ checked: marcado, disabled: bloqueado }}
+      accessibilityLabel={jogador.nome}
+      disabled={bloqueado}
+      onPress={aoTocar}
+      style={({ pressed }) => [
+        estilos.presenca,
+        marcado && estilos.presencaMarcada,
+        bloqueado && estilos.presencaBloqueada,
+        pressed && estilos.pressionado,
+      ]}>
+      <View style={[estilos.caixa, marcado && estilos.caixaMarcada]}>
+        {marcado ? <Text style={estilos.marca}>✓</Text> : null}
+      </View>
+
+      <Avatar nome={jogador.nome} fotoUrl={jogador.foto_url} tamanho={36} />
+
+      <Text style={estilos.nome} numberOfLines={1}>
+        {jogador.apelido || jogador.nome}
+      </Text>
+
+      <Text style={rating?.confiavel ? estilos.rating : estilos.semRating}>
+        {rating?.confiavel ? rating.rating.toFixed(1) : '–'}
+      </Text>
+    </Pressable>
+  );
+}
+
+function CartaDoTime({
+  nome,
+  ids,
+  forca,
+  jogadores,
+}: {
+  nome: string;
+  ids: string[];
+  forca: number;
+  jogadores: Jogador[];
+}) {
+  const doTime = ids
+    .map((id) => jogadores.find((j) => j.id === id))
+    .filter((j): j is Jogador => j !== undefined)
+    // Alfabetica, e nao a ordem de escolha: a ordem de escolha e o ranking.
+    .sort((a, b) => a.nome.localeCompare(b.nome));
+
+  return (
+    <View style={estilos.carta}>
+      <View style={estilos.tituloDaCarta}>
+        <Text style={estilos.nomeDoTime}>{nome}</Text>
+        <Text style={estilos.forca}>{forca.toFixed(2)}</Text>
+      </View>
+      {doTime.map((j) => (
+        <View key={j.id} style={estilos.jogadorDoTime}>
+          <Avatar nome={j.nome} fotoUrl={j.foto_url} tamanho={32} />
+          <Text style={estilos.nomeNoTime} numberOfLines={1}>
+            {j.nome}
+          </Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+
 const estilos = StyleSheet.create({
-  tela: {
-    backgroundColor: Cores.fundo,
-    flex: 1,
-    paddingHorizontal: Espaco.tres,
-  },
-  titulo: {
-    color: Cores.texto,
-    fontSize: 28,
-    fontWeight: '800',
+  tela: { backgroundColor: Cores.fundo, flex: 1, paddingHorizontal: Espaco.tres },
+  centralizado: { alignItems: 'center', justifyContent: 'center' },
+  cabecalho: {
+    alignItems: 'baseline',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     paddingTop: Espaco.tres,
   },
-  cartao: {
+  titulo: { color: Cores.texto, fontSize: 28, fontWeight: '800' },
+  contagem: { color: Cores.areia, fontSize: 15, fontWeight: '700' },
+  modos: { flexDirection: 'row', gap: Espaco.dois, marginTop: Espaco.tres },
+  modo: {
+    backgroundColor: Cores.fundoCartao,
+    borderColor: Cores.borda,
+    borderRadius: Raio.pequeno,
+    borderWidth: 1,
+    flex: 1,
+    paddingVertical: Espaco.dois,
+  },
+  modoAtivo: { backgroundColor: Cores.areia, borderColor: Cores.areia },
+  textoDoModo: { color: Cores.textoFraco, fontSize: 13, fontWeight: '700', textAlign: 'center' },
+  textoDoModoAtivo: { color: Cores.fundo },
+  lista: { gap: Espaco.dois, paddingVertical: Espaco.tres },
+  presenca: {
     alignItems: 'center',
     backgroundColor: Cores.fundoCartao,
-    borderRadius: Raio.grande,
+    borderColor: 'transparent',
+    borderRadius: Raio.medio,
+    borderWidth: 1,
+    flexDirection: 'row',
     gap: Espaco.dois,
-    marginTop: Espaco.quatro,
-    padding: Espaco.quatro,
+    padding: Espaco.dois,
   },
-  emoji: {
-    fontSize: 48,
+  presencaMarcada: { borderColor: Cores.areia },
+  presencaBloqueada: { opacity: 0.4 },
+  pressionado: { opacity: 0.7 },
+  caixa: {
+    alignItems: 'center',
+    borderColor: Cores.borda,
+    borderRadius: 4,
+    borderWidth: 2,
+    height: 22,
+    justifyContent: 'center',
+    width: 22,
   },
-  chamada: {
-    color: Cores.texto,
-    fontSize: 17,
-    fontWeight: '700',
-    textAlign: 'center',
-  },
-  explicacao: {
-    color: Cores.textoFraco,
-    fontSize: 14,
-    lineHeight: 20,
-    textAlign: 'center',
-  },
+  caixaMarcada: { backgroundColor: Cores.areia, borderColor: Cores.areia },
+  marca: { color: Cores.fundo, fontSize: 14, fontWeight: '900' },
+  nome: { color: Cores.texto, flex: 1, fontSize: 15, fontWeight: '600' },
+  rating: { color: Cores.texto, fontSize: 16, fontVariant: ['tabular-nums'], fontWeight: '800' },
+  semRating: { color: Cores.borda, fontSize: 16, fontWeight: '800' },
+  rodape: { gap: Espaco.dois, paddingBottom: Espaco.tres },
+  vazio: { color: Cores.textoFraco, marginTop: Espaco.seis, textAlign: 'center' },
+  resultado: { gap: Espaco.tres, paddingBottom: Espaco.quatro, paddingTop: Espaco.tres },
+  carta: { backgroundColor: Cores.fundoCartao, borderRadius: Raio.grande, gap: Espaco.dois, padding: Espaco.tres },
+  tituloDaCarta: { alignItems: 'baseline', flexDirection: 'row', justifyContent: 'space-between' },
+  nomeDoTime: { color: Cores.areia, fontSize: 13, fontWeight: '800', letterSpacing: 1.5, textTransform: 'uppercase' },
+  forca: { color: Cores.texto, fontSize: 20, fontVariant: ['tabular-nums'], fontWeight: '800' },
+  jogadorDoTime: { alignItems: 'center', flexDirection: 'row', gap: Espaco.dois },
+  nomeNoTime: { color: Cores.texto, flex: 1, fontSize: 16, fontWeight: '600' },
+  diferenca: { alignItems: 'center', gap: Espaco.um, paddingVertical: Espaco.dois },
+  rotuloDaDiferenca: { color: Cores.textoFraco, fontSize: 13 },
+  valorDaDiferenca: { color: Cores.texto, fontSize: 32, fontVariant: ['tabular-nums'], fontWeight: '800' },
+  explicacao: { color: Cores.textoFraco, fontSize: 12, textAlign: 'center' },
+  acoes: { gap: Espaco.dois },
+  erro: { color: Cores.perigo, fontSize: 14, fontWeight: '600' },
+  aviso: { color: Cores.sucesso, fontSize: 14, fontWeight: '600' },
 });
