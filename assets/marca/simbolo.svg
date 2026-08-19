@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Vôlei 4x4">
+  <!--
+    O simbolo: uma bola cujas costuras sao tambem linhas de quadra.
+
+    Duas costuras, e nao as tres de uma bola real: a terceira ajudaria num
+    tamanho grande e viraria borrao a 24px. A diagonal que as cruza e a rede, e
+    e o que separa os dois lados -- quatro contra quatro.
+
+    A geometria e a mesma de `scripts/gerar-marca.py`, que produz os PNG. Ao
+    mexer aqui, mexer la tambem.
+  -->
+  <circle cx="32" cy="32" r="31" fill="#1A6A8F" />
+
+  <g fill="none" stroke="#FDF7EE" stroke-width="5.4" stroke-linecap="round">
+    <!-- Costura esquerda: centro fora da bola, a esquerda, bulindo para dentro. -->
+    <path d="M19.6 2.1 A 42.2 42.2 0 0 1 19.6 61.9" />
+    <!-- Costura direita: espelhada. -->
+    <path d="M44.4 61.9 A 42.2 42.2 0 0 1 44.4 2.1" />
+    <!-- A rede. -->
+    <path d="M8.3 46.1 L55.7 17.9" />
+  </g>
+</svg>
