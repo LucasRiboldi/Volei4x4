@@ -13,7 +13,8 @@ falta. Leia antes de comecar qualquer etapa.
   e foi retirada do produto -- ver as decisoes abaixo.
 - **03 — Lista de jogadores.** Concluida. As tres abas (Jogadores, Sorteio,
   Perfil), a lista com foto e apelido, e busca por nome ou apelido.
-- **04 — Avaliacoes.** Um voto por par, editavel.
+- **04 — Avaliacoes.** Concluida. Um voto por par, corrigivel, com a tela de
+  avaliar e a marca de ja avaliado na lista. Voto e privado: so quem deu le.
 - **05 — Rating.** A formula, no banco.
 - **06 — Motor de balanceamento.** Modulo puro em `src/nucleo/`, com testes.
 - **07 — Tela de sorteio.** Selecionar 8, sortear, mostrar os times.
@@ -119,8 +120,9 @@ dependencia: rodar grava as deps no `package.json` sem tocar no lockfile, e
 
 - **Contagem de avaliacoes na tela.** O documento pede mostrar "31 avaliacoes"
   por jogador. Contagem exata ajuda a deduzir voto por diferenca quando o numero
-  e pequeno. Decidir na etapa 04 entre numero exato e faixa ("pouca base" /
-  "boa base").
+  e pequeno. Adiado para a etapa 05, que e quando o agregado aparece: hoje a
+  lista mostra so se VOCE ja avaliou, o que sai das suas proprias linhas e nao
+  revela nada de ninguem.
 - **Onde roda o sorteio.** O motor sera TypeScript puro e testavel. Se rodar so
   no aplicativo, da para forjar times mexendo no cliente. O rating, que e o que
   realmente importa proteger, fica no banco de qualquer forma. Decidir na etapa

@@ -1,29 +1,44 @@
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Avatar } from '@/components/avatar';
 import { Cores, Espaco, Raio } from '@/constants/theme';
 import { useAuth } from '@/contexts/auth';
+import { listarMinhasAvaliacoes } from '@/lib/avaliacoes';
 import { mensagemDeErro } from '@/lib/erros';
 import { listarJogadores, type Jogador } from '@/lib/jogadores';
 
 export default function Jogadores() {
   const { sessao } = useAuth();
+  const router = useRouter();
   const meuId = sessao?.user.id;
 
   // null enquanto a primeira busca nao voltou -- diferente de [], que ja e a
   // resposta "nao ha ninguem cadastrado".
   const [jogadores, setJogadores] = useState<Jogador[] | null>(null);
+  const [avaliados, setAvaliados] = useState<Set<string>>(new Set());
   const [busca, setBusca] = useState('');
   const [erro, setErro] = useState<string | null>(null);
 
   const carregar = useCallback(async (continuaValendo: () => boolean) => {
     try {
       setErro(null);
-      const lista = await listarJogadores();
-      if (continuaValendo()) setJogadores(lista);
+      // Independentes: esperar uma depois da outra dobraria a espera.
+      const [lista, minhas] = await Promise.all([listarJogadores(), listarMinhasAvaliacoes()]);
+      if (!continuaValendo()) return;
+
+      setJogadores(lista);
+      setAvaliados(new Set(minhas.map((a) => a.avaliado_id)));
     } catch (e) {
       if (continuaValendo()) {
         setErro(mensagemDeErro(e, 'Não foi possível carregar os jogadores.'));
@@ -31,8 +46,8 @@ export default function Jogadores() {
     }
   }, []);
 
-  // Recarrega ao voltar do perfil, que pode ter mudado nome ou foto sem avisar
-  // esta tela.
+  // Recarrega ao voltar do perfil ou de uma avaliacao, que mudam esta tela sem
+  // avisar.
   useFocusEffect(
     useCallback(() => {
       let ativo = true;
@@ -84,7 +99,16 @@ export default function Jogadores() {
             buscando={busca.trim() !== ''}
           />
         }
-        renderItem={({ item }) => <Linha jogador={item} souEu={item.id === meuId} />}
+        renderItem={({ item }) => (
+          <Linha
+            jogador={item}
+            souEu={item.id === meuId}
+            jaAvaliei={avaliados.has(item.id)}
+            aoTocar={() =>
+              router.push({ pathname: '/avaliar/[jogador]', params: { jogador: item.id } })
+            }
+          />
+        )}
       />
     </SafeAreaView>
   );
@@ -108,11 +132,27 @@ function Vazio({
   );
 }
 
-function Linha({ jogador, souEu }: { jogador: Jogador; souEu: boolean }) {
+function Linha({
+  jogador,
+  souEu,
+  jaAvaliei,
+  aoTocar,
+}: {
+  jogador: Jogador;
+  souEu: boolean;
+  jaAvaliei: boolean;
+  aoTocar: () => void;
+}) {
   const detalhe = [jogador.apelido, jogador.cidade].filter(Boolean).join(' · ');
 
   return (
-    <View style={estilos.cartao}>
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={souEu ? jogador.nome : `Avaliar ${jogador.nome}`}
+      // Ninguem avalia a si mesmo, entao a propria linha nao leva a lugar nenhum.
+      disabled={souEu}
+      onPress={aoTocar}
+      style={({ pressed }) => [estilos.cartao, pressed && !souEu && estilos.pressionado]}>
       <Avatar nome={jogador.nome} fotoUrl={jogador.foto_url} tamanho={48} />
 
       <View style={estilos.identificacao}>
@@ -130,11 +170,16 @@ function Linha({ jogador, souEu }: { jogador: Jogador; souEu: boolean }) {
       </View>
 
       {/*
-        O rating e o botao de avaliar entram nas etapas 04 e 05. Ate la a linha
-        mostra so quem e a pessoa -- numero inventado aqui viraria uma tela que
-        finge funcionar, que e justamente o que o documento do projeto proibe.
+        A marca diz se VOCE ja avaliou, e nada sobre a nota -- ela sai das suas
+        proprias linhas, entao nao revela voto de ninguem. O rating agregado
+        entra na etapa 05.
       */}
-    </View>
+      {souEu ? null : (
+        <Text style={jaAvaliei ? estilos.avaliado : estilos.aAvaliar}>
+          {jaAvaliei ? '✓ avaliado' : 'avaliar'}
+        </Text>
+      )}
+    </Pressable>
   );
 }
 
@@ -207,6 +252,19 @@ const estilos = StyleSheet.create({
   detalhe: {
     color: Cores.textoFraco,
     fontSize: 13,
+  },
+  avaliado: {
+    color: Cores.sucesso,
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  aAvaliar: {
+    color: Cores.mar,
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  pressionado: {
+    opacity: 0.7,
   },
   espera: {
     marginTop: Espaco.seis,
