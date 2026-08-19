@@ -5,7 +5,8 @@ avalia os próprios jogadores, o app aprende o nível de cada um e sorteia dois
 times de quatro que sejam de fato parelhos — com sorte suficiente para os times
 não serem sempre os mesmos.
 
-Funciona no navegador, no Android e no iOS, com o mesmo código.
+Roda no navegador, em qualquer celular ou computador. É feito para ser usado em
+pé, na beira da quadra, com o celular na mão.
 
 ## O que o app faz
 
@@ -67,10 +68,14 @@ CRIAR CONTA → PERFIL → AVALIAR O GRUPO → RATING
 **Expo + React Native + Expo Router**, um código só para web, Android e iOS.
 **Supabase** (Postgres) para banco e autenticação, no plano gratuito.
 
+**O alvo hoje é a web, e só a web.** Toda etapa é desenvolvida e testada no
+navegador. Ver [Virar app de celular depois](#virar-app-de-celular-depois) para
+o porquê disso não fechar a porta.
+
 ## Estado atual
 
-Etapa 01 concluída: estrutura, banco e autenticação por e-mail e senha. As
-demais etapas estão em [docs/plano.md](docs/plano.md).
+Etapas 01 e 02 concluídas: estrutura, banco, autenticação por e-mail e senha, e
+o perfil com autoavaliação. As demais estão em [docs/plano.md](docs/plano.md).
 
 ## Configuração
 
@@ -97,10 +102,26 @@ demais etapas estão em [docs/plano.md](docs/plano.md).
 4. Suba o servidor:
 
    ```bash
-   npm run web      # navegador
-   npm run android  # Android
-   npm run ios      # iOS (precisa de macOS)
+   npm run web
    ```
+
+   Abra `http://localhost:8081`. A primeira compilação leva algo como meio
+   minuto; depois é imediata.
+
+## Virar app de celular depois
+
+O projeto é Expo, então o mesmo código que roda no navegador gera aplicativo
+Android e iOS — `npm run android` e `npm run ios` já estão no `package.json` e
+continuam funcionando. Não há migração a fazer no dia em que isso for desejado.
+
+Para que continue assim, vale **uma regra**: só usar bibliotecas que existam
+dentro do Expo Go. Hoje todas as dependências satisfazem isso, o que significa
+que o app roda em qualquer celular apenas instalando o Expo Go e lendo um QR
+Code, sem gerar build e sem conta paga de loja.
+
+Assim que entrar um pacote com código nativo próprio, esse caminho barato
+acaba: passa a ser necessário um *development build*, e o iOS exige o Apple
+Developer Program (US$ 99/ano). Por isso a regra vale a pena.
 
 ## Autenticação, e por que não é uma tabela de senhas
 

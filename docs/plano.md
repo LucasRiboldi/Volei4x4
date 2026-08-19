@@ -8,8 +8,9 @@ falta. Leia antes de comecar qualquer etapa.
 - **01 — Estrutura, banco e autenticacao.** Concluida. Scaffold Expo limpo,
   `jogadores` com RLS e gatilho de perfil, autenticacao por e-mail e senha,
   telas de login e cadastro, guarda de rota.
-- **02 — Perfil do jogador.** Ver e editar nome, apelido, cidade, foto. E a
-  autoavaliacao nas oito caracteristicas.
+- **02 — Perfil do jogador.** Concluida. Nome, apelido, cidade e a
+  autoavaliacao nas oito caracteristicas. A foto ficou de fora: depende de
+  bucket no Storage, e entra quando houver etapa propria para ela.
 - **03 — Lista de jogadores.** As tres abas (Perfil, Jogadores, Sorteio).
 - **04 — Avaliacoes.** Um voto por par, editavel.
 - **05 — Rating.** A formula, no banco.
@@ -20,6 +21,22 @@ falta. Leia antes de comecar qualquer etapa.
 - **10 — Polimento e responsividade.**
 
 ## Decisoes fechadas
+
+**O alvo e a web, e so a web -- mas continua sendo Expo.** Toda etapa e feita e
+testada no navegador; celular nao entra no criterio de pronto de nenhuma delas.
+
+A stack continua sendo Expo, e nao Vite ou Next, justamente para essa decisao
+ser reversivel de graca: `npm run android` e `npm run ios` seguem no
+`package.json` e continuam funcionando. Trocar para web puro daria uma interface
+um pouco melhor hoje, ao custo de reescrever tudo no dia em que quisermos app --
+e o pedido foi explicitamente manter essa porta aberta.
+
+**A regra que mantem a porta aberta: so usar biblioteca que exista dentro do
+Expo Go.** Enquanto ela valer, rodar no celular e instalar o Expo Go e ler um QR
+Code -- sem build, sem loja, sem custo. O primeiro pacote com codigo nativo
+proprio acaba com isso: passa a exigir development build, e o iOS passa a exigir
+o Apple Developer Program, US$ 99/ano. Antes de acrescentar dependencia, conferir
+se ela roda no Expo Go.
 
 **Autenticacao e do Supabase Auth, nao nossa.** O pedido original era uma tabela
 `User` com `passwordHash`. Guardar senha a mao seria o ponto mais fragil do
