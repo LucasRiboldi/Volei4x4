@@ -6,9 +6,10 @@ export type Jogador = {
   apelido: string | null;
   cidade: string | null;
   foto_url: string | null;
+  admin: boolean;
 };
 
-const COLUNAS = 'id, nome, apelido, cidade, foto_url';
+const COLUNAS = 'id, nome, apelido, cidade, foto_url, admin';
 
 /**
  * Todos os jogadores cadastrados, em ordem alfabetica.
@@ -93,13 +94,22 @@ export async function garantirMeuPerfil(): Promise<Jogador> {
   return data;
 }
 
+/**
+ * Grava o perfil. Sem `jogadorId`, grava o proprio.
+ *
+ * Quem decide se voce pode editar o perfil de outra pessoa e a policy do banco,
+ * nao esta funcao: administrador passa, qualquer outro casa com zero linhas. E
+ * `admin` nao esta entre as colunas que o cliente pode escrever -- o grant no
+ * banco e por coluna, entao ninguem se promove por aqui.
+ */
 export async function salvarPerfil(entrada: {
   nome: string;
   apelido: string;
   cidade: string;
+  jogadorId?: string;
 }): Promise<void> {
   const { data: sessao } = await supabase.auth.getUser();
-  const id = sessao.user?.id;
+  const id = entrada.jogadorId ?? sessao.user?.id;
   if (!id) throw new Error('Você precisa estar logado.');
 
   // Campo opcional em branco vira null, e nao string vazia: o banco fica com um

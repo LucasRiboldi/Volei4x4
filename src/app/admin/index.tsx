@@ -1,0 +1,113 @@
+import { Stack, useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+
+import { Avatar } from '@/components/avatar';
+import { Cores, Espaco, Raio } from '@/constants/theme';
+import { useAuth } from '@/contexts/auth';
+import { mensagemDeErro } from '@/lib/erros';
+import { listarJogadores, type Jogador } from '@/lib/jogadores';
+
+/**
+ * A lista de quem o administrador pode editar.
+ *
+ * A tela some para quem nao e admin, mas isso e conveniencia, nao seguranca:
+ * quem decide de verdade e a policy de update no banco, que casa com zero
+ * linhas para os demais. Interface escondida nao protege nada.
+ */
+export default function Administracao() {
+  const router = useRouter();
+  const { sessao } = useAuth();
+  const [jogadores, setJogadores] = useState<Jogador[] | null>(null);
+  const [erro, setErro] = useState<string | null>(null);
+
+  const carregar = useCallback(async (continuaValendo: () => boolean) => {
+    try {
+      setErro(null);
+      const lista = await listarJogadores();
+      if (continuaValendo()) setJogadores(lista);
+    } catch (e) {
+      if (continuaValendo()) setErro(mensagemDeErro(e, 'Não foi possível carregar os jogadores.'));
+    }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      let ativo = true;
+      void carregar(() => ativo);
+      return () => {
+        ativo = false;
+      };
+    }, [carregar])
+  );
+
+  const souAdmin = jogadores?.find((j) => j.id === sessao?.user.id)?.admin ?? false;
+
+  return (
+    <>
+      <Stack.Screen options={{ headerShown: true, title: 'Administração' }} />
+      <View style={estilos.tela}>
+        {jogadores === null ? (
+          <ActivityIndicator color={Cores.areia} style={estilos.espera} />
+        ) : !souAdmin ? (
+          <Text style={estilos.aviso}>Esta área é só para administradores.</Text>
+        ) : (
+          <FlatList
+            contentContainerStyle={estilos.lista}
+            data={jogadores}
+            keyExtractor={(j) => j.id}
+            ListHeaderComponent={
+              <Text style={estilos.explicacao}>
+                Toque em alguém para corrigir nome, apelido ou cidade. As avaliações continuam
+                privadas — nem o administrador as vê.
+              </Text>
+            }
+            renderItem={({ item }) => (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`Editar ${item.nome}`}
+                onPress={() =>
+                  router.push({ pathname: '/editar/[jogador]', params: { jogador: item.id } })
+                }
+                style={({ pressed }) => [estilos.cartao, pressed && estilos.pressionado]}>
+                <Avatar nome={item.nome} fotoUrl={item.foto_url} tamanho={40} />
+                <View style={estilos.identificacao}>
+                  <Text style={estilos.nome} numberOfLines={1}>
+                    {item.nome}
+                  </Text>
+                  <Text style={estilos.detalhe} numberOfLines={1}>
+                    {[item.apelido, item.cidade].filter(Boolean).join(' · ') || 'sem detalhes'}
+                  </Text>
+                </View>
+                {item.admin ? <Text style={estilos.etiqueta}>admin</Text> : null}
+              </Pressable>
+            )}
+          />
+        )}
+        {erro ? <Text style={estilos.erro}>{erro}</Text> : null}
+      </View>
+    </>
+  );
+}
+
+const estilos = StyleSheet.create({
+  tela: { backgroundColor: Cores.fundo, flex: 1, paddingHorizontal: Espaco.tres },
+  espera: { marginTop: Espaco.seis },
+  aviso: { color: Cores.textoFraco, marginTop: Espaco.seis, textAlign: 'center' },
+  explicacao: { color: Cores.textoFraco, fontSize: 13, lineHeight: 19, paddingVertical: Espaco.tres },
+  lista: { gap: Espaco.dois, paddingBottom: Espaco.tres },
+  cartao: {
+    alignItems: 'center',
+    backgroundColor: Cores.fundoCartao,
+    borderRadius: Raio.medio,
+    flexDirection: 'row',
+    gap: Espaco.dois,
+    padding: Espaco.dois,
+  },
+  pressionado: { opacity: 0.7 },
+  identificacao: { flex: 1, gap: 2 },
+  nome: { color: Cores.texto, fontSize: 16, fontWeight: '700' },
+  detalhe: { color: Cores.textoFraco, fontSize: 13 },
+  etiqueta: { color: Cores.areia, fontSize: 11, fontWeight: '800', textTransform: 'uppercase' },
+  erro: { color: Cores.perigo, fontSize: 14, fontWeight: '600', paddingBottom: Espaco.tres },
+});

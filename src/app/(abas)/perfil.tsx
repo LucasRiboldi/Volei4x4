@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -31,11 +32,13 @@ import {
 
 export default function Perfil() {
   const { sessao } = useAuth();
+  const router = useRouter();
 
   const [nome, setNome] = useState('');
   const [apelido, setApelido] = useState('');
   const [cidade, setCidade] = useState('');
   const [fotoUrl, setFotoUrl] = useState<string | null>(null);
+  const [souAdmin, setSouAdmin] = useState(false);
 
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
@@ -56,6 +59,7 @@ export default function Perfil() {
         setApelido(perfil.apelido ?? '');
         setCidade(perfil.cidade ?? '');
         setFotoUrl(perfil.foto_url);
+        setSouAdmin(perfil.admin);
       } catch (e) {
         if (ativo) setErro(mensagemDeErro(e, 'Não foi possível carregar seu perfil.'));
       } finally {
@@ -188,6 +192,14 @@ export default function Perfil() {
 
           {erro ? <Text style={estilos.erro}>{erro}</Text> : null}
           {aviso ? <Text style={estilos.aviso}>{aviso}</Text> : null}
+
+          {souAdmin ? (
+            <Botao
+              titulo="Administração"
+              variante="secundario"
+              aoTocar={() => router.push('/admin')}
+            />
+          ) : null}
 
           <View style={estilos.acoes}>
             <Botao
