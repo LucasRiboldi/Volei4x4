@@ -152,6 +152,17 @@ Verificado contra o Supabase real, não só compilando.
 | **RLS: avaliar a si mesmo / em nome de outro** | **bloqueado, HTTP 403** |
 | **RLS: usuário novo lê ou conta avaliações** | **vazio, contagem 0** |
 | Notas fora de 1–5 | recusadas pelo banco |
+| Cálculo do rating | 15 jogadores, neutro em 6,0 — 3 estrelas convertidas |
+| Piso de confiança | com 1 avaliador o número segue oculto |
+| Registrar partida | 4×4 gravado, com o rating congelado no momento |
+| Escalação inválida (5 num time) | recusada com mensagem clara |
+| **Avaliar quem jogou com você** | **aceito, HTTP 201** |
+| **Avaliar a si mesmo** | **bloqueado, HTTP 403** |
+| **Avaliar quem não jogou a partida** | **bloqueado, HTTP 403** |
+| **Votar em nome de outra pessoa** | **bloqueado, HTTP 403** |
+| **Avaliar no dia da partida** | **bloqueado, HTTP 403 — janela fechada** |
+| **Avaliar 5 dias depois** | **bloqueado, HTTP 403 — janela fechada** |
+| Corrigir a nota dentro da janela | atualiza, sem duplicar linha |
 
 ### 🧪 Coberto por teste automatizado
 
@@ -166,22 +177,26 @@ Verificado contra o Supabase real, não só compilando.
 
 ### ⚠️ Escrito, porém **não testado** contra o banco
 
-O código existe e compila. O comportamento real nunca rodou, porque as migrações
-abaixo não foram aplicadas.
+O código existe e compila, mas o comportamento real nunca rodou.
 
-- Cálculo do rating (`0007`)
-- Registro de partida e times (`0008`)
-- Papel de administrador e edição de outros perfis (`0009`)
-- Avaliação pós-partida: janela, autorização, correção (`0010`)
+- Papel de administrador — ninguém está promovido ainda, ver erro 1
 - Envio de foto de perfil pela tela
+- As telas de partida, sorteio e avaliação pós-partida: a regra do banco está
+  verificada, mas os fluxos foram exercitados pela API, não pela interface
 
 ### 🔴 Erros conhecidos
 
-**1. Quatro migrações não aplicadas — e isso quebra o app hoje.**
-Aplicadas: `0001`, `0002`, `0004`, `0005`, `0006`. Faltam `0007`, `0008`, `0009`
-e `0010`. Como a aba Jogadores chama `ratings_dos_jogadores()`, que ainda não
-existe, **ela falha ao carregar**. Sorteio, partidas, admin e avaliação
-pós-partida também estão inertes.
+**1. Ninguém é administrador, e a migração não avisou.**
+A `0009` terminava com um `update ... where id = (select ... from auth.users)`.
+A conta existia em `auth.users`, mas não tinha linha em `jogadores` — o gatilho
+da `0003` nunca foi instalado, e a conta foi criada pela API sem nunca abrir o
+app. O update casou com **zero linhas**, e zero linhas não é erro: a migração
+passou verde sem promover ninguém.
+
+É a mesma armadilha que já apareceu aqui com o PostgREST — operação que não
+encontra alvo é sucesso, não falha. A `0011` corrige: cria o perfil de qualquer
+conta que não tenha, e faz a promoção dentro de um bloco que **lança exceção se
+não alterar exatamente uma linha**. 🧑 Falta rodar.
 
 **2. O deploy do Vercel está atrás de autenticação.**
 `volei4x4-r9ww5q2fc-lucasriboldis-projects.vercel.app` responde **302** para
@@ -198,19 +213,24 @@ Não consigo verificar de fora. Mas sem `EXPO_PUBLIC_SUPABASE_URL` e
 `EXPO_PUBLIC_SUPABASE_ANON_KEY`, `src/lib/supabase.ts` lança no import e a
 página fica em branco.
 
-**5. Os 13 jogadores de demonstração estão sem foto.**
+**5. O gatilho de criação de perfil (`0003`) não está instalado.**
+Contas criadas fora do app ficam sem linha em `jogadores` até abrirem a tela de
+Perfil, quando `garantirMeuPerfil()` cria. Funciona, mas foi o que causou o
+erro 1. A `0011` preenche o que ficou para trás.
+
+**6. Os 13 jogadores de demonstração estão sem foto.**
 Foram semeados antes de o bucket existir. Basta rodar `python scripts/semear.py`
 de novo — o script é idempotente.
 
-**6. As telas ainda não usam o design system.**
+**7. As telas ainda não usam o design system.**
 `src/design/tokens.ts` existe e está coberto por teste, mas nenhuma tela o
 consome: elas ainda leem `src/constants/theme.ts`, a paleta escura antiga.
 
-**7. `app.json` declara tema claro, telas continuam escuras.**
+**8. `app.json` declara tema claro, telas continuam escuras.**
 Consequência do item 6. A inconsistência é minha e se resolve nas fases visuais.
 
-**8. Contas de teste no banco.**
-Sete contas `volei4x4.*@gmail.com` criadas durante os testes, além dos 13
+**9. Contas de teste no banco.**
+Nove contas `volei4x4.*@gmail.com` criadas durante os testes, além dos 13
 fictícios em `@volei4x4-teste.com`. Remover exige `service_role`.
 
 ### 📋 Falta criar
@@ -238,9 +258,9 @@ fictícios em `@volei4x4-teste.com`. Remover exige `service_role`.
   motion*
 
 **Testes que faltam**
-- Cenários 6 a 10 do módulo pós-partida (autorização) contra o banco
-- Rating: conferir a fórmula com dados semeados
-- Fluxo completo: sortear → registrar → avaliar no dia seguinte
+- Os fluxos pela interface: sortear, registrar partida e avaliar pela tela
+  (hoje verificados pela API)
+- Rating com 5 ou mais avaliadores, para ver o piso de confiança liberar
 - Responsividade em 360px
 
 ## Configuração
