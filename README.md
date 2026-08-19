@@ -8,6 +8,10 @@ não serem sempre os mesmos.
 Roda no navegador, em qualquer celular ou computador. É feito para ser usado em
 pé, na beira da quadra, com o celular na mão.
 
+**Publicação:** [vercel.com/lucasriboldis-projects/volei4x4](https://vercel.com/lucasriboldis-projects/volei4x4)
+— hoje o deploy ainda está atrás da autenticação da Vercel e sem as variáveis de
+ambiente. Ver [Erros conhecidos](#-erros-conhecidos).
+
 ---
 
 # Como usar
@@ -127,8 +131,117 @@ o porquê disso não fechar a porta.
 
 ## Estado atual
 
-Etapas 01 a 07 concluídas, mais o módulo de avaliação pós-partida e o papel de
-administrador. O detalhe de cada uma está em [docs/plano.md](docs/plano.md).
+Levantamento de 19/08/2026, conferido contra o banco e o deploy — não de
+memória. O detalhe de cada etapa está em [docs/plano.md](docs/plano.md).
+
+### ✅ Funciona, e foi testado de ponta a ponta
+
+Verificado contra o Supabase real, não só compilando.
+
+| O que | Como foi verificado |
+|---|---|
+| Cadastro e login por e-mail e senha | conta criada e sessão obtida pela API e pela tela |
+| Guarda de rota | sem sessão vai para o login; com sessão não volta para ele |
+| Perfil: nome, apelido, cidade | gravados e relidos |
+| Criação automática do perfil no 1º acesso | linha criada quando o gatilho não existe |
+| Lista de jogadores e busca | 15 cadastrados, filtro por nome e apelido |
+| Navegação entre as três abas | as três carregam |
+| **RLS: criar perfil com id alheio** | **bloqueado, HTTP 403** |
+| **RLS: editar perfil alheio** | **0 linhas, dado intacto** |
+| **RLS: ler autoavaliação alheia** | **vazio** |
+| **RLS: avaliar a si mesmo / em nome de outro** | **bloqueado, HTTP 403** |
+| **RLS: usuário novo lê ou conta avaliações** | **vazio, contagem 0** |
+| Notas fora de 1–5 | recusadas pelo banco |
+
+### 🧪 Coberto por teste automatizado
+
+61 testes, com `npm run teste`.
+
+- **Motor de sorteio** (11) — as 35 divisões, sem repetição, força e diferença,
+  recusa de quantidade ≠ 8, equilíbrio por modo, e o caso de diferença zero que
+  travaria o sorteio sem o epsilon.
+- **Janela de avaliação** (8) — os cinco cenários do documento, as duas viradas
+  exatas, o dia da partida inteiro bloqueado e a janela que não reabre.
+- **Contraste WCAG AA** (42) — cada par de cor dos dois temas, medido.
+
+### ⚠️ Escrito, porém **não testado** contra o banco
+
+O código existe e compila. O comportamento real nunca rodou, porque as migrações
+abaixo não foram aplicadas.
+
+- Cálculo do rating (`0007`)
+- Registro de partida e times (`0008`)
+- Papel de administrador e edição de outros perfis (`0009`)
+- Avaliação pós-partida: janela, autorização, correção (`0010`)
+- Envio de foto de perfil pela tela
+
+### 🔴 Erros conhecidos
+
+**1. Quatro migrações não aplicadas — e isso quebra o app hoje.**
+Aplicadas: `0001`, `0002`, `0004`, `0005`, `0006`. Faltam `0007`, `0008`, `0009`
+e `0010`. Como a aba Jogadores chama `ratings_dos_jogadores()`, que ainda não
+existe, **ela falha ao carregar**. Sorteio, partidas, admin e avaliação
+pós-partida também estão inertes.
+
+**2. O deploy do Vercel está atrás de autenticação.**
+`volei4x4-r9ww5q2fc-lucasriboldis-projects.vercel.app` responde **302** para
+`vercel.com/sso-api`: é a Deployment Protection. Ninguém do grupo abre o app sem
+ter conta na Vercel. Desligar em *Project Settings → Deployment Protection*.
+
+**3. O projeto não tem como ser construído pela Vercel.**
+Não há `vercel.json` nem script de build. Expo web precisa de
+`npx expo export -p web`, que gera `dist/`. Sem isso a Vercel não sabe o que
+publicar.
+
+**4. As variáveis de ambiente provavelmente faltam na Vercel.**
+Não consigo verificar de fora. Mas sem `EXPO_PUBLIC_SUPABASE_URL` e
+`EXPO_PUBLIC_SUPABASE_ANON_KEY`, `src/lib/supabase.ts` lança no import e a
+página fica em branco.
+
+**5. Os 13 jogadores de demonstração estão sem foto.**
+Foram semeados antes de o bucket existir. Basta rodar `python scripts/semear.py`
+de novo — o script é idempotente.
+
+**6. As telas ainda não usam o design system.**
+`src/design/tokens.ts` existe e está coberto por teste, mas nenhuma tela o
+consome: elas ainda leem `src/constants/theme.ts`, a paleta escura antiga.
+
+**7. `app.json` declara tema claro, telas continuam escuras.**
+Consequência do item 6. A inconsistência é minha e se resolve nas fases visuais.
+
+**8. Contas de teste no banco.**
+Sete contas `volei4x4.*@gmail.com` criadas durante os testes, além dos 13
+fictícios em `@volei4x4-teste.com`. Remover exige `service_role`.
+
+### 📋 Falta criar
+
+**Publicação**
+- `vercel.json` e script de build com `expo export -p web`
+- Variáveis de ambiente na Vercel
+- Desligar a Deployment Protection
+- Manifest de PWA, para instalar na tela inicial
+
+**Produto**
+- Registrar placar da partida pela tela (o banco já aceita)
+- Perfil público do jogador, com as características agregadas
+- Indicador de quem venceu, no histórico
+- Aviso de avaliação pendente na barra de navegação
+
+**Visual — fases 3 a 9 do brief**
+- Componentes: `Button`, `Card`, `Badge`, `RatingStars`, `Skeleton`,
+  `EmptyState`, `Toast`, `BalanceIndicator`, `TeamCard`, `PlayerCard`
+- Telas refeitas sobre os tokens
+- Animação do sorteio (0,8–1,5 s)
+- Estados vazios e *skeletons* de carregamento
+- Layout de tablet e desktop
+- Revisão de acessibilidade: foco visível, navegação por teclado, *reduced
+  motion*
+
+**Testes que faltam**
+- Cenários 6 a 10 do módulo pós-partida (autorização) contra o banco
+- Rating: conferir a fórmula com dados semeados
+- Fluxo completo: sortear → registrar → avaliar no dia seguinte
+- Responsividade em 360px
 
 ## Configuração
 
