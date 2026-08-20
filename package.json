@@ -9,7 +9,8 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "teste": "vitest run",
-    "teste:watch": "vitest"
+    "teste:watch": "vitest",
+    "build": "expo export -p web && node scripts/finalizar-build.mjs"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",

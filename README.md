@@ -200,19 +200,15 @@ Regra de banco, provada com requisição direta — é onde a garantia realmente
 
 ### 🔴 Erros conhecidos
 
-**1. O deploy do Vercel está atrás de autenticação.**
+**1. 🧑 O deploy do Vercel está atrás de autenticação.**
 `volei4x4-r9ww5q2fc-lucasriboldis-projects.vercel.app` responde **302** para
 `vercel.com/sso-api`: é a Deployment Protection. Ninguém do grupo abre o app sem
 conta na Vercel. Desligar em *Project Settings → Deployment Protection*.
 
-**2. O projeto não tem como ser construído pela Vercel.**
-Não há `vercel.json` nem script de build. Expo web precisa de
-`npx expo export -p web`, que gera `dist/`. Sem isso a Vercel não sabe o que
-publicar.
-
-**3. As variáveis de ambiente provavelmente faltam na Vercel.**
-Não dá para verificar de fora. Mas sem `EXPO_PUBLIC_SUPABASE_URL` e
-`EXPO_PUBLIC_SUPABASE_ANON_KEY`, `src/lib/supabase.ts` lança no import e a
+**2. 🧑 As variáveis de ambiente precisam ser criadas na Vercel.**
+Em *Settings → Environment Variables*, para Production e Preview:
+`EXPO_PUBLIC_SUPABASE_URL` e `EXPO_PUBLIC_SUPABASE_ANON_KEY`, com os mesmos
+valores do `.env.local`. Sem elas `src/lib/supabase.ts` lança no import e a
 página fica em branco.
 
 **4. O gatilho de criação de perfil (`0003`) não está instalado.**
@@ -249,10 +245,9 @@ demonstração, mas é ruído.
 ### 📋 Falta criar
 
 **Publicação — é o que impede o app de chegar em alguém**
-- `vercel.json` e script de build com `expo export -p web`
-- Variáveis de ambiente na Vercel
-- Desligar a Deployment Protection
-- Manifest de PWA, para instalar na tela inicial
+- 🧑 Variáveis de ambiente na Vercel
+- 🧑 Desligar a Deployment Protection
+- Confirmar o primeiro deploy verde depois dos dois itens acima
 
 **Produto**
 - Registrar o placar pela tela — o banco já aceita, falta a interface
@@ -276,6 +271,31 @@ demonstração, mas é ruído.
 - As telas `/admin` e `/editar/[jogador]`
 - Rating com 5 ou mais avaliadores, para ver o piso liberar o número
 - Responsividade em 360px
+
+## Publicar
+
+O build da web é gerado por:
+
+```bash
+npm run build
+```
+
+Ele roda `expo export -p web`, que produz `dist/`, e em seguida
+`scripts/finalizar-build.mjs`, que acrescenta ao `index.html` o que o Expo não
+coloca: manifest de PWA, ícone do iOS, `viewport-fit=cover`, idioma e a cor de
+fundo que evita o lampejo branco. O script confere o resultado e falha se algo
+não entrou — build silenciosamente incompleto é pior que build quebrado.
+
+O `vercel.json` já aponta para tudo isso: comando de build, `dist` como saída,
+`npm ci` na instalação, e o *rewrite* que manda qualquer rota para o
+`index.html` — sem ele, abrir `/perfil` direto daria 404, porque num SPA só
+existe um arquivo de verdade.
+
+Testado servindo o `dist/` localmente: a tela de login renderiza, o manifest
+carrega e os ícones respondem.
+
+🧑 **Falta só o que depende do painel da Vercel**: criar as duas variáveis de
+ambiente e desligar a Deployment Protection.
 
 ## Configuração
 

@@ -23,7 +23,7 @@
     },
     "web": {
       "output": "single",
-      "favicon": "./assets/marca/favicon.ico",
+      "favicon": "./assets/marca/favicon.png",
       "name": "Vôlei 4x4",
       "themeColor": "#1A6A8F",
       "backgroundColor": "#FDF7EE"
