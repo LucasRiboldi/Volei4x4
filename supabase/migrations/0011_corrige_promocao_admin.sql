@@ -43,34 +43,24 @@ where not exists (select 1 from public.jogadores j where j.id = u.id)
 on conflict (id) do nothing;
 
 -- ---------------------------------------------------------------------------
--- 2. A promocao, agora barulhenta
+-- 2. A promocao, que saiu daqui
 --
--- Em bloco anonimo para poder conferir quantas linhas mudaram. Se for zero, a
--- migracao para com mensagem em vez de fingir que deu certo -- que era
--- exatamente o defeito da 0009.
+-- Esta migracao terminava com um bloco que promovia um e-mail fixo e levantava
+-- excecao se a conta nao existisse. Falhar alto estava certo -- era o remedio
+-- para o defeito da 0009. Errado era a condicao morar numa migracao.
+--
+-- Num projeto Supabase novo nao existe conta nenhuma, entao a excecao disparava
+-- e a cadeia parava aqui, na 11 de 15. O README manda aplicar as migracoes em
+-- ordem num projeto novo, e isso simplesmente nao funcionava: o projeto nao era
+-- instalavel a partir das proprias instrucoes. O remedio para uma falha
+-- silenciosa tinha virado uma falha bloqueante para todo mundo que nao fosse o
+-- autor.
+--
+-- A promocao agora vive em `supabase/manual/promover-admin.sql`, com a mesma
+-- verificacao barulhenta e sem e-mail versionado. A parte 1 acima fica: criar
+-- perfil para conta que nao tem e generico, vale em qualquer instalacao, e e
+-- justamente o que fazia o update casar com zero linhas.
+--
+-- Removido de uma migracao ja aplicada, o que normalmente nao se faz. Vale aqui
+-- porque nao desfaz nada: quem ja foi promovido continua admin.
 -- ---------------------------------------------------------------------------
-
-do $$
-declare
-  c_email constant text := 'lucasriboldi.esteio@gmail.com';
-  v_id uuid;
-  v_linhas int;
-begin
-  select u.id into v_id
-  from auth.users u
-  where lower(u.email) = c_email;
-
-  if v_id is null then
-    raise exception 'Nao existe conta com o e-mail %. Crie a conta antes de promover.', c_email;
-  end if;
-
-  update public.jogadores set admin = true where id = v_id;
-  get diagnostics v_linhas = row_count;
-
-  if v_linhas <> 1 then
-    raise exception 'Esperava promover 1 jogador, mas foram % linhas.', v_linhas;
-  end if;
-
-  raise notice 'Administrador definido: % (%)', c_email, v_id;
-end;
-$$;

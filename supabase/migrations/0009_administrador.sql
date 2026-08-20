@@ -78,15 +78,26 @@ revoke all on function public.e_admin() from public, anon;
 grant execute on function public.e_admin() to authenticated;
 
 -- ---------------------------------------------------------------------------
--- O primeiro administrador
+-- O primeiro administrador -- que NAO e definido aqui
 --
--- Feito por SQL de proposito: nao existe -- e nao deve existir -- caminho pela
--- API para alguem virar admin.
+-- Promover continua sendo feito por SQL de proposito: nao existe -- e nao deve
+-- existir -- caminho pela API para alguem virar admin. O que mudou e o lugar.
+--
+-- Esta migracao terminava com um `update ... where email = '<e-mail fixo>'`.
+-- Duas coisas estavam erradas nisso, e as duas so apareceram depois:
+--
+--   O update casava com zero linhas quando a conta ainda nao tinha perfil, e
+--   zero linhas e sucesso. A migracao passava verde sem promover ninguem --
+--   defeito que a 0011 foi criada para consertar.
+--
+--   E, mais de fundo: quem e o administrador e DADO, nao esquema. Varia de
+--   instalacao para instalacao, e nao tem por que estar versionado num
+--   repositorio publico junto com o e-mail de alguem.
+--
+-- A operacao agora vive em `supabase/manual/promover-admin.sql`, parametrizada
+-- e barulhenta. O passo esta no README, junto com as migracoes.
+--
+-- Este trecho foi removido de uma migracao ja aplicada, o que normalmente nao
+-- se faz. Vale aqui porque remove-lo nao desfaz nada: quem ja foi promovido
+-- continua admin, e a instrucao nunca teve efeito util numa segunda execucao.
 -- ---------------------------------------------------------------------------
-
-update public.jogadores
-set admin = true
-where id = (
-  select u.id from auth.users u
-  where lower(u.email) = 'lucasriboldi.esteio@gmail.com'
-);
