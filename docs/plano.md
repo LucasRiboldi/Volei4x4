@@ -15,19 +15,21 @@ falta. Leia antes de comecar qualquer etapa.
   Perfil), a lista com foto e apelido, e busca por nome ou apelido.
 - **04 — Avaliacoes.** Concluida. Um voto por par, corrigivel, com a tela de
   avaliar e a marca de ja avaliado na lista. Voto e privado: so quem deu le.
-- **05 — Rating.** Concluida no codigo. Formula bayesiana com piso de
-  confianca, calculada no banco. Falta rodar a migracao 0007.
+- **05 — Rating.** Concluida e verificada com dado semeado. Formula bayesiana
+  com piso de confianca, calculada no banco. Escala 0-10, neutro em 5,0.
 - **06 — Motor de balanceamento.** Concluida. As 35 divisoes, recorte por modo
   de equilibrio e sorteio ponderado, em `src/nucleo/sorteio.ts`. 11 testes.
-- **07 — Partidas e sorteio.** Selecionar 8, sortear, e GRAVAR a partida com os
-  times. As tabelas nascem aqui, porque o modulo de avaliacao pos-partida
+- **07 — Partidas e sorteio.** Concluida. Selecionar 8, sortear e gravar a
+  partida com os times. As tabelas nasceram aqui porque a avaliacao pos-partida
   depende delas.
 - **08 — Avaliacao pos-partida.** Concluida. Janela do dia seguinte,
   autorizacao por participacao na policy, uma avaliacao por par por partida.
   Substituiu a avaliacao global da etapa 04, e o rating passou a ler dela.
 - **09 — Design system e interface.** Parcial. Tokens e identidade prontos e
   testados; nenhuma tela usa ainda.
-- **10 — Polimento, acessibilidade e responsividade.**
+- **10 — Polimento, acessibilidade e responsividade.** Nao iniciada.
+- **Publicacao.** Concluida. No ar em https://volei4x4.vercel.app, com build
+  proprio, manifest de PWA e moldura de 768px.
 
 ## Decisoes fechadas
 
@@ -108,9 +110,13 @@ separada do jogador (`public.jogadores`), e-mail nunca como chave, e o resto do
 app falando so com `src/lib/auth.ts`. Acrescentar Google depois e uma funcao
 nova nesse arquivo.
 
-**O rating nao e gravado.** E sempre calculado a partir das avaliacoes. Por isso
-mudar peso em `src/nucleo/atributos.ts` vale imediatamente, sem migracao e sem
-recalculo em massa.
+**O rating nao e gravado.** E sempre calculado a partir das avaliacoes, entao
+mudar a formula vale na leitura seguinte, sem recalculo em massa. Os pesos
+ficam no SQL -- ver a decisao acima --, entao muda-los pede uma migracao nova.
+
+A unica excecao e `partida_jogadores.rating_no_momento`, que E uma coluna: o
+rating congelado no instante do sorteio. Foi essa excecao que quase passou
+despercebida na correcao de escala da 0012.
 
 **A escala do voto e 1 a 5; a do rating exibido e 0 a 10.** O documento original
 misturava as duas. O voto casa com as estrelas da interface; o rating tem casa
