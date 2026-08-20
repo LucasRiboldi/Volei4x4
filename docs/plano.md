@@ -135,6 +135,25 @@ para inicializar.
 dependencia: rodar grava as deps no `package.json` sem tocar no lockfile, e
 `npm ci` passa a falhar. Se adotarmos eslint, sera com lockfile no commit.
 
+**O agregado nao devolve contagem de avaliadores.** Fecha o item que estava em
+aberto desde a etapa 04. Hoje `ratings_dos_jogadores()` devolve a coluna
+`avaliadores`, e a lista mostra "7 avaliadores" embaixo do rating. Esse e o
+ataque mais barato contra o voto privado: quem anota o par (contagem, rating)
+antes e depois de uma partida resolve por subtracao o voto exato que entrou no
+meio. Com amostra pequena a conta fecha de primeira, e nao exige acesso ao
+banco -- basta olhar a tela duas vezes.
+
+O que basta no lugar ja existe: o booleano `confiavel`. Ele responde a unica
+pergunta que a interface faz -- mostrar o numero ou mostrar um traco -- e nao
+carrega informacao de voto nenhum. Abaixo do piso a funcao continua devolvendo
+o prior puro, e nao a media parcial: valor fixo nao vaza nada e ainda serve ao
+sorteio.
+
+O custo e uma migracao para tirar a coluna do retorno, o tipo em
+`src/lib/ratings.ts`, e as linhas de `(abas)/index.tsx` que exibem a contagem.
+Some da tela um numero que era informativo; e o preco de a nota continuar
+privada.
+
 ## Armadilhas ja encontradas
 
 - **`esbuild` precisa de aprovacao de script no npm 11.** O vitest depende dele,
@@ -165,14 +184,29 @@ dependencia: rodar grava as deps no `package.json` sem tocar no lockfile, e
   em toda funcao nova; o Supabase da a `anon` e `authenticated` por
   `alter default privileges`. Revogar de uma so deixa a outra passar. O idioma
   certo e `revoke ... from public, anon, authenticated` e conceder depois.
+- **Update ou delete que nao casa com nenhuma linha e sucesso.** O PostgREST
+  responde 200 com lista vazia, nao erro. Uma policy que barra a operacao
+  produz exatamente isso: a tela diz que salvou e nada mudou. Onde a recusa
+  precisa ser visivel, a operacao vira funcao que levanta excecao -- policy
+  sozinha nao sabe reclamar.
+- **Policy de UPDATE sem policy de SELECT nunca dispara.** Todo update vindo do
+  cliente precisa de um `where` para achar a linha, e isso faz valer as
+  policies de SELECT junto com as de UPDATE. Sem nenhuma de SELECT o update
+  casa com zero linhas -- e, pela armadilha acima, calado. O mesmo vale para
+  `insert ... on conflict do update`, que consulta a policy de SELECT para
+  checar a linha existente.
+- **Policy que consulta a propria tabela entra em recursao infinita.** Ler
+  `jogadores` para decidir se voce pode ler `jogadores` nao termina. A saida e
+  a checagem viver em funcao `security definer`, que roda por fora da RLS e
+  corta o ciclo -- e o que `e_admin()` ja faz. Toda policy nova que dependa de
+  um atributo guardado na propria tabela precisa de uma funcao assim.
+- **`.returns<T>()` do supabase-js esta deprecado**, em favor de
+  `.overrideTypes<T, { merge: false }>()`. E funcao que devolve uma linha so
+  precisa de `.maybeSingle()` antes: o PostgREST responde com o objeto direto,
+  e sem isso o TypeScript acusa conversao de lista para objeto.
 
 ## Em aberto
 
-- **Contagem de avaliacoes na tela.** O documento pede mostrar "31 avaliacoes"
-  por jogador. Contagem exata ajuda a deduzir voto por diferenca quando o numero
-  e pequeno. Adiado para a etapa 05, que e quando o agregado aparece: hoje a
-  lista mostra so se VOCE ja avaliou, o que sai das suas proprias linhas e nao
-  revela nada de ninguem.
 - **Onde roda o sorteio.** O motor sera TypeScript puro e testavel. Se rodar so
   no aplicativo, da para forjar times mexendo no cliente. O rating, que e o que
   realmente importa proteger, fica no banco de qualquer forma. Decidir na etapa
@@ -180,3 +214,13 @@ dependencia: rodar grava as deps no `package.json` sem tocar no lockfile, e
 - **Grupos.** Hoje a lista de jogadores e global: todo mundo que se cadastra ve
   todo mundo. Serve para um grupo unico. Se o app passar a atender varios
   grupos, `jogadores` precisara de um vinculo e a RLS muda junto.
+
+  Um desenho ja fechado em outro projeto, caso sirva de ponto de partida:
+  codigo de convite de 6 caracteres num alfabeto sem I, L, O, 0 e 1 -- o codigo
+  e ditado em quadra e digitado no celular do outro, entao o que se confunde a
+  olho sai do alfabeto, e o campo filtra por esse mesmo alfabeto para o erro
+  aparecer na hora de digitar e nao depois de uma ida ao servidor; entrada e
+  saida por funcao `security definer`, e nao escrita direta na tabela de
+  vinculo, para a recusa poder reclamar em vez de casar com zero linhas; e o
+  pertencimento checado por funcao, pela armadilha da recursao acima. Sem
+  policy de INSERT na tabela de vinculo, so se entra pelo codigo.

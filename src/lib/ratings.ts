@@ -12,12 +12,15 @@ import { supabase } from './supabase';
 export type Rating = Record<Atributo, number> & {
   jogador_id: string;
   rating: number;
-  /** Quantas pessoas avaliaram. */
-  avaliadores: number;
   /**
    * false enquanto o jogador nao tiver avaliadores suficientes. Quando e false,
    * as medias e o rating vem no valor neutro -- de proposito, para numero
    * nenhum na tela carregar informacao de voto individual.
+   *
+   * Este booleano e tudo o que a interface recebe sobre o tamanho da amostra, e
+   * isso e deliberado. A contagem de avaliadores saiu do retorno na migracao
+   * 0016: com ela na tela, dava para inverter a media bayesiana e recuperar o
+   * voto exato que entrou entre duas leituras.
    */
   confiavel: boolean;
 };

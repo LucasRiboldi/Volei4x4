@@ -230,14 +230,20 @@ function Linha({
         {rating?.confiavel ? (
           <Text style={estilos.rating}>{rating.rating.toFixed(1)}</Text>
         ) : (
-          <Text style={estilos.semRating}>–</Text>
-        )}
+          <>
+            <Text style={estilos.semRating}>–</Text>
+            {/*
+              Legenda do traco, e nada alem disso. Aqui aparecia a contagem de
+              avaliadores, que era o caminho mais barato para deduzir voto
+              alheio: com (contagem, rating) antes e depois de uma partida, a
+              media bayesiana se inverte e entrega a nota exata. Ver a 0016.
 
-        <Text style={estilos.avaliadores}>
-          {rating && rating.avaliadores > 0
-            ? `${rating.avaliadores} ${rating.avaliadores === 1 ? 'avaliador' : 'avaliadores'}`
-            : 'sem avaliações'}
-        </Text>
+              Este texto depende so de `confiavel`, entao carrega o mesmo bit que
+              o traco ao lado ja carrega -- e nenhum a mais.
+            */}
+            <Text style={estilos.aindaSemNota}>poucas avaliações</Text>
+          </>
+        )}
 
         {/*
           Tres estados, nesta ordem de prioridade:
@@ -368,7 +374,7 @@ const estilos = StyleSheet.create({
     fontSize: 22,
     fontWeight: '800',
   },
-  avaliadores: {
+  aindaSemNota: {
     color: Cores.textoFraco,
     fontSize: 12,
   },
