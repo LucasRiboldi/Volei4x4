@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Vôlei 4x4 — MER do banco</title>
+<style>
+  :root {
+    --fundo: #FDF7EE; --superficie: #FFFFFF; --texto: #1B1F24;
+    --fraco: #646C75; --borda: #DDE1E5; --mar: #1A6A8F; --areia: #845808;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    background: var(--fundo); color: var(--texto);
+    font: 15px/1.5 -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  main { max-width: 1500px; margin: 0 auto; }
+  h1 { font-size: 26px; margin: 0 0 4px; letter-spacing: -0.4px; }
+  .aviso { color: var(--fraco); margin: 0 0 20px; max-width: 70ch; }
+  .quadro {
+    background: var(--superficie); border: 1px solid var(--borda);
+    border-radius: 14px; padding: 16px; overflow-x: auto;
+  }
+  svg { display: block; min-width: 1000px; width: 100%; height: auto; }
+  .titulo { fill: #fff; font-size: 15px; font-weight: 700; }
+  .sub { fill: #ffffffcc; font-size: 11px; }
+  .coluna { fill: var(--texto); font-size: 12.5px; }
+  .tipo { fill: var(--fraco); font-size: 11px; text-anchor: end; }
+  .marca { fill: var(--mar); font-size: 10px; font-weight: 700; letter-spacing: 0.4px; }
+  .rel { fill: none; stroke: #646C75; stroke-width: 1.6; }
+  .cardinalidade { fill: var(--fraco); font-size: 11px; font-weight: 600; }
+  .legenda { display: flex; flex-wrap: wrap; gap: 18px; margin: 18px 0 0; padding: 0; list-style: none; }
+  .legenda li { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--fraco); }
+  .amostra { width: 26px; height: 14px; border-radius: 4px; border: 2px solid; }
+  section { margin-top: 32px; }
+  h2 { font-size: 18px; margin: 0 0 10px; }
+  table { border-collapse: collapse; width: 100%; background: var(--superficie);
+          border: 1px solid var(--borda); border-radius: 10px; overflow: hidden; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--borda); font-size: 13.5px; }
+  th { background: #F7F8FA; font-weight: 700; }
+  tr:last-child td { border-bottom: 0; }
+  code { background: #F1F3F5; padding: 1px 5px; border-radius: 4px; font-size: 12.5px; }
+  footer { margin-top: 32px; color: var(--fraco); font-size: 12.5px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Vôlei 4x4 — modelo do banco</h1>
+  <p class="aviso">
+    Gerado por <code>scripts/gerar-mer.py</code> a partir das migrações em
+    <code>supabase/migrations/</code>. As colunas foram conferidas contra o banco real.
+    Para atualizar, edite o script e rode de novo — não edite este HTML à mão.
+  </p>
+
+  <div class="quadro">
+    <svg viewBox="0 0 1360 974" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Modelo entidade-relacionamento do banco">
+<defs><marker id="seta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#646C75"/></marker></defs>
+<path d="M 470 98.0 H 10.0 V 98.0 H 40" class="rel" marker-end="url(#seta)"/><text x="4.0" y="98.0" class="cardinalidade" text-anchor="end">1 : 1</text>
+<path d="M 370 512.0 H 840.0 V 98.0 H 800" class="rel" marker-end="url(#seta)"/><text x="846.0" y="305.0" class="cardinalidade" text-anchor="start">N : 1</text>
+<path d="M 40 818.0 H 10.0 V 488.0 H 40" class="rel" marker-end="url(#seta)"/><text x="4.0" y="653.0" class="cardinalidade" text-anchor="end">N : 1</text>
+<path d="M 370 842.0 H 840.0 V 98.0 H 800" class="rel" marker-end="url(#seta)"/><text x="846.0" y="470.0" class="cardinalidade" text-anchor="start">N : 1</text>
+<path d="M 470 668.0 H 10.0 V 488.0 H 40" class="rel" marker-end="url(#seta)"/><text x="4.0" y="578.0" class="cardinalidade" text-anchor="end">N : 1</text>
+<path d="M 800 692.0 H 840.0 V 98.0 H 800" class="rel" marker-end="url(#seta)"/><text x="846.0" y="395.0" class="cardinalidade" text-anchor="start">N : 1</text>
+<path d="M 1230 488.0 H 1270.0 V 98.0 H 800" class="rel" marker-end="url(#seta)"/><text x="1276.0" y="293.0" class="cardinalidade" text-anchor="start">N : 1</text>
+<path d="M 1230 698.0 H 1270.0 V 98.0 H 800" class="rel" marker-end="url(#seta)"/><text x="1276.0" y="398.0" class="cardinalidade" text-anchor="start">1 : 1</text>
+<g class="tabela" data-tabela="auth_users">
+<rect x="40" y="40" width="330" height="154" rx="10" fill="#FFFFFF" stroke="#646C75" stroke-width="2" stroke-dasharray="6 4"/>
+<rect x="40" y="40" width="330" height="46" rx="10" fill="#646C75"/>
+<rect x="40" y="76" width="330" height="10" fill="#646C75"/>
+<text x="54" y="61" class="titulo">auth.users</text><text x="54" y="77" class="sub">Supabase Auth — externa</text>
+<text x="54" y="102" class="marca">PK</text>
+<text x="106" y="102" class="coluna">id</text>
+<text x="356" y="102" class="tipo">uuid</text>
+<rect x="41" y="110" width="328" height="24" fill="#00000006"/>
+<text x="106" y="126" class="coluna">email</text>
+<text x="356" y="126" class="tipo">text</text>
+<text x="106" y="150" class="coluna">encrypted_password</text>
+<text x="356" y="150" class="tipo">text</text>
+<rect x="41" y="158" width="328" height="24" fill="#00000006"/>
+<text x="106" y="174" class="coluna">raw_user_meta_data</text>
+<text x="356" y="174" class="tipo">jsonb</text>
+</g>
+<g class="tabela" data-tabela="jogadores">
+<rect x="470" y="40" width="330" height="250" rx="10" fill="#FFFFFF" stroke="#1A6A8F" stroke-width="2"/>
+<rect x="470" y="40" width="330" height="46" rx="10" fill="#1A6A8F"/>
+<rect x="470" y="76" width="330" height="10" fill="#1A6A8F"/>
+<text x="484" y="61" class="titulo">jogadores</text><text x="484" y="77" class="sub">A pessoa dentro do jogo</text>
+<text x="484" y="102" class="marca">PK FK</text>
+<text x="536" y="102" class="coluna">id</text>
+<text x="786" y="102" class="tipo">uuid</text>
+<rect x="471" y="110" width="328" height="24" fill="#00000006"/>
+<text x="536" y="126" class="coluna">nome</text>
+<text x="786" y="126" class="tipo">text</text>
+<text x="536" y="150" class="coluna">apelido</text>
+<text x="786" y="150" class="tipo">text</text>
+<rect x="471" y="158" width="328" height="24" fill="#00000006"/>
+<text x="536" y="174" class="coluna">cidade</text>
+<text x="786" y="174" class="tipo">text</text>
+<text x="536" y="198" class="coluna">foto_url</text>
+<text x="786" y="198" class="tipo">text</text>
+<rect x="471" y="206" width="328" height="24" fill="#00000006"/>
+<text x="536" y="222" class="coluna">admin</text>
+<text x="786" y="222" class="tipo">boolean</text>
+<text x="536" y="246" class="coluna">criado_em</text>
+<text x="786" y="246" class="tipo">timestamptz</text>
+<rect x="471" y="254" width="328" height="24" fill="#00000006"/>
+<text x="536" y="270" class="coluna">atualizado_em</text>
+<text x="786" y="270" class="tipo">timestamptz</text>
+</g>
+<g class="tabela" data-tabela="storage">
+<rect x="900" y="40" width="330" height="106" rx="10" fill="#FFFFFF" stroke="#646C75" stroke-width="2" stroke-dasharray="6 4"/>
+<rect x="900" y="40" width="330" height="46" rx="10" fill="#646C75"/>
+<rect x="900" y="76" width="330" height="10" fill="#646C75"/>
+<text x="914" y="61" class="titulo">storage.objects</text><text x="914" y="77" class="sub">bucket avatares — externa</text>
+<text x="914" y="102" class="marca">PK</text>
+<text x="966" y="102" class="coluna">name</text>
+<text x="1216" y="102" class="tipo">text</text>
+<rect x="901" y="110" width="328" height="24" fill="#00000006"/>
+<text x="966" y="126" class="coluna">bucket_id</text>
+<text x="1216" y="126" class="tipo">text</text>
+</g>
+<g class="tabela" data-tabela="partidas">
+<rect x="40" y="430" width="330" height="250" rx="10" fill="#FFFFFF" stroke="#1A6A8F" stroke-width="2"/>
+<rect x="40" y="430" width="330" height="46" rx="10" fill="#1A6A8F"/>
+<rect x="40" y="466" width="330" height="10" fill="#1A6A8F"/>
+<text x="54" y="451" class="titulo">partidas</text><text x="54" y="467" class="sub">Um jogo, com a janela de avaliacao</text>
+<text x="54" y="492" class="marca">PK</text>
+<text x="106" y="492" class="coluna">id</text>
+<text x="356" y="492" class="tipo">uuid</text>
+<rect x="41" y="500" width="328" height="24" fill="#00000006"/>
+<text x="54" y="516" class="marca">FK</text>
+<text x="106" y="516" class="coluna">criada_por</text>
+<text x="356" y="516" class="tipo">uuid</text>
+<text x="106" y="540" class="coluna">jogada_em</text>
+<text x="356" y="540" class="tipo">timestamptz</text>
+<rect x="41" y="548" width="328" height="24" fill="#00000006"/>
+<text x="106" y="564" class="coluna">avaliacao_abre_em</text>
+<text x="356" y="564" class="tipo">timestamptz</text>
+<text x="106" y="588" class="coluna">avaliacao_fecha_em</text>
+<text x="356" y="588" class="tipo">timestamptz</text>
+<rect x="41" y="596" width="328" height="24" fill="#00000006"/>
+<text x="106" y="612" class="coluna">placar_a</text>
+<text x="356" y="612" class="tipo">smallint</text>
+<text x="106" y="636" class="coluna">placar_b</text>
+<text x="356" y="636" class="tipo">smallint</text>
+<rect x="41" y="644" width="328" height="24" fill="#00000006"/>
+<text x="106" y="660" class="coluna">criado_em</text>
+<text x="356" y="660" class="tipo">timestamptz</text>
+</g>
+<g class="tabela" data-tabela="partida_jogadores">
+<rect x="40" y="760" width="330" height="154" rx="10" fill="#FFFFFF" stroke="#1A6A8F" stroke-width="2"/>
+<rect x="40" y="760" width="330" height="46" rx="10" fill="#1A6A8F"/>
+<rect x="40" y="796" width="330" height="10" fill="#1A6A8F"/>
+<text x="54" y="781" class="titulo">partida_jogadores</text><text x="54" y="797" class="sub">Quem jogou, e em que time</text>
+<text x="54" y="822" class="marca">PK FK</text>
+<text x="106" y="822" class="coluna">partida_id</text>
+<text x="356" y="822" class="tipo">uuid</text>
+<rect x="41" y="830" width="328" height="24" fill="#00000006"/>
+<text x="54" y="846" class="marca">PK FK</text>
+<text x="106" y="846" class="coluna">jogador_id</text>
+<text x="356" y="846" class="tipo">uuid</text>
+<text x="106" y="870" class="coluna">time_da_partida</text>
+<text x="356" y="870" class="tipo">char(1) A|B</text>
+<rect x="41" y="878" width="328" height="24" fill="#00000006"/>
+<text x="106" y="894" class="coluna">rating_no_momento</text>
+<text x="356" y="894" class="tipo">numeric</text>
+</g>
+<g class="tabela" data-tabela="avaliacoes_de_partida">
+<rect x="470" y="610" width="330" height="202" rx="10" fill="#FFFFFF" stroke="#1A6A8F" stroke-width="2"/>
+<rect x="470" y="610" width="330" height="46" rx="10" fill="#1A6A8F"/>
+<rect x="470" y="646" width="330" height="10" fill="#1A6A8F"/>
+<text x="484" y="631" class="titulo">avaliacoes_de_partida</text><text x="484" y="647" class="sub">A nota, presa a uma partida</text>
+<text x="484" y="672" class="marca">PK FK</text>
+<text x="536" y="672" class="coluna">partida_id</text>
+<text x="786" y="672" class="tipo">uuid</text>
+<rect x="471" y="680" width="328" height="24" fill="#00000006"/>
+<text x="484" y="696" class="marca">PK FK</text>
+<text x="536" y="696" class="coluna">avaliador_id</text>
+<text x="786" y="696" class="tipo">uuid</text>
+<text x="484" y="720" class="marca">PK FK</text>
+<text x="536" y="720" class="coluna">avaliado_id</text>
+<text x="786" y="720" class="tipo">uuid</text>
+<rect x="471" y="728" width="328" height="24" fill="#00000006"/>
+<text x="536" y="744" class="coluna">ataque … equipe</text>
+<text x="786" y="744" class="tipo">8 x smallint 1-5</text>
+<text x="536" y="768" class="coluna">criado_em</text>
+<text x="786" y="768" class="tipo">timestamptz</text>
+<rect x="471" y="776" width="328" height="24" fill="#00000006"/>
+<text x="536" y="792" class="coluna">atualizado_em</text>
+<text x="786" y="792" class="tipo">timestamptz</text>
+</g>
+<g class="tabela" data-tabela="avaliacoes">
+<rect x="900" y="430" width="330" height="130" rx="10" fill="#FDF9F0" stroke="#845808" stroke-width="2" stroke-dasharray="6 4"/>
+<rect x="900" y="430" width="330" height="46" rx="10" fill="#845808"/>
+<rect x="900" y="466" width="330" height="10" fill="#845808"/>
+<text x="914" y="451" class="titulo">avaliacoes</text><text x="914" y="467" class="sub">Aposentada — escrita revogada</text>
+<text x="914" y="492" class="marca">PK FK</text>
+<text x="966" y="492" class="coluna">avaliador_id</text>
+<text x="1216" y="492" class="tipo">uuid</text>
+<rect x="901" y="500" width="328" height="24" fill="#00000006"/>
+<text x="914" y="516" class="marca">PK FK</text>
+<text x="966" y="516" class="coluna">avaliado_id</text>
+<text x="1216" y="516" class="tipo">uuid</text>
+<text x="966" y="540" class="coluna">ataque … equipe</text>
+<text x="1216" y="540" class="tipo">8 x smallint 1-5</text>
+</g>
+<g class="tabela" data-tabela="autoavaliacoes">
+<rect x="900" y="640" width="330" height="106" rx="10" fill="#F7F8FA" stroke="#8B939B" stroke-width="2" stroke-dasharray="6 4"/>
+<rect x="900" y="640" width="330" height="46" rx="10" fill="#8B939B"/>
+<rect x="900" y="676" width="330" height="10" fill="#8B939B"/>
+<text x="914" y="661" class="titulo">autoavaliacoes</text><text x="914" y="677" class="sub">Sem uso — fora do produto</text>
+<text x="914" y="702" class="marca">PK FK</text>
+<text x="966" y="702" class="coluna">jogador_id</text>
+<text x="1216" y="702" class="tipo">uuid</text>
+<rect x="901" y="710" width="328" height="24" fill="#00000006"/>
+<text x="966" y="726" class="coluna">ataque … equipe</text>
+<text x="1216" y="726" class="tipo">8 x smallint 1-5</text>
+</g>
+</svg>
+  </div>
+
+  <ul class="legenda">
+    <li><span class="amostra" style="border-color:#1A6A8F;background:#fff"></span> em uso</li>
+    <li><span class="amostra" style="border-color:#646C75;background:#fff;border-style:dashed"></span> externa (Supabase)</li>
+    <li><span class="amostra" style="border-color:#845808;background:#FDF9F0;border-style:dashed"></span> aposentada</li>
+    <li><span class="amostra" style="border-color:#8B939B;background:#F7F8FA;border-style:dashed"></span> sem uso</li>
+    <li><strong>PK</strong> chave primária &nbsp; <strong>FK</strong> chave estrangeira</li>
+  </ul>
+
+  <section>
+    <h2>Quem pode ler e escrever o quê</h2>
+    <p class="aviso">
+      A autorização não está na interface: está em policies de RLS. Esconder um botão
+      não protege nada — um <code>curl</code> com a chave pública bate na mesma parede.
+    </p>
+    <table>
+      <tr><th>Tabela</th><th>Ler</th><th>Escrever</th></tr>
+      <tr>
+        <td><code>jogadores</code></td>
+        <td>qualquer pessoa autenticada</td>
+        <td>o próprio perfil, ou o administrador.<br>
+            A coluna <code>admin</code> não é gravável pela API — o <em>grant</em> é por
+            coluna, então ninguém se promove.</td>
+      </tr>
+      <tr>
+        <td><code>partidas</code></td>
+        <td>qualquer pessoa autenticada</td>
+        <td>criação só por <code>criar_partida()</code>;<br>
+            placar só por quem jogou aquela partida</td>
+      </tr>
+      <tr>
+        <td><code>partida_jogadores</code></td>
+        <td>qualquer pessoa autenticada</td>
+        <td>ninguém — nasce dentro de <code>criar_partida()</code></td>
+      </tr>
+      <tr>
+        <td><code>avaliacoes_de_partida</code></td>
+        <td><strong>apenas as notas que você deu</strong></td>
+        <td>só se: você jogou, o avaliado jogou a mesma partida,<br>
+            vocês são pessoas diferentes, e a janela está aberta</td>
+      </tr>
+      <tr>
+        <td><code>avaliacoes</code></td>
+        <td>apenas as suas</td>
+        <td>revogada — substituída pela avaliação por partida</td>
+      </tr>
+      <tr>
+        <td><code>autoavaliacoes</code></td>
+        <td>apenas a sua</td>
+        <td>a sua — mas nenhuma tela escreve nela</td>
+      </tr>
+    </table>
+  </section>
+
+  <section>
+    <h2>Funções do banco</h2>
+    <table>
+      <tr><th>Função</th><th>O que faz</th><th>Quem executa</th></tr>
+      <tr><td><code>ratings_dos_jogadores()</code></td>
+          <td>agrega as notas em rating, com média bayesiana e piso de confiança</td>
+          <td><code>authenticated</code></td></tr>
+      <tr><td><code>criar_partida()</code></td>
+          <td>grava partida e escalação numa transação; recusa time que não tenha 4</td>
+          <td><code>authenticated</code></td></tr>
+      <tr><td><code>avaliacao_esta_aberta()</code></td>
+          <td>compara <code>now()</code> com a janela gravada</td>
+          <td><code>authenticated</code></td></tr>
+      <tr><td><code>participou_da_partida()</code></td>
+          <td>apoio das policies de avaliação</td>
+          <td><code>authenticated</code></td></tr>
+      <tr><td><code>e_admin()</code></td>
+          <td>apoio da policy de edição de perfil</td>
+          <td><code>authenticated</code></td></tr>
+      <tr><td><code>marcar_atualizado_em()</code></td>
+          <td>gatilho: mantém <code>atualizado_em</code> verdadeiro</td>
+          <td>ninguém — só gatilhos</td></tr>
+      <tr><td><code>criar_jogador_do_novo_usuario()</code></td>
+          <td>criaria o perfil no cadastro — <strong>o gatilho não está instalado</strong>;
+              quem cria hoje é o app, no primeiro acesso</td>
+          <td>ninguém</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <h2>Três decisões que o desenho registra</h2>
+    <table>
+      <tr><th>Decisão</th><th>Por quê</th></tr>
+      <tr>
+        <td>A identidade fica em <code>auth.users</code>, e o jogador em
+            <code>jogadores</code></td>
+        <td>o e-mail nunca é chave de nada. Trocar de e-mail, ou passar a entrar pelo
+            Google, não mexe em nenhum dado do jogo.</td>
+      </tr>
+      <tr>
+        <td><code>rating_no_momento</code> fica congelado em
+            <code>partida_jogadores</code></td>
+        <td>o rating de hoje não explica um time montado há três semanas.</td>
+      </tr>
+      <tr>
+        <td>A janela de avaliação é <strong>gravada</strong>, não calculada</td>
+        <td><code>at time zone</code> não é imutável — regra de fuso muda por lei. E a
+            janela combinada não deveria se mover depois.</td>
+      </tr>
+    </table>
+  </section>
+
+  <footer>
+    Vôlei 4x4 — diagrama gerado a partir das migrações. Se ele divergir do banco,
+    o banco está certo e este arquivo está velho: rode <code>python scripts/gerar-mer.py</code>.
+  </footer>
+</main>
+</body>
+</html>

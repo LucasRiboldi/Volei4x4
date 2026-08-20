@@ -129,6 +129,11 @@ tudo.
 navegador. Ver [Virar app de celular depois](#virar-app-de-celular-depois) para
 o porquê disso não fechar a porta.
 
+O modelo do banco está desenhado em **[docs/mer.html](docs/mer.html)** — abra no
+navegador. Traz as tabelas, as relações, quem pode ler e escrever o quê, e as
+funções. É gerado por `scripts/gerar-mer.py`; para atualizar, edite o script e
+rode de novo.
+
 ## Estado atual
 
 Levantamento de 19/08/2026, conferido contra o banco, a interface e o deploy —
@@ -241,6 +246,46 @@ jogadores — hoje são 22, e não 15. Remover exige `service_role`.
 **10. Bruno Carvalho está com a cidade errada.**
 Ficou "Esteio" depois do teste de edição por administrador. Dado de
 demonstração, mas é ruído.
+
+### 🤔 Decisões em aberto
+
+Nenhuma delas me pertence — todas mudam o produto, e eu chutar seria pior que
+perguntar.
+
+| Decisão | O que está em jogo |
+|---|---|
+| **Semear avaliações fictícias?** | O rating nunca produziu número real: o piso é 5 avaliadores e há 1 avaliação no banco. Semear mostra a fórmula funcionando, mas mistura dado inventado com o real. |
+| **O que fazer com as 10 contas de teste?** | Hoje aparecem na lista de jogadores junto com os 13 fictícios. Apagar exige `service_role`; a alternativa é marcá-las de alguma forma na interface. |
+| **A autoavaliação volta?** | Você a retirou. A tabela continua no banco, vazia. Enquanto não voltar, quem nunca jogou não tem nenhum dado — cai no valor neutro. |
+| **Tema claro ou escuro?** | Montei os dois. Deixei o claro como padrão porque o brief pede areia, sol e verão, mas o app nasceu escuro. É uma linha para reverter, e o custo cresce depois que as telas forem refeitas. |
+| **Grupos, ou um grupo só?** | Hoje quem se cadastra vê todo mundo. Serve para um grupo de amigos. Vários grupos exigiriam vínculo em `jogadores` e mudança em toda a RLS. |
+| **Placar: quem pode registrar?** | Hoje qualquer um que jogou a partida. Pode virar disputa. A alternativa é restringir a quem criou a partida. |
+| **iOS na App Store?** | Custa US$ 99/ano, sem exceção. Sem isso, o iOS fica em PWA ou Expo Go. |
+
+### 🎯 Prioridade de desenvolvimento
+
+Em ordem, e com o porquê de cada posição.
+
+**1. Terminar a publicação** — 🧑 duas ações no painel da Vercel.
+É o que separa "roda na máquina do Lucas" de "o grupo usa". O resto do trabalho
+não tem valor enquanto ninguém alcança o app.
+
+**2. Semear avaliações e conferir o rating.**
+O rating é o coração do produto e nunca foi visto funcionando. Se a fórmula
+estiver errada, isso contamina o sorteio, o histórico e a percepção de todo o
+app — e quanto mais tarde descobrir, mais caro.
+
+**3. Fechar os buracos de produto.**
+São pequenos e visíveis: nada leva ao histórico, o placar não tem tela, falta o
+perfil público. Baratos, e cada um remove uma pergunta de quem usa.
+
+**4. O visual, fases 3 a 9.**
+O maior bloco. Vem depois porque refazer tela sobre funcionalidade instável é
+retrabalho garantido — e porque o app já é usável sem ele.
+
+**5. Testes de interface e responsividade.**
+Acompanham a fase 4, não a antecedem: testar tela que vai ser refeita é jogar
+esforço fora.
 
 ### 📋 Falta criar
 
