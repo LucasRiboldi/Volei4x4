@@ -17,7 +17,8 @@ Uso:
   python scripts/semear-avaliacoes.py            cria
   python scripts/semear-avaliacoes.py --desfazer apaga o que foi criado
 
-Le a URL e a anon key do .env.local. Nao usa service_role.
+Le a URL e a anon key do .env.local. Nao usa service_role. A senha das contas
+ficticias vem de VOLEI_SENHA_DE_TESTE.
 """
 
 import datetime
@@ -32,7 +33,11 @@ RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REGISTRO = os.path.join(RAIZ, "scripts", ".semeadura.json")
 
 DOMINIO = "volei4x4-teste.com"
-SENHA = "jogador-de-teste-2026"
+
+# A senha das contas ficticias vem do ambiente, e nao daqui -- ver o comentario
+# longo em `semear.py`, que explica o defeito que isso corrigiu. O nome nao leva
+# o prefixo `EXPO_PUBLIC_` porque o Expo embutiria a senha no bundle da web.
+VARIAVEL_DA_SENHA = "VOLEI_SENHA_DE_TESTE"
 
 # Quantas partidas semear. Com 4 partidas de 8 jogadores, cada participante
 # recebe nota de 7 pessoas por partida -- o suficiente para cruzar o piso de
@@ -61,6 +66,41 @@ def ler_env():
     return valores["EXPO_PUBLIC_SUPABASE_URL"].rstrip("/"), valores["EXPO_PUBLIC_SUPABASE_ANON_KEY"]
 
 
+_senha = None
+
+
+def senha_de_teste():
+    """
+    A senha das contas ficticias, do ambiente ou do .env.local.
+
+    Sem valor padrao: um padrao no codigo seria de novo uma senha versionada.
+    """
+    global _senha
+    if _senha:
+        return _senha
+
+    valor = os.environ.get(VARIAVEL_DA_SENHA, "").strip()
+
+    if not valor:
+        caminho = os.path.join(RAIZ, ".env.local")
+        if os.path.exists(caminho):
+            with open(caminho, encoding="utf-8") as f:
+                for linha in f:
+                    linha = linha.strip()
+                    if linha.startswith(f"{VARIAVEL_DA_SENHA}="):
+                        valor = linha.split("=", 1)[1].strip()
+                        break
+
+    if not valor:
+        sys.exit(
+            f"Falta {VARIAVEL_DA_SENHA}. Defina no ambiente ou no .env.local -- "
+            "e a mesma senha com que as contas de demonstracao foram criadas."
+        )
+
+    _senha = valor
+    return _senha
+
+
 def pedir(url, metodo, cabec, corpo=None):
     dados = json.dumps(corpo).encode("utf-8") if corpo is not None else None
     req = urllib.request.Request(url, data=dados, method=metodo)
@@ -81,7 +121,7 @@ def pedir(url, metodo, cabec, corpo=None):
 def entrar(base, anon, email):
     st, c = pedir(f"{base}/auth/v1/token?grant_type=password", "POST",
                   {"apikey": anon, "Content-Type": "application/json"},
-                  {"email": email, "password": SENHA})
+                  {"email": email, "password": senha_de_teste()})
     if st != 200 or not c.get("access_token"):
         return None, None
     return c["access_token"], c["user"]["id"]

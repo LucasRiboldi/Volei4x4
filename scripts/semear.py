@@ -14,6 +14,8 @@ Uso:
   python scripts/semear.py             (cria as contas e envia tudo)
 
 Le a URL e a anon key do .env.local. Nao precisa e nao aceita service_role.
+A senha das contas ficticias vem de VOLEI_SENHA_DE_TESTE -- ver abaixo por que
+ela nao mora mais neste arquivo.
 """
 
 import json
@@ -27,7 +29,22 @@ PASTA_AVATARES = os.path.join(RAIZ, "scripts", "avatares")
 
 # O que marca a conta como ficticia. Mude aqui se precisar de outro lote.
 DOMINIO = "volei4x4-teste.com"
-SENHA = "jogador-de-teste-2026"
+
+# A senha das contas ficticias NAO fica aqui.
+#
+# Ela ficou, e isso foi um defeito: este repositorio e publico, as contas
+# existem no mesmo projeto Supabase que atende producao, e a aplicacao esta no
+# ar sem barreira. Com o dominio previsivel e a senha em texto puro, qualquer
+# pessoa entrava como um dos jogadores de demonstracao, via o grupo inteiro e
+# podia fazer a avaliacao inicial de todo mundo -- treze contas passam do piso
+# de cinco avaliadores e movem o rating de qualquer jogador real para onde
+# quiserem. Era um caminho aberto para o unico numero que o produto precisa
+# manter honesto.
+#
+# Agora vem do ambiente. O nome NAO leva o prefixo `EXPO_PUBLIC_` de proposito:
+# o Expo embute toda variavel com esse prefixo no bundle da web, o que
+# publicaria a senha de novo -- no mesmo lugar, por outra porta.
+VARIAVEL_DA_SENHA = "VOLEI_SENHA_DE_TESTE"
 
 JOGADORES = [
     {"slug": "joao",    "nome": "Joao Pereira",     "apelido": "Joao",    "cidade": "Porto Alegre"},
@@ -66,6 +83,44 @@ def ler_env() -> tuple:
     return url.rstrip("/"), chave
 
 
+_senha = None
+
+
+def senha_de_teste() -> str:
+    """
+    A senha das contas ficticias, vinda do ambiente ou do .env.local.
+
+    Sem valor padrao de proposito: um padrao no codigo volta a ser exatamente o
+    que este arquivo deixou de ter. Se faltar, o script para e explica -- e nao
+    semeia meia base com uma senha que ninguem sabe qual e.
+    """
+    global _senha
+    if _senha:
+        return _senha
+
+    valor = os.environ.get(VARIAVEL_DA_SENHA, "").strip()
+
+    if not valor:
+        caminho = os.path.join(RAIZ, ".env.local")
+        if os.path.exists(caminho):
+            with open(caminho, encoding="utf-8") as arquivo:
+                for linha in arquivo:
+                    linha = linha.strip()
+                    if linha.startswith(f"{VARIAVEL_DA_SENHA}="):
+                        valor = linha.split("=", 1)[1].strip()
+                        break
+
+    if not valor:
+        sys.exit(
+            f"Falta {VARIAVEL_DA_SENHA}. Defina no ambiente ou no .env.local,\n"
+            "com uma senha de pelo menos 8 caracteres que voce nao use em mais nada.\n"
+            "Ela abre as contas de demonstracao, que vivem no mesmo banco que o app real."
+        )
+
+    _senha = valor
+    return _senha
+
+
 def pedir(url: str, metodo: str, cabecalhos: dict, corpo=None, bruto: bool = False):
     dados = corpo if bruto else (json.dumps(corpo).encode("utf-8") if corpo is not None else None)
     req = urllib.request.Request(url, data=dados, method=metodo)
@@ -90,7 +145,7 @@ def entrar_ou_criar(base: str, anon: str, jogador: dict):
 
     status, corpo = pedir(
         f"{base}/auth/v1/signup", "POST", cabec,
-        {"email": email, "password": SENHA, "data": {"nome": jogador["nome"]}},
+        {"email": email, "password": senha_de_teste(), "data": {"nome": jogador["nome"]}},
     )
 
     if status == 200 and corpo and corpo.get("access_token"):
@@ -99,7 +154,7 @@ def entrar_ou_criar(base: str, anon: str, jogador: dict):
     # Ja existe, ou o projeto exige confirmacao de e-mail: tenta entrar.
     status, corpo = pedir(
         f"{base}/auth/v1/token?grant_type=password", "POST", cabec,
-        {"email": email, "password": SENHA},
+        {"email": email, "password": senha_de_teste()},
     )
     if status == 200 and corpo and corpo.get("access_token"):
         return corpo["access_token"], corpo["user"]["id"], "existente"
