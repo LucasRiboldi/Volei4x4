@@ -54,6 +54,26 @@ export const TAMANHO_DO_TIME = 4;
  */
 export const NOTA_NEUTRA = 3;
 
+/**
+ * O meio da escala do RATING -- 0 a 10 --, e nao da escala de estrelas.
+ *
+ * Serve a um caso so: quando a tela precisa de um rating para alguem que nao
+ * veio no mapa que o banco devolveu. Isso nao acontece hoje, porque
+ * `ratings_dos_jogadores()` devolve linha para todo jogador; acontece se alguem
+ * se cadastrar entre a busca da lista e a busca dos ratings.
+ *
+ * O valor certo nesse caso e o neutro, e nao zero. Zero e o PISO da escala: um
+ * jogador ausente do mapa entraria no sorteio como o pior possivel e
+ * desequilibraria os times sem sinal nenhum na tela.
+ *
+ * Derivado, e nao escrito a mao, para nao virar mais um numero solto que
+ * diverge em silencio se a escala mudar. A conversao e a mesma da migracao
+ * `0016` -- que continua sendo a fonte da formula; aqui ela so espelha o ponto
+ * neutro, e nenhum peso.
+ */
+export const RATING_NEUTRO =
+  ((NOTA_NEUTRA - NOTA_MINIMA) / (NOTA_MAXIMA - NOTA_MINIMA)) * 10;
+
 // ---------------------------------------------------------------------------
 // Onde ficam os pesos do rating
 // ---------------------------------------------------------------------------

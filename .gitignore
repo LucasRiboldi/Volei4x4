@@ -45,3 +45,6 @@ example
 # Python
 __pycache__/
 *.py[cod]
+
+# Estado de uma execucao da semeadura, nao codigo.
+scripts/.semeadura.json

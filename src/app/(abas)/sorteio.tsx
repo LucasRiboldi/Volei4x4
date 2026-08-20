@@ -10,7 +10,7 @@ import { mensagemDeErro } from '@/lib/erros';
 import { listarJogadores, type Jogador } from '@/lib/jogadores';
 import { criarPartida } from '@/lib/partidas';
 import { mapaDeRatings, type Rating } from '@/lib/ratings';
-import { TAMANHO_DA_PARTIDA } from '@/nucleo/atributos';
+import { RATING_NEUTRO, TAMANHO_DA_PARTIDA } from '@/nucleo/atributos';
 import { sortearTimes, type Divisao, type ModoDeEquilibrio } from '@/nucleo/sorteio';
 
 const MODOS: { valor: ModoDeEquilibrio; rotulo: string }[] = [
@@ -74,7 +74,12 @@ export default function Sorteio() {
       id,
       // Quem ainda nao tem avaliadores suficientes entra pelo valor neutro que o
       // banco devolve. Chutar outro numero aqui inventaria diferenca que nao existe.
-      rating: ratings.get(id)?.rating ?? 0,
+      //
+      // O `??` cobre outro caso: alguem que nao veio no mapa -- um cadastro
+      // entre esta busca e a da lista. Ali o neutro tambem e a resposta certa.
+      // Era zero, que e o piso da escala: aquela pessoa entraria como o pior
+      // jogador possivel e desequilibraria os times sem aviso.
+      rating: ratings.get(id)?.rating ?? RATING_NEUTRO,
     }));
 
     setDivisao(sortearTimes(comRating, modo));
