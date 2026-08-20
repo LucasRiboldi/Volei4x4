@@ -159,6 +159,18 @@ privada.
 - **`esbuild` precisa de aprovacao de script no npm 11.** O vitest depende dele,
   e o npm 11 bloqueia postinstall por padrao. Esta registrado em `allowScripts`
   no `package.json`; sem isso o vitest nao roda.
+- **`npx expo install --fix` nao passa neste projeto, pelo mesmo motivo.** Ele
+  chama `npm install --allow-scripts` por dentro, e o npm 11 recusa essa flag
+  em instalacao de projeto:
+
+      npm error code EALLOWSCRIPTS
+      --allow-scripts is not allowed in project-scoped installs
+
+  A permissao tem de vir do campo `allowScripts` do `package.json` -- que ja
+  existe aqui --, e nao de uma flag. A saida e instalar direto pelo npm,
+  nomeando as versoes que o `--check` pediu. `npm install` mexe no
+  `package.json` e no lockfile juntos, que e o que o `expo lint` nao fazia e
+  que quebrava o `npm ci`.
 - **Sem `window` no pre-render**, o cliente do Supabase lanca ao inicializar e
   derruba o processo, porque isso acontece fora de qualquer try. Ha uma guarda
   em `src/lib/supabase.ts`. Vale mesmo com a web em SPA, porque a guarda tambem

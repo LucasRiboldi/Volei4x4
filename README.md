@@ -265,7 +265,6 @@ utilizável. Ordenado por gravidade.
 | **C-11** | Sobrou o lado SQL: `coalesce(r.rating, 0)` em `criar_partida()`, na `0008`. Ali o efeito é pior que na tela — se a linha faltar, o `insert ... select` grava **zero linhas** e a partida nasce com menos de 8 jogadores, em silêncio. Corrigir pede redefinir uma função de 100 linhas, o que hoje só acrescentaria mais uma cópia; vai junto com o C-03. | `supabase/migrations/0008_partidas.sql` | 🔶 **lado do cliente corrigido; SQL vai com o C-03** |
 | **C-12** | `salvarPlacar()` existe e não tem chamador. O banco aceita placar; nenhuma tela oferece. | `src/lib/partidas.ts` | ⬜ pendente |
 | **C-13** | Nada leva ao histórico. `/partidas` funciona e nenhuma tela aponta para ela. | — | ⬜ pendente |
-| **C-18** | 5 pacotes estão atrás da versão que o SDK instalado espera: `expo`, `expo-router`, `expo-constants`, `expo-image-picker` e `expo-linking`. Achado por `npx expo install --check`, que a auditoria não tinha rodado. Só correções de patch, mas a mensagem é explícita: *"your project may not work correctly"*. | `package.json` | ⬜ pendente |
 | **C-15** | Falta só normalizar o que já está gravado, com `git add --renormalize .` — merece commit sozinho, porque toca muitos arquivos sem mudar comportamento nenhum. | `src/` | 🔶 **`.gitattributes` criado; falta renormalizar** |
 | **C-16** | O plano lista "onde roda o sorteio" como item em aberto, a decidir na etapa 06. A etapa 06 está concluída e o sorteio roda no cliente: a decisão foi tomada de fato e nunca registrada. | `docs/plano.md` | ⬜ pendente |
 | **C-17** | `supabase/manual/` e `supabase/testes/` têm propósitos vizinhos — os dois guardam SQL que não é migração. | `supabase/` | ⬜ pendente |
@@ -300,6 +299,7 @@ utilizável. Ordenado por gravidade.
 | ✅ | `?? 0` no sorteio prometia "valor neutro" e entregava o piso da escala | `RATING_NEUTRO` em `src/nucleo/atributos.ts`, **derivado** de `NOTA_NEUTRA` e dos limites da escala em vez de escrito à mão — dá 5,0 e acompanha a escala se ela mudar |
 | ✅ | 5 dependências suspeitas de não serem usadas | Investigadas: **nenhuma sai**. `expo-constants`, `expo-linking` e `react-native-gesture-handler` são *peerDependencies* do expo-router; `expo-font` é dependência do próprio `expo`; `expo-splash-screen` e `expo-system-ui` servem ao `app.json` |
 | ✅ | A justificativa do nome `VOLEI_SENHA_DE_TESTE` estava só no raciocínio | Provada: `npm run build` e busca no bundle publicado. A senha **não** aparece em `dist/`; a anon key aparece, como esperado e por desenho |
+| ✅ | 5 pacotes atrás da versão esperada pelo SDK 57 | Atualizados pelo npm direto, porque `expo install --fix` não passa no npm 11 — ver a armadilha no plano. Conferido com `expo install --check`, `npm ci`, `tsc`, os 61 testes e o `npm run build` |
 
 ---
 
@@ -319,7 +319,7 @@ obriga a recomeçar.
 
 #### Fase 2 — simplificação
 
-Quase toda concluída em 20/08/2026 — ver [Já corrigido — Fase 2](#já-corrigido--fase-2).
+Concluída em 20/08/2026 — ver [Já corrigido — Fase 2](#já-corrigido--fase-2).
 Sobrou:
 
 - 🧑 `git add --renormalize .`, num commit sozinho (C-15)
@@ -327,7 +327,6 @@ Sobrou:
   aceita placar, a policy `partidas_placar_de_quem_jogou` existe, o `grant` é
   por coluna e o histórico já mostra o placar quando existe — falta só a tela
   que o informa. Remover jogaria fora um caminho pronto e verificado
-- Atualizar os 5 pacotes atrasados com `npx expo install --fix` (C-18)
 
 #### Fase 3 — consolidação
 
