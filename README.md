@@ -136,193 +136,146 @@ rode de novo.
 
 ## Estado atual
 
-Levantamento de 19/08/2026, conferido contra o banco, a interface e o deploy —
-não de memória. O detalhe de cada etapa está em [docs/plano.md](docs/plano.md).
+Levantamento de 20/08/2026, conferido contra o banco, a interface e o deploy.
+Nada aqui foi escrito de memória.
 
-### ✅ Funciona, verificado na interface
+**No ar:** https://volei4x4.vercel.app
 
-Exercitado clicando na tela, com o banco real por trás.
+### Fases do projeto
+
+| # | Fase | Situação |
+|---|---|---|
+| 01 | Estrutura, banco e autenticação | ✅ concluída e verificada |
+| 02 | Perfil do jogador | ✅ concluída e verificada |
+| 03 | Lista de jogadores e abas | ✅ concluída e verificada |
+| 04 | Avaliações | ✅ substituída pela avaliação por partida |
+| 05 | Rating | ✅ concluída e verificada com dado real |
+| 06 | Motor de balanceamento | ✅ concluída, 11 testes |
+| 07 | Partidas e sorteio | ✅ concluída e verificada |
+| 08 | Avaliação pós-partida | ✅ concluída e verificada |
+| — | Publicação na Vercel | ✅ no ar |
+| — | Administrador | ✅ concluída e verificada |
+| — | Avaliação inicial | ✅ concluída e verificada |
+| 09 | Design system e interface | 🔶 fundação pronta; telas ainda não usam |
+| 10 | Polimento, acessibilidade, responsividade | ⬜ não iniciada |
+
+### ✅ Verificado na interface
 
 | O que | O que foi observado |
 |---|---|
-| Cadastro, login e guarda de rota | entra, e sem sessão volta para o login |
+| Cadastro, login e guarda de rota | entra; sem sessão volta ao login |
+| Login em **produção** | passa em volei4x4.vercel.app |
 | Perfil: nome, apelido, cidade | grava e relê |
-| Lista de jogadores | 22 cadastrados, com apelido e cidade |
-| Busca | filtra por nome e por apelido |
-| Rating na lista | `–` e a contagem de avaliadores por jogador |
-| Navegação entre as três abas | as três carregam |
-| **Aviso de avaliação pendente** | **"6 jogadores aguardam sua avaliação"** |
-| **Tela de avaliar a partida** | **progresso "1 de 7", prazo, quem já foi avaliado** |
-| Seleção de 8 no sorteio | contador "8 de 8", e não deixa passar disso |
-| **Sorteio** | **Time A 24,00 × Time B 24,00, diferença 0,00** |
+| Lista de jogadores | 22 cadastrados, com rating e nº de avaliadores |
+| Busca | filtra por nome e apelido |
+| Aviso de avaliação pendente | "6 jogadores aguardam sua avaliação" |
+| Tela de avaliar a partida | progresso, prazo, quem já foi avaliado |
+| Sorteio | Time A × Time B com força e diferença |
+| Moldura de 768px | centralizada em 1440; tela cheia em 360 e 768 |
+| Sem rolagem horizontal | em 360, 768 e 1440 |
 
-### ✅ Funciona, verificado pela API
+### ✅ Verificado pela API
 
-Regra de banco, provada com requisição direta — é onde a garantia realmente vive.
+Regra de banco, provada com requisição direta — é onde a garantia vive.
 
 | O que | Resultado |
 |---|---|
-| Cálculo do rating | todos neutros em 6,0 — 3 estrelas em escala 0–10 |
-| Piso de confiança | com 1 avaliador o número segue oculto |
-| Registrar partida | 4×4 gravado, rating congelado no momento |
-| Escalação inválida (5 num time) | recusada com mensagem clara |
-| Corrigir nota dentro da janela | atualiza, sem duplicar linha |
+| Rating: ordenação | bate com o nível semeado (Spearman 0,984) |
+| Rating: escala | 0–10, neutro em 5,0 |
+| Piso de confiança | 13 de 22 passaram; o resto mostra `–` |
+| Compressão bayesiana | altos −0,60, baixos +0,33 — como projetado |
+| Registrar partida | 4×4 gravado, rating congelado |
+| Escalação inválida | recusada com mensagem |
+| Foto: envio | 200, e legível publicamente |
+| **Foto: escrever na pasta alheia** | **403** |
 | **Criar perfil com id alheio** | **403** |
-| **Editar perfil alheio** | **0 linhas, dado intacto** |
-| **Ler avaliação alheia** | **vazio, e contagem 0** |
-| **Avaliar quem jogou com você** | **201** |
+| **Editar perfil alheio** | **0 linhas** |
+| **Ler avaliação alheia** | **vazio, contagem 0** |
 | **Avaliar a si mesmo** | **403** |
 | **Avaliar quem não jogou a partida** | **403** |
 | **Votar em nome de outra pessoa** | **403** |
 | **Avaliar no dia da partida** | **403 — janela fechada** |
 | **Avaliar 5 dias depois** | **403 — janela fechada** |
-| Notas fora de 1–5 | recusadas |
-| Administrador edita perfil alheio | 1 linha alterada |
-| **Usuário comum tenta se promover a admin** | **403 — permissão negada na coluna** |
-| **O próprio admin tenta promover alguém pela API** | **403 — não há caminho pela API** |
-| **Admin lê avaliação alheia** | **vazio — privilégio não dá acesso a voto** |
+| Avaliação inicial | 201 |
+| **Avaliação inicial repetida** | **409 — chave primária** |
+| **Sobrescrever a inicial (upsert)** | **403 — sem grant de update** |
+| Admin edita perfil alheio | 1 linha |
+| **Usuário comum se promove a admin** | **403** |
+| **Admin promove alguém pela API** | **403 — não há esse caminho** |
+| **Admin lê avaliação alheia** | **vazio** |
 
 ### 🧪 Coberto por teste automatizado
 
 61 testes, com `npm run teste`.
 
-- **Motor de sorteio** (11) — as 35 divisões, sem repetição, força e diferença,
-  recusa de quantidade ≠ 8, equilíbrio por modo, e o caso de diferença zero que
-  travaria o sorteio sem o epsilon.
-- **Janela de avaliação** (8) — os cinco cenários do documento, as duas viradas
-  exatas, o dia da partida inteiro bloqueado e a janela que não reabre.
+- **Motor de sorteio** (11) — as 35 divisões, força e diferença, recusa de
+  quantidade ≠ 8, equilíbrio por modo, e o empate que travaria sem o epsilon.
+- **Janela de avaliação** (8) — os cinco cenários do documento e as duas viradas
+  exatas.
 - **Contraste WCAG AA** (42) — cada par de cor dos dois temas, medido.
-
-### ⚠️ Escrito, porém **não testado**
-
-- **Envio de foto de perfil pela tela** — o bucket existe e as policies estão
-  postas; o seletor de imagem nunca foi acionado.
-- **Registrar a partida pela tela** — o botão existe e a função do banco foi
-  testada pela API, mas o caminho tela → banco não.
-- **Salvar avaliação pela tela** — mesmo caso.
-- **Telas de administração** — a regra está provada no banco; `/admin` e
-  `/editar/[jogador]` nunca foram abertas.
 
 ### 🔴 Erros conhecidos
 
-**1. 🧑 O deploy do Vercel está atrás de autenticação.**
-`volei4x4-r9ww5q2fc-lucasriboldis-projects.vercel.app` responde **302** para
-`vercel.com/sso-api`: é a Deployment Protection. Ninguém do grupo abre o app sem
-conta na Vercel. Desligar em *Project Settings → Deployment Protection*.
+Nenhum é emergencial: o app está no ar e utilizável. Em ordem de incômodo.
 
-**2. 🧑 As variáveis de ambiente precisam ser criadas na Vercel.**
-Em *Settings → Environment Variables*, para Production e Preview:
-`EXPO_PUBLIC_SUPABASE_URL` e `EXPO_PUBLIC_SUPABASE_ANON_KEY`, com os mesmos
-valores do `.env.local`. Sem elas `src/lib/supabase.ts` lança no import e a
-página fica em branco.
-
-**4. O gatilho de criação de perfil (`0003`) não está instalado.**
-Contas criadas fora do app ficam sem linha em `jogadores` até abrirem a tela de
-Perfil, quando `garantirMeuPerfil()` cria. Funciona, e a `0011` preencheu o que
-havia ficado para trás — mas contas novas criadas por fora seguem dependendo do
-primeiro acesso.
-
-**5. Os 13 jogadores de demonstração estão sem foto.**
-Semeados antes de o bucket existir. Basta rodar `python scripts/semear.py` de
-novo — é idempotente.
-
-**6. As telas ainda não usam o design system.**
+**1. As telas não usam o design system.**
 `src/design/tokens.ts` existe e está coberto por teste, mas nenhuma tela o
-consome: elas leem `src/constants/theme.ts`, a paleta escura antiga.
+consome — todas leem `src/constants/theme.ts`, a paleta escura antiga. É a
+fase 09.
 
-**7. `app.json` declara tema claro, telas continuam escuras.**
-Consequência do item 6. A inconsistência é minha e se resolve nas fases visuais.
+**2. `app.json` declara tema claro, telas continuam escuras.**
+Consequência do item 1.
 
-**8. 🧑 A escala do rating estava errada — correção pendente.**
-A conversão de estrelas para rating era `média × 2`, o que dava a faixa **2 a
-10** em vez de 0 a 10: ninguém podia receber menos que 2, e o meio da escala
-caía em 6,0. O correto para [1..5] → [0..10] é `(média − 1) / 4 × 10`.
+**3. Nada leva ao histórico.**
+A rota `/partidas` funciona, mas nenhuma tela aponta para ela.
 
-Passou despercebido enquanto todos saíam no valor neutro — 6,0 parecia tão
-plausível quanto qualquer número. Só apareceu depois da semeadura, quando o pior
-jogador do lote recebeu 4,7 em vez de algo perto de 3.
+**4. Os 13 jogadores de demonstração estão sem foto.**
+Foram semeados antes de o bucket existir. Basta rodar `python scripts/semear.py`
+de novo — é idempotente.
 
-A `0012` corrige. O rating não é gravado, é sempre calculado, então a próxima
-leitura já sai certa — não há recálculo a fazer.
+**5. 🧑 A chave anon na Vercel está quebrada em linhas.**
+O app funciona porque `src/lib/supabase.ts` limpa espaço em branco. Vale
+corrigir mesmo assim: se alguém remover a limpeza sem saber por que ela existe,
+o bug volta.
 
-**9. Contas de teste no banco.**
-Dez contas `volei4x4.*@gmail.com`, três partidas e uma avaliação, criadas em
-teste. O backfill da `0011` deu perfil a todas, então elas aparecem na lista de
-jogadores — hoje são 22, e não 15. Remover exige `service_role`.
+**6. Dados de teste no banco.**
+22 jogadores, dos quais 13 são fictícios (`@volei4x4-teste.com`) e ~8 são contas
+de teste minhas. 9 partidas e 224 avaliações semeadas. Reversível: ver
+`scripts/semear-avaliacoes.py --desfazer`. 🧑 Apagar contas exige `service_role`.
 
-**10. Bruno Carvalho está com a cidade errada.**
-Ficou "Esteio" depois do teste de edição por administrador. Dado de
-demonstração, mas é ruído.
+**7. Bruno Carvalho está com cidade "Esteio".**
+Resíduo do teste de edição por administrador.
 
-### 🤔 Decisões em aberto
+**8. O gatilho de perfil pode não estar instalado.**
+A `0013` tenta e tolera falha de privilégio. Se não instalou, contas criadas
+fora do app só ganham perfil no primeiro acesso — o que funciona.
 
-Nenhuma delas me pertence — todas mudam o produto, e eu chutar seria pior que
-perguntar.
+### 📋 Falta fazer
 
-| Decisão | O que está em jogo |
-|---|---|
-| ~~Semear avaliações fictícias?~~ | **Decidido: sim, de forma reversível.** 4 partidas e 224 avaliações, só entre as contas `@volei4x4-teste.com`. Nenhuma conta real dá ou recebe nota. `scripts/semear-avaliacoes.py --desfazer` mostra como remover. |
-| **O que fazer com as 10 contas de teste?** | Hoje aparecem na lista de jogadores junto com os 13 fictícios. Apagar exige `service_role`; a alternativa é marcá-las de alguma forma na interface. |
-| **A autoavaliação volta?** | Você a retirou. A tabela continua no banco, vazia. Enquanto não voltar, quem nunca jogou não tem nenhum dado — cai no valor neutro. |
-| **Tema claro ou escuro?** | Montei os dois. Deixei o claro como padrão porque o brief pede areia, sol e verão, mas o app nasceu escuro. É uma linha para reverter, e o custo cresce depois que as telas forem refeitas. |
-| **Grupos, ou um grupo só?** | Hoje quem se cadastra vê todo mundo. Serve para um grupo de amigos. Vários grupos exigiriam vínculo em `jogadores` e mudança em toda a RLS. |
-| **Placar: quem pode registrar?** | Hoje qualquer um que jogou a partida. Pode virar disputa. A alternativa é restringir a quem criou a partida. |
-| **iOS na App Store?** | Custa US$ 99/ano, sem exceção. Sem isso, o iOS fica em PWA ou Expo Go. |
-
-### 🎯 Prioridade de desenvolvimento
-
-Em ordem, e com o porquê de cada posição.
-
-**1. Terminar a publicação** — 🧑 duas ações no painel da Vercel.
-É o que separa "roda na máquina do Lucas" de "o grupo usa". O resto do trabalho
-não tem valor enquanto ninguém alcança o app.
-
-**2. ✅ Semear avaliações e conferir o rating — feito, e valeu a pena.**
-A ordenação saiu correta: o ranking por rating bate com o ranking por nível
-semeado, jogador a jogador. E a conferência encontrou um defeito de escala que
-nenhuma quantidade de leitura de código teria mostrado — ver erro 8.
-
-**3. Fechar os buracos de produto.**
-São pequenos e visíveis: nada leva ao histórico, o placar não tem tela, falta o
-perfil público. Baratos, e cada um remove uma pergunta de quem usa.
-
-**4. O visual, fases 3 a 9.**
-O maior bloco. Vem depois porque refazer tela sobre funcionalidade instável é
-retrabalho garantido — e porque o app já é usável sem ele.
-
-**5. Testes de interface e responsividade.**
-Acompanham a fase 4, não a antecedem: testar tela que vai ser refeita é jogar
-esforço fora.
-
-### 📋 Falta criar
-
-**Publicação — é o que impede o app de chegar em alguém**
-- 🧑 Variáveis de ambiente na Vercel
-- 🧑 Desligar a Deployment Protection
-- Confirmar o primeiro deploy verde depois dos dois itens acima
-
-**Produto**
-- Registrar o placar pela tela — o banco já aceita, falta a interface
+**Produto — pequeno e visível**
+- Link para o histórico de partidas a partir de alguma aba
+- Registrar o placar pela tela (o banco já aceita)
 - Perfil público do jogador, com as características agregadas
 - Indicador de quem venceu, no histórico
 - Marcador de pendência na barra de navegação
-- Link para o histórico de partidas a partir de alguma aba (hoje `/partidas`
-  existe mas nada leva até ela)
 
-**Visual — fases 3 a 9 do brief**
+**Fase 09 — design system nas telas**
 - Componentes: `Button`, `Card`, `Badge`, `RatingStars`, `Skeleton`,
   `EmptyState`, `Toast`, `BalanceIndicator`, `TeamCard`, `PlayerCard`
-- Telas refeitas sobre os tokens
+- As nove telas refeitas sobre os tokens
 - Animação do sorteio (0,8–1,5 s)
 - Estados vazios e *skeletons* de carregamento
-- Layout de tablet e desktop
+
+**Fase 10 — polimento**
+- Layout de tablet e desktop além da moldura
 - Acessibilidade: foco visível, navegação por teclado, *reduced motion*
+- Testes em 360, 375, 390 e 414px
 
 **Falta testar**
-- Registrar partida, salvar avaliação e enviar foto **pela tela**
+- Registrar partida, salvar avaliação e enviar foto **pela tela** (hoje
+  verificados pela API)
 - As telas `/admin` e `/editar/[jogador]`
-- Rating com 5 ou mais avaliadores, para ver o piso liberar o número
-- Responsividade em 360px
+- O fluxo completo de ponta a ponta em produção
 
 ## Publicar
 

@@ -25,8 +25,8 @@ falta. Leia antes de comecar qualquer etapa.
 - **08 — Avaliacao pos-partida.** Concluida. Janela do dia seguinte,
   autorizacao por participacao na policy, uma avaliacao por par por partida.
   Substituiu a avaliacao global da etapa 04, e o rating passou a ler dela.
-- **09 — Design system e interface.** Tokens, identidade visual e as telas
-  refeitas sobre esses componentes.
+- **09 — Design system e interface.** Parcial. Tokens e identidade prontos e
+  testados; nenhuma tela usa ainda.
 - **10 — Polimento, acessibilidade e responsividade.**
 
 ## Decisoes fechadas
@@ -85,6 +85,21 @@ migracao; em troca, fica versionado.
 recebe jogadores com rating e devolve dois times. A fonte de aleatoriedade e
 injetavel, o que torna o teste deterministico -- e por isso da para provar que o
 modo rigoroso nunca e pior que o solto, em vez de torcer.
+
+**A avaliacao inicial existe para o grupo arrancar.** Com so a pos-partida,
+ninguem tem rating ate jogar, e o sorteio precisa de rating -- a primeira
+partida sairia no acaso. Cada pessoa pode avaliar cada outra UMA vez sem
+partida; depois disso, aquele par so se reavalia apos jogarem juntos.
+
+Quem garante o "uma vez" e a chave primaria de `avaliacoes`, e nao a tela. E ha
+uma segunda trava: sem policy de update, nem `upsert` sobrescreve. As duas foram
+verificadas -- 409 na chave, 403 no update.
+
+**A largura para em 768px.** Acima disso o conteudo centraliza. As telas foram
+desenhadas em uma coluna; esticar num monitor de 1920 daria linha longa demais e
+cartao com vao enorme. O fundo lateral exigiu trocar o tema do react-navigation
+-- o cinza padrao dele vem de dentro do navegador, e nenhuma View por cima
+alcanca.
 
 **Autenticacao e do Supabase Auth, nao nossa.** O pedido original era uma tabela
 `User` com `passwordHash`. Guardar senha a mao seria o ponto mais fragil do
