@@ -133,3 +133,35 @@ $$;
 
 revoke all on function public.ratings_dos_jogadores() from public, anon;
 grant execute on function public.ratings_dos_jogadores() to authenticated;
+
+-- ---------------------------------------------------------------------------
+-- O que ficou gravado na escala antiga
+-- ---------------------------------------------------------------------------
+--
+-- `partida_jogadores.rating_no_momento` NAO e calculado na leitura: e uma
+-- coluna, preenchida por `criar_partida()` com o rating congelado no instante
+-- do sorteio. Corrigir so a funcao deixaria essa coluna misturando duas
+-- escalas, sem nada que as distinga.
+--
+-- As linhas de hoje sao todas 6,0 -- o neutro da escala antiga --, porque
+-- nasceram quando ninguem tinha avaliacao. O neutro da escala nova e 5,0.
+--
+-- ---------------------------------------------------------------------------
+-- Por que o corte por data, e nao apenas `where rating_no_momento = 6.0`
+-- ---------------------------------------------------------------------------
+--
+-- Na escala nova, 6,0 e um valor legitimo: corresponde a 3,4 estrelas. Um
+-- `update ... where rating_no_momento = 6.0` sem limite de data funcionaria
+-- hoje e, se esta migracao fosse rodada de novo daqui a um mes, rebaixaria
+-- para 5,0 o rating de quem tivesse tirado exatamente 6,0 -- silenciosamente.
+--
+-- O corte e um instante fixo, posterior a todas as partidas que existiam
+-- quando esta migracao foi escrita e anterior a qualquer partida futura. Com
+-- ele, rodar de novo nao alcanca nada que nao devia.
+
+update public.partida_jogadores pj
+set rating_no_momento = 5.0
+from public.partidas p
+where p.id = pj.partida_id
+  and pj.rating_no_momento = 6.0
+  and p.criado_em < timestamptz '2026-08-20 14:30:00+00';
