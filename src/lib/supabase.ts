@@ -1,8 +1,25 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
 
-const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
-const anonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+/**
+ * Tira qualquer espaco em branco do valor, inclusive no meio.
+ *
+ * Nem URL nem JWT contem espaco, entao remover e sempre seguro. E necessario
+ * porque colar a chave num painel web -- o da Vercel, por exemplo -- costuma
+ * trazer quebras de linha junto, quando o campo de origem quebrou o texto na
+ * exibicao.
+ *
+ * O sintoma disso e traicoeiro: a variavel existe, entao o aplicativo sobe e a
+ * tela de login aparece normalmente; mas toda chamada volta 401, porque um JWT
+ * com `\n` no meio nao e um JWT. Foi exatamente o que aconteceu no primeiro
+ * deploy, e custou um bom tempo de investigacao.
+ */
+function limpar(valor: string | undefined): string | undefined {
+  return valor?.replace(/\s+/g, '') || undefined;
+}
+
+const url = limpar(process.env.EXPO_PUBLIC_SUPABASE_URL);
+const anonKey = limpar(process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY);
 
 if (!url || !anonKey) {
   throw new Error(
