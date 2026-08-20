@@ -142,7 +142,7 @@ Exercitado clicando na tela, com o banco real por trás.
 |---|---|
 | Cadastro, login e guarda de rota | entra, e sem sessão volta para o login |
 | Perfil: nome, apelido, cidade | grava e relê |
-| Lista de jogadores | 15 cadastrados, com apelido e cidade |
+| Lista de jogadores | 22 cadastrados, com apelido e cidade |
 | Busca | filtra por nome e por apelido |
 | Rating na lista | `–` e a contagem de avaliadores por jogador |
 | Navegação entre as três abas | as três carregam |
@@ -157,7 +157,7 @@ Regra de banco, provada com requisição direta — é onde a garantia realmente
 
 | O que | Resultado |
 |---|---|
-| Cálculo do rating | 15 jogadores, neutro em 6,0 — 3 estrelas em escala 0–10 |
+| Cálculo do rating | todos neutros em 6,0 — 3 estrelas em escala 0–10 |
 | Piso de confiança | com 1 avaliador o número segue oculto |
 | Registrar partida | 4×4 gravado, rating congelado no momento |
 | Escalação inválida (5 num time) | recusada com mensagem clara |
@@ -172,6 +172,10 @@ Regra de banco, provada com requisição direta — é onde a garantia realmente
 | **Avaliar no dia da partida** | **403 — janela fechada** |
 | **Avaliar 5 dias depois** | **403 — janela fechada** |
 | Notas fora de 1–5 | recusadas |
+| Administrador edita perfil alheio | 1 linha alterada |
+| **Usuário comum tenta se promover a admin** | **403 — permissão negada na coluna** |
+| **O próprio admin tenta promover alguém pela API** | **403 — não há caminho pela API** |
+| **Admin lê avaliação alheia** | **vazio — privilégio não dá acesso a voto** |
 
 ### 🧪 Coberto por teste automatizado
 
@@ -186,65 +190,61 @@ Regra de banco, provada com requisição direta — é onde a garantia realmente
 
 ### ⚠️ Escrito, porém **não testado**
 
-- **Papel de administrador** — ninguém está promovido, ver erro 1. A regra existe
-  no banco, mas nunca foi exercida por uma conta admin de verdade.
 - **Envio de foto de perfil pela tela** — o bucket existe e as policies estão
   postas; o seletor de imagem nunca foi acionado.
 - **Registrar a partida pela tela** — o botão existe e a função do banco foi
   testada pela API, mas o caminho tela → banco não.
 - **Salvar avaliação pela tela** — mesmo caso.
+- **Telas de administração** — a regra está provada no banco; `/admin` e
+  `/editar/[jogador]` nunca foram abertas.
 
 ### 🔴 Erros conhecidos
 
-**1. Ninguém é administrador, e a migração não avisou.**
-A `0009` fazia `update ... where id = (select ... from auth.users)`. A conta
-existia em `auth.users` mas não tinha linha em `jogadores` — o gatilho da `0003`
-nunca foi instalado, e a conta foi criada pela API sem nunca abrir o app. O
-update casou com **zero linhas**, e zero linhas não é erro: a migração passou
-verde sem promover ninguém.
-
-A `0011` corrige em duas frentes: cria o perfil de qualquer conta que não tenha,
-e faz a promoção dentro de um bloco que **lança exceção se não alterar
-exatamente uma linha**. 🧑 **Falta rodar.**
-
-**2. O deploy do Vercel está atrás de autenticação.**
+**1. O deploy do Vercel está atrás de autenticação.**
 `volei4x4-r9ww5q2fc-lucasriboldis-projects.vercel.app` responde **302** para
 `vercel.com/sso-api`: é a Deployment Protection. Ninguém do grupo abre o app sem
 conta na Vercel. Desligar em *Project Settings → Deployment Protection*.
 
-**3. O projeto não tem como ser construído pela Vercel.**
+**2. O projeto não tem como ser construído pela Vercel.**
 Não há `vercel.json` nem script de build. Expo web precisa de
 `npx expo export -p web`, que gera `dist/`. Sem isso a Vercel não sabe o que
 publicar.
 
-**4. As variáveis de ambiente provavelmente faltam na Vercel.**
+**3. As variáveis de ambiente provavelmente faltam na Vercel.**
 Não dá para verificar de fora. Mas sem `EXPO_PUBLIC_SUPABASE_URL` e
 `EXPO_PUBLIC_SUPABASE_ANON_KEY`, `src/lib/supabase.ts` lança no import e a
 página fica em branco.
 
-**5. O gatilho de criação de perfil (`0003`) não está instalado.**
+**4. O gatilho de criação de perfil (`0003`) não está instalado.**
 Contas criadas fora do app ficam sem linha em `jogadores` até abrirem a tela de
-Perfil, quando `garantirMeuPerfil()` cria. Funciona, mas foi a causa do erro 1.
+Perfil, quando `garantirMeuPerfil()` cria. Funciona, e a `0011` preencheu o que
+havia ficado para trás — mas contas novas criadas por fora seguem dependendo do
+primeiro acesso.
 
-**6. Os 13 jogadores de demonstração estão sem foto.**
+**5. Os 13 jogadores de demonstração estão sem foto.**
 Semeados antes de o bucket existir. Basta rodar `python scripts/semear.py` de
 novo — é idempotente.
 
-**7. As telas ainda não usam o design system.**
+**6. As telas ainda não usam o design system.**
 `src/design/tokens.ts` existe e está coberto por teste, mas nenhuma tela o
 consome: elas leem `src/constants/theme.ts`, a paleta escura antiga.
 
-**8. `app.json` declara tema claro, telas continuam escuras.**
-Consequência do item 7. A inconsistência é minha e se resolve nas fases visuais.
+**7. `app.json` declara tema claro, telas continuam escuras.**
+Consequência do item 6. A inconsistência é minha e se resolve nas fases visuais.
 
-**9. Rating sem base real.**
+**8. Rating sem base real.**
 Existe uma avaliação no banco, criada em teste. Nenhum jogador chega ao piso de
 5 avaliadores, então a lista inteira mostra `–`. É o comportamento correto, mas
 significa que a fórmula nunca foi vista produzindo número de verdade.
 
-**10. Contas de teste no banco.**
+**9. Contas de teste no banco.**
 Dez contas `volei4x4.*@gmail.com`, três partidas e uma avaliação, criadas em
-teste. Remover exige `service_role`.
+teste. O backfill da `0011` deu perfil a todas, então elas aparecem na lista de
+jogadores — hoje são 22, e não 15. Remover exige `service_role`.
+
+**10. Bruno Carvalho está com a cidade errada.**
+Ficou "Esteio" depois do teste de edição por administrador. Dado de
+demonstração, mas é ruído.
 
 ### 📋 Falta criar
 
@@ -273,8 +273,8 @@ teste. Remover exige `service_role`.
 
 **Falta testar**
 - Registrar partida, salvar avaliação e enviar foto **pela tela**
+- As telas `/admin` e `/editar/[jogador]`
 - Rating com 5 ou mais avaliadores, para ver o piso liberar o número
-- Administrador editando o perfil de outra pessoa
 - Responsividade em 360px
 
 ## Configuração
