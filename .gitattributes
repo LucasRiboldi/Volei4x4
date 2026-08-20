@@ -1,17 +1,17 @@
 # Finais de linha.
 #
-# O repositorio tinha 7 de 36 arquivos de `src/` em CRLF e o resto em LF, o que
-# enche o diff de linhas que nao mudaram. Aqui o repositorio passa a guardar LF
-# sempre, e cada maquina fica livre para usar o que quiser no disco.
+# O repositorio ja guarda LF em tudo -- `git ls-files --eol` nao acha um unico
+# arquivo com CRLF no indice. Isso NAO era merito do repositorio: era o
+# `core.autocrlf=true` da maquina de quem commitava, convertendo na entrada.
 #
-# Isto vale para arquivo NOVO e para arquivo tocado daqui em diante. Para
-# normalizar o que ja esta gravado, uma vez so, e depois de commitar o que
-# estiver pendente:
+# E ai esta o problema que este arquivo resolve. `core.autocrlf` e configuracao
+# DE MAQUINA: nao viaja no clone, e nao vale para CI nem para quem chegar depois
+# sem te-la ligada. Bastaria um commit vindo de uma maquina sem ela para entrar
+# CRLF no repositorio, e a partir dai os diffs passariam a mostrar arquivos
+# inteiros como alterados.
 #
-#     git add --renormalize .
-#
-# Vale ser um commit sozinho: ele mexe em muitos arquivos sem mudar uma linha de
-# comportamento, e misturado com outra coisa esconde a outra coisa.
+# Com a regra abaixo a garantia deixa de depender da configuracao de cada um e
+# passa a viajar junto com o codigo.
 
 * text=auto eol=lf
 
