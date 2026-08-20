@@ -38,7 +38,7 @@ Você só edita o seu próprio perfil. Ninguém mexe no seu.
 A aba **Jogadores** mostra todo mundo do grupo, com foto, apelido, cidade e a
 nota geral de cada um.
 
-- O número grande é o **rating**, de 0 a 10.
+- O número grande é o **rating**, de 0 a 10. O meio da escala é 5,0.
 - Um traço (`–`) no lugar do número quer dizer **ainda não há avaliações
   suficientes**. Não é nota zero: é o app dizendo que ainda não sabe o
   bastante para arriscar um número.
@@ -233,10 +233,17 @@ consome: elas leem `src/constants/theme.ts`, a paleta escura antiga.
 **7. `app.json` declara tema claro, telas continuam escuras.**
 Consequência do item 6. A inconsistência é minha e se resolve nas fases visuais.
 
-**8. Rating sem base real.**
-Existe uma avaliação no banco, criada em teste. Nenhum jogador chega ao piso de
-5 avaliadores, então a lista inteira mostra `–`. É o comportamento correto, mas
-significa que a fórmula nunca foi vista produzindo número de verdade.
+**8. 🧑 A escala do rating estava errada — correção pendente.**
+A conversão de estrelas para rating era `média × 2`, o que dava a faixa **2 a
+10** em vez de 0 a 10: ninguém podia receber menos que 2, e o meio da escala
+caía em 6,0. O correto para [1..5] → [0..10] é `(média − 1) / 4 × 10`.
+
+Passou despercebido enquanto todos saíam no valor neutro — 6,0 parecia tão
+plausível quanto qualquer número. Só apareceu depois da semeadura, quando o pior
+jogador do lote recebeu 4,7 em vez de algo perto de 3.
+
+A `0012` corrige. O rating não é gravado, é sempre calculado, então a próxima
+leitura já sai certa — não há recálculo a fazer.
 
 **9. Contas de teste no banco.**
 Dez contas `volei4x4.*@gmail.com`, três partidas e uma avaliação, criadas em
@@ -254,7 +261,7 @@ perguntar.
 
 | Decisão | O que está em jogo |
 |---|---|
-| **Semear avaliações fictícias?** | O rating nunca produziu número real: o piso é 5 avaliadores e há 1 avaliação no banco. Semear mostra a fórmula funcionando, mas mistura dado inventado com o real. |
+| ~~Semear avaliações fictícias?~~ | **Decidido: sim, de forma reversível.** 4 partidas e 224 avaliações, só entre as contas `@volei4x4-teste.com`. Nenhuma conta real dá ou recebe nota. `scripts/semear-avaliacoes.py --desfazer` mostra como remover. |
 | **O que fazer com as 10 contas de teste?** | Hoje aparecem na lista de jogadores junto com os 13 fictícios. Apagar exige `service_role`; a alternativa é marcá-las de alguma forma na interface. |
 | **A autoavaliação volta?** | Você a retirou. A tabela continua no banco, vazia. Enquanto não voltar, quem nunca jogou não tem nenhum dado — cai no valor neutro. |
 | **Tema claro ou escuro?** | Montei os dois. Deixei o claro como padrão porque o brief pede areia, sol e verão, mas o app nasceu escuro. É uma linha para reverter, e o custo cresce depois que as telas forem refeitas. |
@@ -270,10 +277,10 @@ Em ordem, e com o porquê de cada posição.
 É o que separa "roda na máquina do Lucas" de "o grupo usa". O resto do trabalho
 não tem valor enquanto ninguém alcança o app.
 
-**2. Semear avaliações e conferir o rating.**
-O rating é o coração do produto e nunca foi visto funcionando. Se a fórmula
-estiver errada, isso contamina o sorteio, o histórico e a percepção de todo o
-app — e quanto mais tarde descobrir, mais caro.
+**2. ✅ Semear avaliações e conferir o rating — feito, e valeu a pena.**
+A ordenação saiu correta: o ranking por rating bate com o ranking por nível
+semeado, jogador a jogador. E a conferência encontrou um defeito de escala que
+nenhuma quantidade de leitura de código teria mostrado — ver erro 8.
 
 **3. Fechar os buracos de produto.**
 São pequenos e visíveis: nada leva ao histórico, o placar não tem tela, falta o
