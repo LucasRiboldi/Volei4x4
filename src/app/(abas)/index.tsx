@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Avatar } from '@/components/avatar';
 import { Cores, Espaco, Raio } from '@/constants/theme';
 import { useAuth } from '@/contexts/auth';
+import { meusAvaliadosInicialmente } from '@/lib/avaliacao-inicial';
 import { minhasPartidasParaAvaliar, type PartidaParaAvaliar } from '@/lib/avaliacoes-de-partida';
 import { mensagemDeErro } from '@/lib/erros';
 import { listarJogadores, type Jogador } from '@/lib/jogadores';
@@ -29,6 +30,8 @@ export default function Jogadores() {
   const [jogadores, setJogadores] = useState<Jogador[] | null>(null);
   const [pendentes, setPendentes] = useState<PartidaParaAvaliar[]>([]);
   const [ratings, setRatings] = useState<Map<string, Rating>>(new Map());
+  // De quem eu ja fiz a avaliacao inicial -- a que vale uma vez so.
+  const [jaAvaliados, setJaAvaliados] = useState<Set<string>>(new Set());
   const [busca, setBusca] = useState('');
   const [erro, setErro] = useState<string | null>(null);
 
@@ -36,16 +39,18 @@ export default function Jogadores() {
     try {
       setErro(null);
       // Independentes: esperar uma depois da outra triplicaria a espera.
-      const [lista, mapa, aAvaliar] = await Promise.all([
+      const [lista, mapa, aAvaliar, iniciais] = await Promise.all([
         listarJogadores(),
         mapaDeRatings(),
         minhasPartidasParaAvaliar(),
+        meusAvaliadosInicialmente(),
       ]);
       if (!continuaValendo()) return;
 
       setJogadores(lista);
       setRatings(mapa);
       setPendentes(aAvaliar.filter((p) => p.pendentes > 0));
+      setJaAvaliados(iniciais);
     } catch (e) {
       if (continuaValendo()) {
         setErro(mensagemDeErro(e, 'Não foi possível carregar os jogadores.'));
@@ -64,6 +69,18 @@ export default function Jogadores() {
       };
     }, [carregar])
   );
+
+  // Com quem eu tenho partida aberta para avaliar agora. Se a pessoa esta aqui,
+  // o botao dela leva a avaliacao daquela partida -- e nao a inicial.
+  const comPartidaAberta = useMemo(() => {
+    const mapa = new Map<string, string>();
+    for (const p of pendentes) {
+      for (const j of p.aAvaliar) {
+        if (!j.jaAvaliei) mapa.set(j.jogador_id, p.partida.id);
+      }
+    }
+    return mapa;
+  }, [pendentes]);
 
   const filtrados = useMemo(() => {
     const termo = busca.trim().toLowerCase();
@@ -131,6 +148,17 @@ export default function Jogadores() {
             jogador={item}
             souEu={item.id === meuId}
             rating={ratings.get(item.id) ?? null}
+            jaAvaliadoInicialmente={jaAvaliados.has(item.id)}
+            partidaAberta={comPartidaAberta.get(item.id) ?? null}
+            aoAvaliarPartida={(partida) =>
+              router.push({
+                pathname: '/partida/[partida]/avaliar/[jogador]',
+                params: { partida, jogador: item.id },
+              })
+            }
+            aoAvaliarInicial={() =>
+              router.push({ pathname: '/avaliar-inicial/[jogador]', params: { jogador: item.id } })
+            }
           />
         )}
       />
@@ -160,10 +188,18 @@ function Linha({
   jogador,
   souEu,
   rating,
+  jaAvaliadoInicialmente,
+  partidaAberta,
+  aoAvaliarPartida,
+  aoAvaliarInicial,
 }: {
   jogador: Jogador;
   souEu: boolean;
   rating: Rating | null;
+  jaAvaliadoInicialmente: boolean;
+  partidaAberta: string | null;
+  aoAvaliarPartida: (partida: string) => void;
+  aoAvaliarInicial: () => void;
 }) {
   const detalhe = [jogador.apelido, jogador.cidade].filter(Boolean).join(' · ');
 
@@ -202,6 +238,34 @@ function Linha({
             ? `${rating.avaliadores} ${rating.avaliadores === 1 ? 'avaliador' : 'avaliadores'}`
             : 'sem avaliações'}
         </Text>
+
+        {/*
+          Tres estados, nesta ordem de prioridade:
+          partida aberta em comum vence tudo -- e a via normal do produto;
+          senao, a inicial, se ainda nao foi feita;
+          senao, nada a fazer ate a proxima partida juntos.
+        */}
+        {souEu ? null : partidaAberta ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Avaliar ${jogador.nome} pela partida`}
+            hitSlop={Espaco.dois}
+            onPress={() => aoAvaliarPartida(partidaAberta)}
+            style={({ pressed }) => [estilos.botao, estilos.botaoPartida, pressed && estilos.pressionado]}>
+            <Text style={estilos.textoDoBotaoPartida}>avaliar partida</Text>
+          </Pressable>
+        ) : !jaAvaliadoInicialmente ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Fazer a avaliação inicial de ${jogador.nome}`}
+            hitSlop={Espaco.dois}
+            onPress={aoAvaliarInicial}
+            style={({ pressed }) => [estilos.botao, pressed && estilos.pressionado]}>
+            <Text style={estilos.textoDoBotao}>avaliar</Text>
+          </Pressable>
+        ) : (
+          <Text style={estilos.aguardando}>após jogarem juntos</Text>
+        )}
       </View>
     </View>
   );
@@ -308,6 +372,18 @@ const estilos = StyleSheet.create({
     color: Cores.textoFraco,
     fontSize: 12,
   },
+  botao: {
+    borderColor: Cores.mar,
+    borderRadius: Raio.pequeno,
+    borderWidth: 1,
+    marginTop: Espaco.um,
+    paddingHorizontal: Espaco.dois,
+    paddingVertical: 5,
+  },
+  botaoPartida: { backgroundColor: Cores.mar, borderColor: Cores.mar },
+  textoDoBotao: { color: Cores.mar, fontSize: 12, fontWeight: '700' },
+  textoDoBotaoPartida: { color: Cores.texto, fontSize: 12, fontWeight: '700' },
+  aguardando: { color: Cores.borda, fontSize: 11, marginTop: Espaco.um, textAlign: 'right' },
   pressionado: {
     opacity: 0.7,
   },
