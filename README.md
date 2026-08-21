@@ -246,7 +246,7 @@ utilizável. Ordenado por gravidade.
 
 | # | Problema | Onde | Situação |
 |---|---|---|---|
-| **C-03** | `ratings_dos_jogadores()` tem cinco definições (`0007`, `0010`, `0012`, `0015`, `0016`). Cada uma repete os oito pesos, o prior e o piso — 40 constantes, 32 obsoletas. O cabeçalho da `0007` ainda diz ser "a única fonte", o que hoje é falso e induz a editar o arquivo errado. | `supabase/migrations/` | ⬜ pendente |
+| **C-03** | Consolidada na `0017`: os números saem para `rating_parametros()`, e mudar um peso passa a ser mexer numa função de dez linhas em vez de reescrever cento e trinta. As cinco anteriores ganharam aviso de superada. | `supabase/migrations/0017` | 🔶 **escrita; falta aplicar a `0017`** |
 
 #### Médio
 
@@ -262,7 +262,6 @@ utilizável. Ordenado por gravidade.
 
 | # | Problema | Onde | Situação |
 |---|---|---|---|
-| **C-11** | Sobrou o lado SQL: `coalesce(r.rating, 0)` em `criar_partida()`, na `0008`. Ali o efeito é pior que na tela — se a linha faltar, o `insert ... select` grava **zero linhas** e a partida nasce com menos de 8 jogadores, em silêncio. Corrigir pede redefinir uma função de 100 linhas, o que hoje só acrescentaria mais uma cópia; vai junto com o C-03. | `supabase/migrations/0008_partidas.sql` | 🔶 **lado do cliente corrigido; SQL vai com o C-03** |
 | **C-12** | `salvarPlacar()` existe e não tem chamador. O banco aceita placar; nenhuma tela oferece. | `src/lib/partidas.ts` | ⬜ pendente |
 | **C-13** | Nada leva ao histórico. `/partidas` funciona e nenhuma tela aponta para ela. | — | ⬜ pendente |
 | **C-16** | O plano lista "onde roda o sorteio" como item em aberto, a decidir na etapa 06. A etapa 06 está concluída e o sorteio roda no cliente: a decisão foi tomada de fato e nunca registrada. | `docs/plano.md` | ⬜ pendente |
@@ -329,7 +328,9 @@ Sobrou:
 
 #### Fase 3 — consolidação
 
-- Consolidar `ratings_dos_jogadores()` numa definição vigente (C-03)
+- 🧑 **Aplicar a `0017` no SQL Editor**, e conferir contra a linha de base: 22
+  jogadores, 13 confiáveis, ratings de 3,57 a 7,28. Nenhum número deve se mexer
+  — a fórmula é a mesma, só os literais viraram campos de configuração
 - Regenerar `docs/mer.html` (C-07)
 - Reorganizar a documentação; unir `supabase/manual/` e `supabase/testes/` (C-17)
 - Escrever um `AGENTS.md` de verdade: arquitetura, regras invioláveis, como

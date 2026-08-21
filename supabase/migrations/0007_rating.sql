@@ -1,3 +1,15 @@
+-- =========================================================================
+-- SUPERADA. Esta migracao nao e mais a definicao vigente de
+-- `ratings_dos_jogadores()`. A vigente e a 0017.
+--
+-- Fica no historico porque ja foi aplicada e porque o cabecalho abaixo explica
+-- POR QUE cada coisa e como e -- o raciocinio continua valendo. O que nao vale
+-- mais e o CODIGO: os pesos, o prior e o piso daqui estao obsoletos. Mexer
+-- neles nao muda nada em banco nenhum.
+--
+-- Para mudar um peso hoje, o lugar e `rating_parametros()`, na 0017.
+-- =========================================================================
+
 -- Etapa 05 -- O rating.
 --
 -- ---------------------------------------------------------------------------
@@ -72,7 +84,8 @@ declare
   -- Minimo de avaliadores para o numero sair calculado em vez de neutro.
   c_piso constant int := 5;
 
-  -- Os pesos. Somam 1. Esta e a unica fonte deles no sistema.
+  -- Os pesos. Somam 1. (Era a unica fonte deles quando isto foi escrito;
+  -- hoje a fonte e `rating_parametros()`, na 0017. Ver o aviso no topo.)
   c_p_ataque    constant numeric := 0.20;
   c_p_defesa    constant numeric := 0.20;
   c_p_passe     constant numeric := 0.15;

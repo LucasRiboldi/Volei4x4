@@ -1,3 +1,15 @@
+-- =========================================================================
+-- SUPERADA. Esta migracao nao e mais a definicao vigente de
+-- `ratings_dos_jogadores()`. A vigente e a 0017.
+--
+-- Fica no historico porque ja foi aplicada e porque o cabecalho abaixo explica
+-- POR QUE cada coisa e como e -- o raciocinio continua valendo. O que nao vale
+-- mais e o CODIGO: os pesos, o prior e o piso daqui estao obsoletos. Mexer
+-- neles nao muda nada em banco nenhum.
+--
+-- Para mudar um peso hoje, o lugar e `rating_parametros()`, na 0017.
+-- =========================================================================
+
 -- Avaliacao pos-partida.
 --
 -- A nota deixa de ser opiniao solta sobre uma pessoa e passa a ser observacao
