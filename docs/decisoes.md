@@ -1,37 +1,13 @@
-# Plano do projeto
+# Decisões
 
-Documento vivo. Registra o que ja foi decidido, para nao redecidir, e o que
-falta. Leia antes de comecar qualquer etapa.
+O que já foi decidido, e por quê -- para não redecidir. Decisão revertida não é
+apagada: fica marcada como revertida, com o motivo, que é o que impede a volta
+silenciosa de uma ideia já descartada.
 
-## Etapas
+O estado do projeto não mora aqui: está em [estado.md](estado.md). O que já
+custou caro está em [armadilhas.md](armadilhas.md).
 
-- **01 — Estrutura, banco e autenticacao.** Concluida. Scaffold Expo limpo,
-  `jogadores` com RLS e gatilho de perfil, autenticacao por e-mail e senha,
-  telas de login e cadastro, guarda de rota.
-- **02 — Perfil do jogador.** Concluida. Nome, apelido, cidade e foto, com a
-  imagem no bucket `avatares` do Storage. A autoavaliacao chegou a existir aqui
-  e foi retirada do produto -- ver as decisoes abaixo.
-- **03 — Lista de jogadores.** Concluida. As tres abas (Jogadores, Sorteio,
-  Perfil), a lista com foto e apelido, e busca por nome ou apelido.
-- **04 — Avaliacoes.** Concluida. Um voto por par, corrigivel, com a tela de
-  avaliar e a marca de ja avaliado na lista. Voto e privado: so quem deu le.
-- **05 — Rating.** Concluida e verificada com dado semeado. Formula bayesiana
-  com piso de confianca, calculada no banco. Escala 0-10, neutro em 5,0.
-- **06 — Motor de balanceamento.** Concluida. As 35 divisoes, recorte por modo
-  de equilibrio e sorteio ponderado, em `src/nucleo/sorteio.ts`. 11 testes.
-- **07 — Partidas e sorteio.** Concluida. Selecionar 8, sortear e gravar a
-  partida com os times. As tabelas nasceram aqui porque a avaliacao pos-partida
-  depende delas.
-- **08 — Avaliacao pos-partida.** Concluida. Janela do dia seguinte,
-  autorizacao por participacao na policy, uma avaliacao por par por partida.
-  Substituiu a avaliacao global da etapa 04, e o rating passou a ler dela.
-- **09 — Design system e interface.** Parcial. Tokens e identidade prontos e
-  testados; nenhuma tela usa ainda.
-- **10 — Polimento, acessibilidade e responsividade.** Nao iniciada.
-- **Publicacao.** Concluida. No ar em https://volei4x4.vercel.app, com build
-  proprio, manifest de PWA e moldura de 768px.
-
-## Decisoes fechadas
+## Decisões fechadas
 
 **O alvo e a web, e so a web -- mas continua sendo Expo.** Toda etapa e feita e
 testada no navegador; celular nao entra no criterio de pronto de nenhuma delas.
@@ -198,68 +174,26 @@ curta, e nao havera rotina de backup enquanto isto for um grupo de amigos. Fica
 registrado como risco aceito, e nao como esquecimento -- se o grupo passar a
 depender do historico de avaliacoes, a decisao precisa ser revista.
 
-## Armadilhas ja encontradas
+**As regras de autorizacao vivem no banco, nao na tela.** Quem pode avaliar
+quem, quando, e quem pode editar qual perfil e decidido por policies de RLS.
+Interface escondida nao protege nada -- um `curl` com a chave publica bateria
+na mesma parede.
 
-- **`esbuild` precisa de aprovacao de script no npm 11.** O vitest depende dele,
-  e o npm 11 bloqueia postinstall por padrao. Esta registrado em `allowScripts`
-  no `package.json`; sem isso o vitest nao roda.
-- **`npx expo install --fix` nao passa neste projeto, pelo mesmo motivo.** Ele
-  chama `npm install --allow-scripts` por dentro, e o npm 11 recusa essa flag
-  em instalacao de projeto:
+**A janela de avaliacao e gravada na criacao da partida**, nao calculada na
+hora, e nao depende de cron. Se esta aberta e uma comparacao entre o instante
+atual e os dois marcos gravados, feita pelo servidor.
 
-      npm error code EALLOWSCRIPTS
-      --allow-scripts is not allowed in project-scoped installs
 
-  A permissao tem de vir do campo `allowScripts` do `package.json` -- que ja
-  existe aqui --, e nao de uma flag. A saida e instalar direto pelo npm,
-  nomeando as versoes que o `--check` pediu. `npm install` mexe no
-  `package.json` e no lockfile juntos, que e o que o `expo lint` nao fazia e
-  que quebrava o `npm ci`.
-- **Sem `window` no pre-render**, o cliente do Supabase lanca ao inicializar e
-  derruba o processo, porque isso acontece fora de qualquer try. Ha uma guarda
-  em `src/lib/supabase.ts`. Vale mesmo com a web em SPA, porque a guarda tambem
-  protege qualquer execucao em Node.
-- **Tabela sem `grant` some da API, e o erro nao diz isso.** Criar a tabela e
-  ligar a RLS nao basta: sem privilegio de tabela para `authenticated`, o
-  PostgREST nao inclui a tabela no cache de schema e responde
+# Virar app de celular depois
 
-      PGRST205: Could not find the table 'public.jogadores' in the schema cache
+O projeto é Expo, então o mesmo código que roda no navegador gera aplicativo
+Android e iOS — `npm run android` e `npm run ios` já estão no `package.json`.
+Não há migração a fazer no dia em que isso for desejado.
 
-  que parece tabela inexistente. As duas travas sao diferentes: `grant` decide
-  SE a tabela e alcancavel, RLS decide QUAIS LINHAS. Toda tabela nova precisa
-  das duas. Ver `0004_permissoes.sql`, que tambem deixa um
-  `alter default privileges` para as proximas.
-- **`create trigger` em `auth.users` pode derrubar a migracao inteira.** O
-  editor de SQL do Supabase roda o script em uma transacao: um erro de
-  privilegio no gatilho reverte as tabelas criadas antes dele. Por isso o
-  gatilho vive sozinho na 0003.
-- **`security definer` sem `set search_path = ''` e buraco de seguranca.** A
-  funcao roda como dona do banco e um schema no caminho de busca pode sequestrar
-  a resolucao de nome.
-- **Privilegio de execucao vem de duas fontes.** O Postgres da EXECUTE a PUBLIC
-  em toda funcao nova; o Supabase da a `anon` e `authenticated` por
-  `alter default privileges`. Revogar de uma so deixa a outra passar. O idioma
-  certo e `revoke ... from public, anon, authenticated` e conceder depois.
-- **Update ou delete que nao casa com nenhuma linha e sucesso.** O PostgREST
-  responde 200 com lista vazia, nao erro. Uma policy que barra a operacao
-  produz exatamente isso: a tela diz que salvou e nada mudou. Onde a recusa
-  precisa ser visivel, a operacao vira funcao que levanta excecao -- policy
-  sozinha nao sabe reclamar.
-- **Policy de UPDATE sem policy de SELECT nunca dispara.** Todo update vindo do
-  cliente precisa de um `where` para achar a linha, e isso faz valer as
-  policies de SELECT junto com as de UPDATE. Sem nenhuma de SELECT o update
-  casa com zero linhas -- e, pela armadilha acima, calado. O mesmo vale para
-  `insert ... on conflict do update`, que consulta a policy de SELECT para
-  checar a linha existente.
-- **Policy que consulta a propria tabela entra em recursao infinita.** Ler
-  `jogadores` para decidir se voce pode ler `jogadores` nao termina. A saida e
-  a checagem viver em funcao `security definer`, que roda por fora da RLS e
-  corta o ciclo -- e o que `e_admin()` ja faz. Toda policy nova que dependa de
-  um atributo guardado na propria tabela precisa de uma funcao assim.
-- **`.returns<T>()` do supabase-js esta deprecado**, em favor de
-  `.overrideTypes<T, { merge: false }>()`. E funcao que devolve uma linha so
-  precisa de `.maybeSingle()` antes: o PostgREST responde com o objeto direto,
-  e sem isso o TypeScript acusa conversao de lista para objeto.
+Para que continue assim, vale **uma regra**: só usar bibliotecas que existam
+dentro do Expo Go. Assim que entrar um pacote com código nativo próprio, esse
+caminho barato acaba: passa a ser necessário um *development build*, e o iOS
+exige o Apple Developer Program (US$ 99/ano).
 
 ## Em aberto
 
