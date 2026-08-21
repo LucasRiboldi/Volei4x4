@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Avatar } from '@/components/avatar';
-import { Cores, Espaco, Raio } from '@/constants/theme';
+import { espaco, quebras, raio, tema, tipografia } from '@/design/tema';
 import { minhasPartidasParaAvaliar, type PartidaParaAvaliar } from '@/lib/avaliacoes-de-partida';
 import { mensagemDeErro } from '@/lib/erros';
 
@@ -54,7 +54,7 @@ export default function AvaliarPartida() {
       <>
         <Stack.Screen options={{ headerShown: true, title: 'Avaliar' }} />
         <View style={[estilos.tela, estilos.centralizado]}>
-          <ActivityIndicator color={Cores.areia} />
+          <ActivityIndicator color={tema.primaria} />
         </View>
       </>
     );
@@ -130,24 +130,24 @@ export default function AvaliarPartida() {
 }
 
 const estilos = StyleSheet.create({
-  tela: { backgroundColor: Cores.fundo, flex: 1, paddingHorizontal: Espaco.tres },
-  centralizado: { alignItems: 'center', justifyContent: 'center', padding: Espaco.quatro },
-  cabecalho: { gap: Espaco.um, paddingVertical: Espaco.tres },
-  progresso: { color: Cores.texto, fontSize: 20, fontWeight: '800' },
-  prazo: { color: Cores.areia, fontSize: 14, fontWeight: '600' },
-  explicacao: { color: Cores.textoFraco, fontSize: 13, lineHeight: 19, marginTop: Espaco.um },
-  lista: { gap: Espaco.dois, paddingBottom: Espaco.tres },
+  tela: { backgroundColor: tema.fundo, flex: 1, paddingHorizontal: espaco.n4 },
+  centralizado: { alignItems: 'center', justifyContent: 'center', padding: espaco.n6 },
+  cabecalho: { gap: espaco.n1, paddingVertical: espaco.n4 },
+  progresso: { color: tema.texto, fontSize: 20, fontWeight: '800' },
+  prazo: { color: tema.primaria, fontSize: 14, fontWeight: '600' },
+  explicacao: { color: tema.textoFraco, fontSize: 13, lineHeight: 19, marginTop: espaco.n1 },
+  lista: { gap: espaco.n2, paddingBottom: espaco.n4 },
   cartao: {
     alignItems: 'center',
-    backgroundColor: Cores.fundoCartao,
-    borderRadius: Raio.medio,
+    backgroundColor: tema.superficie,
+    borderRadius: raio.md,
     flexDirection: 'row',
-    gap: Espaco.dois,
-    padding: Espaco.dois,
+    gap: espaco.n2,
+    padding: espaco.n2,
   },
   pressionado: { opacity: 0.7 },
-  nome: { color: Cores.texto, flex: 1, fontSize: 16, fontWeight: '600' },
-  feito: { color: Cores.sucesso, fontSize: 13, fontWeight: '700' },
-  pendente: { color: Cores.mar, fontSize: 13, fontWeight: '700' },
-  aviso: { color: Cores.textoFraco, fontSize: 15, lineHeight: 22, textAlign: 'center' },
+  nome: { color: tema.texto, flex: 1, fontSize: 16, fontWeight: '600' },
+  feito: { color: tema.sucesso, fontSize: 13, fontWeight: '700' },
+  pendente: { color: tema.primaria, fontSize: 13, fontWeight: '700' },
+  aviso: { color: tema.textoFraco, fontSize: 15, lineHeight: 22, textAlign: 'center' },
 });

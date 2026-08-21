@@ -1,7 +1,7 @@
 import { Tabs } from 'expo-router';
 import { Text, type ColorValue } from 'react-native';
 
-import { Cores } from '@/constants/theme';
+import { espaco, quebras, raio, tema, tipografia } from '@/design/tema';
 
 /**
  * As tres areas do aplicativo.
@@ -16,13 +16,13 @@ export default function LayoutDasAbas() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: Cores.areia,
-        tabBarInactiveTintColor: Cores.textoFraco,
+        tabBarActiveTintColor: tema.primaria,
+        tabBarInactiveTintColor: tema.textoFraco,
         tabBarStyle: {
-          backgroundColor: Cores.fundoCartao,
-          borderTopColor: Cores.borda,
+          backgroundColor: tema.superficie,
+          borderTopColor: tema.borda,
         },
-        sceneStyle: { backgroundColor: Cores.fundo },
+        sceneStyle: { backgroundColor: tema.fundo },
       }}>
       {/* `index` e a lista de jogadores: e a tela que abre ao entrar. */}
       <Tabs.Screen

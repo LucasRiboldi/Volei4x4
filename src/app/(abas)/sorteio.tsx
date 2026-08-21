@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Avatar } from '@/components/avatar';
 import { Botao } from '@/components/botao';
-import { Cores, Espaco, Raio } from '@/constants/theme';
+import { espaco, quebras, raio, tema, tipografia } from '@/design/tema';
 import { mensagemDeErro } from '@/lib/erros';
 import { listarJogadores, type Jogador } from '@/lib/jogadores';
 import { criarPartida } from '@/lib/partidas';
@@ -102,7 +102,7 @@ export default function Sorteio() {
   if (jogadores === null) {
     return (
       <SafeAreaView edges={['top']} style={[estilos.tela, estilos.centralizado]}>
-        <ActivityIndicator color={Cores.areia} />
+        <ActivityIndicator color={tema.primaria} />
       </SafeAreaView>
     );
   }
@@ -290,70 +290,70 @@ function CartaDoTime({
 }
 
 const estilos = StyleSheet.create({
-  tela: { backgroundColor: Cores.fundo, flex: 1, paddingHorizontal: Espaco.tres },
+  tela: { backgroundColor: tema.fundo, flex: 1, paddingHorizontal: espaco.n4 },
   centralizado: { alignItems: 'center', justifyContent: 'center' },
   cabecalho: {
     alignItems: 'baseline',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingTop: Espaco.tres,
+    paddingTop: espaco.n4,
   },
-  titulo: { color: Cores.texto, fontSize: 28, fontWeight: '800' },
-  contagem: { color: Cores.areia, fontSize: 15, fontWeight: '700' },
-  modos: { flexDirection: 'row', gap: Espaco.dois, marginTop: Espaco.tres },
+  titulo: { color: tema.texto, fontSize: 28, fontWeight: '800' },
+  contagem: { color: tema.primaria, fontSize: 15, fontWeight: '700' },
+  modos: { flexDirection: 'row', gap: espaco.n2, marginTop: espaco.n4 },
   modo: {
-    backgroundColor: Cores.fundoCartao,
-    borderColor: Cores.borda,
-    borderRadius: Raio.pequeno,
+    backgroundColor: tema.superficie,
+    borderColor: tema.borda,
+    borderRadius: raio.sm,
     borderWidth: 1,
     flex: 1,
-    paddingVertical: Espaco.dois,
+    paddingVertical: espaco.n2,
   },
-  modoAtivo: { backgroundColor: Cores.areia, borderColor: Cores.areia },
-  textoDoModo: { color: Cores.textoFraco, fontSize: 13, fontWeight: '700', textAlign: 'center' },
-  textoDoModoAtivo: { color: Cores.fundo },
-  lista: { gap: Espaco.dois, paddingVertical: Espaco.tres },
+  modoAtivo: { backgroundColor: tema.primaria, borderColor: tema.primaria },
+  textoDoModo: { color: tema.textoFraco, fontSize: 13, fontWeight: '700', textAlign: 'center' },
+  textoDoModoAtivo: { color: tema.sobrePrimaria },
+  lista: { gap: espaco.n2, paddingVertical: espaco.n4 },
   presenca: {
     alignItems: 'center',
-    backgroundColor: Cores.fundoCartao,
+    backgroundColor: tema.superficie,
     borderColor: 'transparent',
-    borderRadius: Raio.medio,
+    borderRadius: raio.md,
     borderWidth: 1,
     flexDirection: 'row',
-    gap: Espaco.dois,
-    padding: Espaco.dois,
+    gap: espaco.n2,
+    padding: espaco.n2,
   },
-  presencaMarcada: { borderColor: Cores.areia },
+  presencaMarcada: { borderColor: tema.primaria },
   presencaBloqueada: { opacity: 0.4 },
   pressionado: { opacity: 0.7 },
   caixa: {
     alignItems: 'center',
-    borderColor: Cores.borda,
+    borderColor: tema.borda,
     borderRadius: 4,
     borderWidth: 2,
     height: 22,
     justifyContent: 'center',
     width: 22,
   },
-  caixaMarcada: { backgroundColor: Cores.areia, borderColor: Cores.areia },
-  marca: { color: Cores.fundo, fontSize: 14, fontWeight: '900' },
-  nome: { color: Cores.texto, flex: 1, fontSize: 15, fontWeight: '600' },
-  rating: { color: Cores.texto, fontSize: 16, fontVariant: ['tabular-nums'], fontWeight: '800' },
-  semRating: { color: Cores.borda, fontSize: 16, fontWeight: '800' },
-  rodape: { gap: Espaco.dois, paddingBottom: Espaco.tres },
-  vazio: { color: Cores.textoFraco, marginTop: Espaco.seis, textAlign: 'center' },
-  resultado: { gap: Espaco.tres, paddingBottom: Espaco.quatro, paddingTop: Espaco.tres },
-  carta: { backgroundColor: Cores.fundoCartao, borderRadius: Raio.grande, gap: Espaco.dois, padding: Espaco.tres },
+  caixaMarcada: { backgroundColor: tema.primaria, borderColor: tema.primaria },
+  marca: { color: tema.sobrePrimaria, fontSize: 14, fontWeight: '900' },
+  nome: { color: tema.texto, flex: 1, fontSize: 15, fontWeight: '600' },
+  rating: { color: tema.texto, fontSize: 16, fontVariant: ['tabular-nums'], fontWeight: '800' },
+  semRating: { color: tema.textoFraco, fontSize: 16, fontWeight: '800' },
+  rodape: { gap: espaco.n2, paddingBottom: espaco.n4 },
+  vazio: { color: tema.textoFraco, marginTop: espaco.n12, textAlign: 'center' },
+  resultado: { gap: espaco.n4, paddingBottom: espaco.n6, paddingTop: espaco.n4 },
+  carta: { backgroundColor: tema.superficie, borderRadius: raio.lg, gap: espaco.n2, padding: espaco.n4 },
   tituloDaCarta: { alignItems: 'baseline', flexDirection: 'row', justifyContent: 'space-between' },
-  nomeDoTime: { color: Cores.areia, fontSize: 13, fontWeight: '800', letterSpacing: 1.5, textTransform: 'uppercase' },
-  forca: { color: Cores.texto, fontSize: 20, fontVariant: ['tabular-nums'], fontWeight: '800' },
-  jogadorDoTime: { alignItems: 'center', flexDirection: 'row', gap: Espaco.dois },
-  nomeNoTime: { color: Cores.texto, flex: 1, fontSize: 16, fontWeight: '600' },
-  diferenca: { alignItems: 'center', gap: Espaco.um, paddingVertical: Espaco.dois },
-  rotuloDaDiferenca: { color: Cores.textoFraco, fontSize: 13 },
-  valorDaDiferenca: { color: Cores.texto, fontSize: 32, fontVariant: ['tabular-nums'], fontWeight: '800' },
-  explicacao: { color: Cores.textoFraco, fontSize: 12, textAlign: 'center' },
-  acoes: { gap: Espaco.dois },
-  erro: { color: Cores.perigo, fontSize: 14, fontWeight: '600' },
-  aviso: { color: Cores.sucesso, fontSize: 14, fontWeight: '600' },
+  nomeDoTime: { color: tema.primaria, fontSize: 13, fontWeight: '800', letterSpacing: 1.5, textTransform: 'uppercase' },
+  forca: { color: tema.texto, fontSize: 20, fontVariant: ['tabular-nums'], fontWeight: '800' },
+  jogadorDoTime: { alignItems: 'center', flexDirection: 'row', gap: espaco.n2 },
+  nomeNoTime: { color: tema.texto, flex: 1, fontSize: 16, fontWeight: '600' },
+  diferenca: { alignItems: 'center', gap: espaco.n1, paddingVertical: espaco.n2 },
+  rotuloDaDiferenca: { color: tema.textoFraco, fontSize: 13 },
+  valorDaDiferenca: { color: tema.texto, fontSize: 32, fontVariant: ['tabular-nums'], fontWeight: '800' },
+  explicacao: { color: tema.textoFraco, fontSize: 12, textAlign: 'center' },
+  acoes: { gap: espaco.n2 },
+  erro: { color: tema.erro, fontSize: 14, fontWeight: '600' },
+  aviso: { color: tema.sucesso, fontSize: 14, fontWeight: '600' },
 });

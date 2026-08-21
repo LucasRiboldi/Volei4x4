@@ -4,7 +4,7 @@ import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } fr
 
 import { Botao } from '@/components/botao';
 import { Campo } from '@/components/campo';
-import { Cores, Espaco } from '@/constants/theme';
+import { espaco, quebras, raio, tema, tipografia } from '@/design/tema';
 import { entrarComEmail } from '@/lib/auth';
 import { mensagemDeErro } from '@/lib/erros';
 
@@ -93,36 +93,36 @@ export default function Login() {
 
 const estilos = StyleSheet.create({
   tela: {
-    backgroundColor: Cores.fundo,
+    backgroundColor: tema.fundo,
     flex: 1,
   },
   conteudo: {
     flexGrow: 1,
-    gap: Espaco.cinco,
+    gap: espaco.n8,
     justifyContent: 'center',
-    padding: Espaco.quatro,
+    padding: espaco.n6,
   },
   marca: {
-    gap: Espaco.dois,
+    gap: espaco.n2,
   },
   titulo: {
-    color: Cores.texto,
+    color: tema.texto,
     fontSize: 40,
     fontWeight: '800',
     letterSpacing: -1,
   },
   subtitulo: {
-    color: Cores.areia,
+    color: tema.primaria,
     fontSize: 16,
   },
   formulario: {
-    gap: Espaco.tres,
+    gap: espaco.n4,
   },
   acoes: {
-    gap: Espaco.dois,
+    gap: espaco.n2,
   },
   erro: {
-    color: Cores.perigo,
+    color: tema.erro,
     fontSize: 14,
     fontWeight: '600',
   },

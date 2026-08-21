@@ -38,6 +38,10 @@ function paresDeTexto(t: Tema): [string, string, string][] {
     ['textoSecundario sobre superficie', t.textoSecundario, t.superficie],
     ['textoFraco sobre superficie', t.textoFraco, t.superficie],
     ['textoFraco sobre fundo', t.textoFraco, t.fundo],
+    // O campo de busca e o `Campo` pintam o fundo afundado e o placeholder
+    // fraco. Faltava aqui enquanto nenhuma tela usava os tokens.
+    ['textoFraco sobre superficieAfundada', t.textoFraco, t.superficieAfundada],
+    ['texto sobre superficieElevada', t.texto, t.superficieElevada],
     ['sobrePrimaria sobre primaria', t.sobrePrimaria, t.primaria],
     ['sobrePrimaria sobre primariaHover', t.sobrePrimaria, t.primariaHover],
     ['sobreSecundaria sobre secundaria', t.sobreSecundaria, t.secundaria],

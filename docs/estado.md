@@ -6,7 +6,7 @@ deploy. Nada aqui foi escrito de memória.
 **No ar:** https://volei4x4.vercel.app — conferido com requisição direta: HTTP
 200, sem Deployment Protection, servindo o `index.html` do SPA.
 
-**Saúde do código:** `npx tsc --noEmit` sem erros; `npm run teste` com 61 testes
+**Saúde do código:** `npx tsc --noEmit` sem erros; `npm run teste` com 65 testes
 passando; 4.336 linhas de TypeScript e 1.888 de SQL.
 
 As três listas abaixo — o que funciona, o que precisa de correção e o que falta
@@ -80,17 +80,16 @@ PostgREST, que é onde a garantia mora — interface escondida não prova nada.
 
 ### Coberto por teste automatizado
 
-61 testes, com `npm run teste`.
+65 testes, com `npm run teste`.
 
 - **Motor de sorteio** (11) — as 35 divisões, força e diferença, recusa de
   quantidade ≠ 8, equilíbrio por modo, e o empate que travaria sem o epsilon.
 - **Janela de avaliação** (8) — os cinco cenários do documento e as duas viradas
   exatas.
-- **Contraste WCAG AA** (42) — cada par de cor dos dois temas, medido.
+- **Contraste WCAG AA** (46) — cada par de cor dos dois temas, medido.
 
-⚠️ Os 42 de contraste medem `src/design/tokens.ts`, que **nenhuma tela usa**
-ainda. A cobertura efetiva do que está no ar são os 19 de sorteio e janela. Ver
-C-05 abaixo.
+Os 46 de contraste mediam tokens que nenhuma tela usava — a ressalva que
+ficava aqui. Desde a conversão do C-05, medem a paleta que está no ar.
 
 ---
 
@@ -109,8 +108,6 @@ utilizável. Ordenado por gravidade.
 
 | # | Problema | Onde | Situação |
 |---|---|---|---|
-| **C-05** | **As telas não usam o design system.** `src/design/tokens.ts` existe, tem 295 linhas e 42 testes; as 13 rotas leem `src/constants/theme.ts`, a paleta escura. Duas paletas convivem, e o tema que está no ar é o que **não** tem verificação de contraste. | `src/design/` × `src/constants/` | ⬜ pendente — decisão de produto |
-| **C-06** | Consequência do C-05: `app.json` declara `userInterfaceStyle: "light"` e fundo `#FDF7EE`; as telas pintam `#0E1B2A`. | `app.json` | ⬜ pendente |
 
 ### Baixo
 
@@ -146,6 +143,8 @@ utilizável. Ordenado por gravidade.
 |---|---|---|
 | ✅ | `LICENSE` em nome da Expo (C-09) | MIT em nome de Lucas Riboldi, 2026 |
 | ✅ | `salvarPlacar()` sem chamador (C-12) | Removida, por decisão: o placar não se escreve pelo app. A **leitura** fica — o histórico mostra o que houver, e um traço quando não há |
+| ✅ | As telas não usavam o design system (C-05) | As 13 rotas e os 4 componentes convertidos para `src/design/tokens.ts`, via `src/design/tema.ts`. `src/constants/theme.ts` removido. Provado no bundle: **nenhuma** das 9 cores da paleta escura sobrou, e as da clara entraram |
+| ✅ | `app.json` prometia tema claro e as telas pintavam escuro (C-06) | Deixou de ser contradição sozinho, ao fechar o C-05. `DarkTheme` → `DefaultTheme` no navegador, e a barra de status virou escura sobre fundo claro |
 | 🔶 | `avaliacoes` não descrevia mais a tabela (C-10) | Renomeada para `avaliacoes_iniciais` na `0018`, junto com o índice, a constraint, o gatilho e as duas policies — nome de objeto que mente é pior que nome feio. **Falta aplicar a `0018`** |
 | ✅ | O MER dizia que `avaliacoes` estava aposentada (C-07) | Regenerado: a tabela aparece como ativa, com o nome novo e a regra certa na tabela de permissões. `autoavaliacoes` segue marcada como vazia |
 | ✅ | "Onde roda o sorteio" em aberto desde a etapa 06 (C-16) | Decidido e registrado no plano: continua no navegador. Forjar times rende escolher a própria escalação numa pelada; o rating, que é o que importa, é do banco, e `criar_partida()` recusa escalação inválida |

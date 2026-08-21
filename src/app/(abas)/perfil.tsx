@@ -16,7 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Avatar } from '@/components/avatar';
 import { Botao } from '@/components/botao';
 import { Campo } from '@/components/campo';
-import { Cores, Espaco } from '@/constants/theme';
+import { espaco, quebras, raio, tema, tipografia } from '@/design/tema';
 import { useAuth } from '@/contexts/auth';
 import { sair } from '@/lib/auth';
 import { mensagemDeErro } from '@/lib/erros';
@@ -124,7 +124,7 @@ export default function Perfil() {
   if (carregando) {
     return (
       <SafeAreaView style={[estilos.tela, estilos.centralizado]}>
-        <ActivityIndicator color={Cores.areia} />
+        <ActivityIndicator color={tema.primaria} />
       </SafeAreaView>
     );
   }
@@ -145,7 +145,7 @@ export default function Perfil() {
               <Avatar nome={nome} fotoUrl={fotoUrl} tamanho={88} />
               {enviandoFoto ? (
                 <View style={estilos.sobreposicaoDaFoto}>
-                  <ActivityIndicator color={Cores.texto} />
+                  <ActivityIndicator color={tema.texto} />
                 </View>
               ) : null}
             </Pressable>
@@ -223,7 +223,7 @@ export default function Perfil() {
 
 const estilos = StyleSheet.create({
   tela: {
-    backgroundColor: Cores.fundo,
+    backgroundColor: tema.fundo,
     flex: 1,
   },
   flex: {
@@ -234,13 +234,13 @@ const estilos = StyleSheet.create({
     justifyContent: 'center',
   },
   conteudo: {
-    gap: Espaco.quatro,
-    padding: Espaco.quatro,
+    gap: espaco.n6,
+    padding: espaco.n6,
   },
   cabecalho: {
     alignItems: 'center',
     flexDirection: 'row',
-    gap: Espaco.tres,
+    gap: espaco.n4,
   },
   alvoDaFoto: {
     position: 'relative',
@@ -261,36 +261,36 @@ const estilos = StyleSheet.create({
   },
   identificacao: {
     flex: 1,
-    gap: Espaco.um,
+    gap: espaco.n1,
   },
   titulo: {
-    color: Cores.texto,
+    color: tema.texto,
     fontSize: 26,
     fontWeight: '800',
   },
   email: {
-    color: Cores.textoFraco,
+    color: tema.textoFraco,
     fontSize: 14,
   },
   dicaDaFoto: {
-    color: Cores.mar,
+    color: tema.primaria,
     fontSize: 14,
     fontWeight: '600',
-    marginTop: Espaco.um,
+    marginTop: espaco.n1,
   },
   grupo: {
-    gap: Espaco.tres,
+    gap: espaco.n4,
   },
   acoes: {
-    gap: Espaco.dois,
+    gap: espaco.n2,
   },
   erro: {
-    color: Cores.perigo,
+    color: tema.erro,
     fontSize: 14,
     fontWeight: '600',
   },
   aviso: {
-    color: Cores.sucesso,
+    color: tema.sucesso,
     fontSize: 14,
     fontWeight: '600',
   },

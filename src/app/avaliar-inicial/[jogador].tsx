@@ -5,7 +5,7 @@ import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-nat
 import { Avatar } from '@/components/avatar';
 import { Botao } from '@/components/botao';
 import { Estrelas } from '@/components/estrelas';
-import { Cores, Espaco, Raio } from '@/constants/theme';
+import { espaco, quebras, raio, tema, tipografia } from '@/design/tema';
 import { avaliarInicialmente, minhaAvaliacaoInicialDe, type Notas } from '@/lib/avaliacao-inicial';
 import { mensagemDeErro } from '@/lib/erros';
 import { listarJogadores, type Jogador } from '@/lib/jogadores';
@@ -79,7 +79,7 @@ export default function AvaliarInicial() {
       <>
         <Stack.Screen options={{ headerShown: true, title: 'Avaliar' }} />
         <View style={[estilos.tela, estilos.centralizado]}>
-          <ActivityIndicator color={Cores.areia} />
+          <ActivityIndicator color={tema.primaria} />
         </View>
       </>
     );
@@ -151,40 +151,40 @@ export default function AvaliarInicial() {
 }
 
 const estilos = StyleSheet.create({
-  tela: { backgroundColor: Cores.fundo, flex: 1 },
+  tela: { backgroundColor: tema.fundo, flex: 1 },
   centralizado: { alignItems: 'center', justifyContent: 'center' },
-  conteudo: { gap: Espaco.quatro, padding: Espaco.tres },
+  conteudo: { gap: espaco.n6, padding: espaco.n4 },
   cabecalho: {
     alignItems: 'center',
-    backgroundColor: Cores.fundoCartao,
-    borderRadius: Raio.grande,
+    backgroundColor: tema.superficie,
+    borderRadius: raio.lg,
     flexDirection: 'row',
-    gap: Espaco.tres,
-    padding: Espaco.tres,
+    gap: espaco.n4,
+    padding: espaco.n4,
   },
   identificacao: { flex: 1, gap: 2 },
-  nome: { color: Cores.texto, fontSize: 20, fontWeight: '700' },
-  apelido: { color: Cores.textoFraco, fontSize: 14 },
+  nome: { color: tema.texto, fontSize: 20, fontWeight: '700' },
+  apelido: { color: tema.textoFraco, fontSize: 14 },
   aviso: {
-    backgroundColor: Cores.fundoCartao,
-    borderColor: Cores.areia,
+    backgroundColor: tema.superficie,
+    borderColor: tema.primaria,
     borderLeftWidth: 3,
-    borderRadius: Raio.pequeno,
-    gap: Espaco.um,
-    padding: Espaco.tres,
+    borderRadius: raio.sm,
+    gap: espaco.n1,
+    padding: espaco.n4,
   },
   jaFeito: {
-    backgroundColor: Cores.fundoCartao,
-    borderColor: Cores.borda,
+    backgroundColor: tema.superficie,
+    borderColor: tema.borda,
     borderLeftWidth: 3,
-    borderRadius: Raio.pequeno,
-    gap: Espaco.um,
-    padding: Espaco.tres,
+    borderRadius: raio.sm,
+    gap: espaco.n1,
+    padding: espaco.n4,
   },
-  tituloDoAviso: { color: Cores.texto, fontSize: 15, fontWeight: '700' },
-  textoDoAviso: { color: Cores.textoFraco, fontSize: 13, lineHeight: 19 },
-  forte: { color: Cores.areia, fontWeight: '700' },
-  caracteristicas: { gap: Espaco.tres },
-  erro: { color: Cores.perigo, fontSize: 14, fontWeight: '600' },
-  acoes: { padding: Espaco.tres },
+  tituloDoAviso: { color: tema.texto, fontSize: 15, fontWeight: '700' },
+  textoDoAviso: { color: tema.textoFraco, fontSize: 13, lineHeight: 19 },
+  forte: { color: tema.primaria, fontWeight: '700' },
+  caracteristicas: { gap: espaco.n4 },
+  erro: { color: tema.erro, fontSize: 14, fontWeight: '600' },
+  acoes: { padding: espaco.n4 },
 });

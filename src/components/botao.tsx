@@ -1,6 +1,6 @@
 import { ActivityIndicator, Pressable, StyleSheet, Text, type ViewStyle } from 'react-native';
 
-import { Cores, Espaco, Raio } from '@/constants/theme';
+import { espaco, quebras, raio, tema, tipografia } from '@/design/tema';
 
 type Props = {
   titulo: string;
@@ -36,7 +36,7 @@ export function Botao({
         estilo,
       ]}>
       {carregando ? (
-        <ActivityIndicator color={secundario ? Cores.texto : Cores.fundo} />
+        <ActivityIndicator color={secundario ? tema.texto : tema.sobrePrimaria} />
       ) : (
         <Text style={[estilos.titulo, secundario && estilos.tituloSecundario]}>{titulo}</Text>
       )}
@@ -47,17 +47,17 @@ export function Botao({
 const estilos = StyleSheet.create({
   base: {
     alignItems: 'center',
-    borderRadius: Raio.medio,
+    borderRadius: raio.md,
     justifyContent: 'center',
     minHeight: 52,
-    paddingHorizontal: Espaco.quatro,
+    paddingHorizontal: espaco.n6,
   },
   principal: {
-    backgroundColor: Cores.areia,
+    backgroundColor: tema.primaria,
   },
   secundario: {
     backgroundColor: 'transparent',
-    borderColor: Cores.borda,
+    borderColor: tema.borda,
     borderWidth: 1,
   },
   bloqueado: {
@@ -67,11 +67,11 @@ const estilos = StyleSheet.create({
     opacity: 0.75,
   },
   titulo: {
-    color: Cores.fundo,
+    color: tema.sobrePrimaria,
     fontSize: 16,
     fontWeight: '700',
   },
   tituloSecundario: {
-    color: Cores.texto,
+    color: tema.texto,
   },
 });

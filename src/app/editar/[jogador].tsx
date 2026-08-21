@@ -13,7 +13,7 @@ import {
 import { Avatar } from '@/components/avatar';
 import { Botao } from '@/components/botao';
 import { Campo } from '@/components/campo';
-import { Cores, Espaco } from '@/constants/theme';
+import { espaco, quebras, raio, tema, tipografia } from '@/design/tema';
 import { mensagemDeErro } from '@/lib/erros';
 import {
   APELIDO_MAXIMO,
@@ -95,7 +95,7 @@ export default function EditarJogador() {
       <>
         <Stack.Screen options={{ headerShown: true, title: 'Editar' }} />
         <View style={[estilos.tela, estilos.centralizado]}>
-          <ActivityIndicator color={Cores.areia} />
+          <ActivityIndicator color={tema.primaria} />
         </View>
       </>
     );
@@ -177,14 +177,14 @@ export default function EditarJogador() {
 }
 
 const estilos = StyleSheet.create({
-  tela: { backgroundColor: Cores.fundo, flex: 1 },
+  tela: { backgroundColor: tema.fundo, flex: 1 },
   centralizado: { alignItems: 'center', justifyContent: 'center' },
-  conteudo: { gap: Espaco.quatro, padding: Espaco.tres },
-  cabecalho: { alignItems: 'center', flexDirection: 'row', gap: Espaco.tres },
-  explicacao: { color: Cores.textoFraco, flex: 1, fontSize: 13, lineHeight: 19 },
-  grupo: { gap: Espaco.tres },
-  acoes: { gap: Espaco.dois },
-  aviso: { color: Cores.textoFraco, textAlign: 'center' },
-  erro: { color: Cores.perigo, fontSize: 14, fontWeight: '600' },
-  ok: { color: Cores.sucesso, fontSize: 14, fontWeight: '600' },
+  conteudo: { gap: espaco.n6, padding: espaco.n4 },
+  cabecalho: { alignItems: 'center', flexDirection: 'row', gap: espaco.n4 },
+  explicacao: { color: tema.textoFraco, flex: 1, fontSize: 13, lineHeight: 19 },
+  grupo: { gap: espaco.n4 },
+  acoes: { gap: espaco.n2 },
+  aviso: { color: tema.textoFraco, textAlign: 'center' },
+  erro: { color: tema.erro, fontSize: 14, fontWeight: '600' },
+  ok: { color: tema.sucesso, fontSize: 14, fontWeight: '600' },
 });

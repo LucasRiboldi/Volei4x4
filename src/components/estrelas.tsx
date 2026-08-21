@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { Cores, Espaco } from '@/constants/theme';
+import { espaco, quebras, raio, tema, tipografia } from '@/design/tema';
 import { NOTA_MAXIMA, NOTA_MINIMA } from '@/nucleo/atributos';
 
 type Props = {
@@ -43,7 +43,7 @@ export function Estrelas({ rotulo, valor, aoMudar, desativado = false }: Props) 
               accessibilityRole="button"
               accessibilityLabel={`${rotulo}: ${nota} de ${NOTA_MAXIMA}`}
               disabled={desativado}
-              hitSlop={Espaco.dois}
+              hitSlop={espaco.n2}
               onPress={() => aoMudar(nota)}
               style={({ pressed }) => [estilos.alvo, pressed && estilos.pressionado]}>
               <Text style={[estilos.estrela, cheia ? estilos.cheia : estilos.vazia]}>
@@ -59,7 +59,7 @@ export function Estrelas({ rotulo, valor, aoMudar, desativado = false }: Props) 
 
 const estilos = StyleSheet.create({
   bloco: {
-    gap: Espaco.um,
+    gap: espaco.n1,
   },
   linha: {
     alignItems: 'center',
@@ -67,22 +67,22 @@ const estilos = StyleSheet.create({
     justifyContent: 'space-between',
   },
   rotulo: {
-    color: Cores.texto,
+    color: tema.texto,
     fontSize: 15,
     fontWeight: '600',
   },
   valor: {
-    color: Cores.textoFraco,
+    color: tema.textoFraco,
     fontSize: 14,
     fontVariant: ['tabular-nums'],
   },
   estrelas: {
     flexDirection: 'row',
-    gap: Espaco.um,
+    gap: espaco.n1,
   },
   alvo: {
-    paddingVertical: Espaco.um,
-    paddingRight: Espaco.dois,
+    paddingVertical: espaco.n1,
+    paddingRight: espaco.n2,
   },
   pressionado: {
     opacity: 0.6,
@@ -92,9 +92,9 @@ const estilos = StyleSheet.create({
     lineHeight: 36,
   },
   cheia: {
-    color: Cores.areia,
+    color: tema.primaria,
   },
   vazia: {
-    color: Cores.borda,
+    color: tema.bordaForte,
   },
 });

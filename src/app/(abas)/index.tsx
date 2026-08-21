@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Avatar } from '@/components/avatar';
-import { Cores, Espaco, Raio } from '@/constants/theme';
+import { espaco, quebras, raio, tema, tipografia } from '@/design/tema';
 import { useAuth } from '@/contexts/auth';
 import { meusAvaliadosInicialmente } from '@/lib/avaliacao-inicial';
 import { minhasPartidasParaAvaliar, type PartidaParaAvaliar } from '@/lib/avaliacoes-de-partida';
@@ -107,7 +107,7 @@ export default function Jogadores() {
         autoCorrect={false}
         onChangeText={setBusca}
         placeholder="Buscar por nome ou apelido"
-        placeholderTextColor={Cores.textoFraco}
+        placeholderTextColor={tema.textoFraco}
         style={estilos.busca}
         value={busca}
       />
@@ -175,7 +175,7 @@ function Vazio({
   erro: string | null;
   buscando: boolean;
 }) {
-  if (carregando) return <ActivityIndicator color={Cores.areia} style={estilos.espera} />;
+  if (carregando) return <ActivityIndicator color={tema.primaria} style={estilos.espera} />;
 
   return (
     <Text style={estilos.vazio}>
@@ -255,7 +255,7 @@ function Linha({
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={`Avaliar ${jogador.nome} pela partida`}
-            hitSlop={Espaco.dois}
+            hitSlop={espaco.n2}
             onPress={() => aoAvaliarPartida(partidaAberta)}
             style={({ pressed }) => [estilos.botao, estilos.botaoPartida, pressed && estilos.pressionado]}>
             <Text style={estilos.textoDoBotaoPartida}>avaliar partida</Text>
@@ -264,7 +264,7 @@ function Linha({
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={`Fazer a avaliação inicial de ${jogador.nome}`}
-            hitSlop={Espaco.dois}
+            hitSlop={espaco.n2}
             onPress={aoAvaliarInicial}
             style={({ pressed }) => [estilos.botao, pressed && estilos.pressionado]}>
             <Text style={estilos.textoDoBotao}>avaliar</Text>
@@ -279,48 +279,48 @@ function Linha({
 
 const estilos = StyleSheet.create({
   tela: {
-    backgroundColor: Cores.fundo,
+    backgroundColor: tema.fundo,
     flex: 1,
-    paddingHorizontal: Espaco.tres,
+    paddingHorizontal: espaco.n4,
   },
   cabecalho: {
     alignItems: 'baseline',
     flexDirection: 'row',
-    gap: Espaco.dois,
+    gap: espaco.n2,
     justifyContent: 'space-between',
-    paddingTop: Espaco.tres,
+    paddingTop: espaco.n4,
   },
   titulo: {
-    color: Cores.texto,
+    color: tema.texto,
     fontSize: 28,
     fontWeight: '800',
   },
   contagem: {
-    color: Cores.textoFraco,
+    color: tema.textoFraco,
     fontSize: 14,
   },
   busca: {
-    backgroundColor: Cores.fundoCampo,
-    borderColor: Cores.borda,
-    borderRadius: Raio.pequeno,
+    backgroundColor: tema.superficieAfundada,
+    borderColor: tema.borda,
+    borderRadius: raio.sm,
     borderWidth: 1,
-    color: Cores.texto,
+    color: tema.texto,
     fontSize: 15,
-    marginTop: Espaco.tres,
+    marginTop: espaco.n4,
     minHeight: 44,
-    paddingHorizontal: Espaco.tres,
+    paddingHorizontal: espaco.n4,
   },
   lista: {
-    gap: Espaco.dois,
-    paddingVertical: Espaco.tres,
+    gap: espaco.n2,
+    paddingVertical: espaco.n4,
   },
   cartao: {
     alignItems: 'center',
-    backgroundColor: Cores.fundoCartao,
-    borderRadius: Raio.medio,
+    backgroundColor: tema.superficie,
+    borderRadius: raio.md,
     flexDirection: 'row',
-    gap: Espaco.tres,
-    padding: Espaco.dois,
+    gap: espaco.n4,
+    padding: espaco.n2,
   },
   identificacao: {
     flex: 1,
@@ -329,77 +329,77 @@ const estilos = StyleSheet.create({
   linhaDoNome: {
     alignItems: 'baseline',
     flexDirection: 'row',
-    gap: Espaco.dois,
+    gap: espaco.n2,
   },
   nome: {
-    color: Cores.texto,
+    color: tema.texto,
     flexShrink: 1,
     fontSize: 16,
     fontWeight: '700',
   },
   etiqueta: {
-    color: Cores.areia,
+    color: tema.primaria,
     fontSize: 11,
     fontWeight: '800',
     textTransform: 'uppercase',
   },
   detalhe: {
-    color: Cores.textoFraco,
+    color: tema.textoFraco,
     fontSize: 13,
   },
   pendencia: {
-    backgroundColor: Cores.fundoCartao,
-    borderColor: Cores.areia,
-    borderRadius: Raio.grande,
+    backgroundColor: tema.superficie,
+    borderColor: tema.primaria,
+    borderRadius: raio.lg,
     borderWidth: 1,
     gap: 2,
-    marginTop: Espaco.tres,
-    padding: Espaco.tres,
+    marginTop: espaco.n4,
+    padding: espaco.n4,
   },
-  tituloDaPendencia: { color: Cores.areia, fontSize: 15, fontWeight: '800' },
-  textoDaPendencia: { color: Cores.texto, fontSize: 14, lineHeight: 20 },
-  acaoDaPendencia: { color: Cores.mar, fontSize: 13, fontWeight: '700', paddingTop: Espaco.um },
+  tituloDaPendencia: { color: tema.primaria, fontSize: 15, fontWeight: '800' },
+  textoDaPendencia: { color: tema.texto, fontSize: 14, lineHeight: 20 },
+  acaoDaPendencia: { color: tema.primaria, fontSize: 13, fontWeight: '700', paddingTop: espaco.n1 },
   direita: {
     alignItems: 'flex-end',
     gap: 2,
   },
   rating: {
-    color: Cores.texto,
+    color: tema.texto,
     fontSize: 22,
     fontVariant: ['tabular-nums'],
     fontWeight: '800',
   },
   semRating: {
-    color: Cores.borda,
+    color: tema.textoFraco,
     fontSize: 22,
     fontWeight: '800',
   },
   aindaSemNota: {
-    color: Cores.textoFraco,
+    color: tema.textoFraco,
     fontSize: 12,
   },
   botao: {
-    borderColor: Cores.mar,
-    borderRadius: Raio.pequeno,
+    borderColor: tema.primaria,
+    borderRadius: raio.sm,
     borderWidth: 1,
-    marginTop: Espaco.um,
-    paddingHorizontal: Espaco.dois,
+    marginTop: espaco.n1,
+    paddingHorizontal: espaco.n2,
     paddingVertical: 5,
   },
-  botaoPartida: { backgroundColor: Cores.mar, borderColor: Cores.mar },
-  textoDoBotao: { color: Cores.mar, fontSize: 12, fontWeight: '700' },
-  textoDoBotaoPartida: { color: Cores.texto, fontSize: 12, fontWeight: '700' },
-  aguardando: { color: Cores.borda, fontSize: 11, marginTop: Espaco.um, textAlign: 'right' },
+  botaoPartida: { backgroundColor: tema.primaria, borderColor: tema.primaria },
+  textoDoBotao: { color: tema.primaria, fontSize: 12, fontWeight: '700' },
+  textoDoBotaoPartida: { color: tema.sobrePrimaria, fontSize: 12, fontWeight: '700' },
+  aguardando: { color: tema.textoFraco, fontSize: 11, marginTop: espaco.n1, textAlign: 'right' },
   pressionado: {
     opacity: 0.7,
   },
   espera: {
-    marginTop: Espaco.seis,
+    marginTop: espaco.n12,
   },
   vazio: {
-    color: Cores.textoFraco,
+    color: tema.textoFraco,
     fontSize: 15,
-    marginTop: Espaco.seis,
+    marginTop: espaco.n12,
     textAlign: 'center',
   },
 });

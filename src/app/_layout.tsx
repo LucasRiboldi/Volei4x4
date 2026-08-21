@@ -1,33 +1,36 @@
 // Vem do proprio expo-router, e nao de `@react-navigation/native`: aquele
 // pacote nao e dependencia direta deste projeto, e importa-lo daria erro de
 // tipo mesmo estando presente em node_modules por via transitiva.
-import { DarkTheme, Stack, ThemeProvider, useRouter, useSegments } from 'expo-router';
+import { DefaultTheme, Stack, ThemeProvider, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 
-import { Cores, LARGURA_MAXIMA } from '@/constants/theme';
+import { espaco, quebras, raio, tema, tipografia } from '@/design/tema';
 import { AuthProvider, useAuth } from '@/contexts/auth';
 
 /**
  * O tema do navegador.
  *
  * Existe por um motivo especifico: o react-navigation pinta o fundo das telas
- * com a cor do tema dele, e o padrao e um cinza claro (#f2f2f2). Como o
- * conteudo agora para na largura de tablet, esse cinza ficava aparecendo dos
- * lados numa janela larga -- e nenhuma View colocada por cima resolvia, porque
- * o cinza vem de dentro do navegador, abaixo das nossas telas.
+ * com a cor do tema dele, e nenhuma View colocada por cima alcanca essa cor --
+ * ela vem de dentro do navegador, abaixo das nossas telas. Como o conteudo para
+ * na largura de tablet, e essa cor que aparece dos lados numa janela larga.
  *
- * Trocar o tema e o unico jeito de alcancar aquela cor.
+ * Trocar o tema e o unico jeito de chegar la.
+ *
+ * A base e `DefaultTheme`, e nao `DarkTheme`: as telas passaram a usar a paleta
+ * clara, e a base escura deixaria cor escura vazando em tudo o que o
+ * react-navigation pinta sozinho e nos nao sobrescrevemos aqui.
  */
 const temaDaNavegacao = {
-  ...DarkTheme,
+  ...DefaultTheme,
   colors: {
-    ...DarkTheme.colors,
-    background: Cores.foraDaMoldura,
-    card: Cores.fundoCartao,
-    text: Cores.texto,
-    border: Cores.borda,
-    primary: Cores.areia,
+    ...DefaultTheme.colors,
+    background: tema.superficieAfundada,
+    card: tema.superficie,
+    text: tema.texto,
+    border: tema.borda,
+    primary: tema.primaria,
   },
 };
 
@@ -58,7 +61,7 @@ function GuardaDeRota() {
       screenOptions={{
         headerShown: false,
         contentStyle: {
-          backgroundColor: Cores.fundo,
+          backgroundColor: tema.fundo,
           // A moldura. O conteudo para de esticar na largura de tablet e passa
           // a ficar centralizado, com o fundo escuro aparecendo dos lados.
           //
@@ -71,7 +74,7 @@ function GuardaDeRota() {
           // de 1920 daria linhas longas demais e cartoes com um vao enorme
           // entre a foto e o rating.
           width: '100%',
-          maxWidth: LARGURA_MAXIMA,
+          maxWidth: quebras.larguraMaxima,
           alignSelf: 'center',
         },
       }}
@@ -82,7 +85,7 @@ function GuardaDeRota() {
 export default function LayoutRaiz() {
   return (
     <AuthProvider>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <ThemeProvider value={temaDaNavegacao}>
         <GuardaDeRota />
       </ThemeProvider>

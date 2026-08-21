@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Avatar } from '@/components/avatar';
-import { Cores, Espaco, Raio } from '@/constants/theme';
+import { espaco, quebras, raio, tema, tipografia } from '@/design/tema';
 import { useAuth } from '@/contexts/auth';
 import { mensagemDeErro } from '@/lib/erros';
 import { listarJogadores, type Jogador } from '@/lib/jogadores';
@@ -48,7 +48,7 @@ export default function Administracao() {
       <Stack.Screen options={{ headerShown: true, title: 'Administração' }} />
       <View style={estilos.tela}>
         {jogadores === null ? (
-          <ActivityIndicator color={Cores.areia} style={estilos.espera} />
+          <ActivityIndicator color={tema.primaria} style={estilos.espera} />
         ) : !souAdmin ? (
           <Text style={estilos.aviso}>Esta área é só para administradores.</Text>
         ) : (
@@ -91,23 +91,23 @@ export default function Administracao() {
 }
 
 const estilos = StyleSheet.create({
-  tela: { backgroundColor: Cores.fundo, flex: 1, paddingHorizontal: Espaco.tres },
-  espera: { marginTop: Espaco.seis },
-  aviso: { color: Cores.textoFraco, marginTop: Espaco.seis, textAlign: 'center' },
-  explicacao: { color: Cores.textoFraco, fontSize: 13, lineHeight: 19, paddingVertical: Espaco.tres },
-  lista: { gap: Espaco.dois, paddingBottom: Espaco.tres },
+  tela: { backgroundColor: tema.fundo, flex: 1, paddingHorizontal: espaco.n4 },
+  espera: { marginTop: espaco.n12 },
+  aviso: { color: tema.textoFraco, marginTop: espaco.n12, textAlign: 'center' },
+  explicacao: { color: tema.textoFraco, fontSize: 13, lineHeight: 19, paddingVertical: espaco.n4 },
+  lista: { gap: espaco.n2, paddingBottom: espaco.n4 },
   cartao: {
     alignItems: 'center',
-    backgroundColor: Cores.fundoCartao,
-    borderRadius: Raio.medio,
+    backgroundColor: tema.superficie,
+    borderRadius: raio.md,
     flexDirection: 'row',
-    gap: Espaco.dois,
-    padding: Espaco.dois,
+    gap: espaco.n2,
+    padding: espaco.n2,
   },
   pressionado: { opacity: 0.7 },
   identificacao: { flex: 1, gap: 2 },
-  nome: { color: Cores.texto, fontSize: 16, fontWeight: '700' },
-  detalhe: { color: Cores.textoFraco, fontSize: 13 },
-  etiqueta: { color: Cores.areia, fontSize: 11, fontWeight: '800', textTransform: 'uppercase' },
-  erro: { color: Cores.perigo, fontSize: 14, fontWeight: '600', paddingBottom: Espaco.tres },
+  nome: { color: tema.texto, fontSize: 16, fontWeight: '700' },
+  detalhe: { color: tema.textoFraco, fontSize: 13 },
+  etiqueta: { color: tema.primaria, fontSize: 11, fontWeight: '800', textTransform: 'uppercase' },
+  erro: { color: tema.erro, fontSize: 14, fontWeight: '600', paddingBottom: espaco.n4 },
 });

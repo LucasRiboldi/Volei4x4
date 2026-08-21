@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { Cores, Espaco } from '@/constants/theme';
+import { espaco, quebras, raio, tema, tipografia } from '@/design/tema';
 
 type Props = {
   nome: string;
@@ -37,18 +37,18 @@ export function Avatar({ nome, fotoUrl, tamanho = 64 }: Props) {
 
 const estilos = StyleSheet.create({
   foto: {
-    backgroundColor: Cores.fundoCartao,
+    backgroundColor: tema.superficie,
   },
   vazio: {
     alignItems: 'center',
-    backgroundColor: Cores.fundoCartao,
-    borderColor: Cores.borda,
+    backgroundColor: tema.superficie,
+    borderColor: tema.borda,
     borderWidth: 1,
     justifyContent: 'center',
-    padding: Espaco.um,
+    padding: espaco.n1,
   },
   iniciais: {
-    color: Cores.areia,
+    color: tema.primaria,
     fontWeight: '700',
   },
 });

@@ -4,7 +4,7 @@ import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } fr
 
 import { Botao } from '@/components/botao';
 import { Campo } from '@/components/campo';
-import { Cores, Espaco } from '@/constants/theme';
+import { espaco, quebras, raio, tema, tipografia } from '@/design/tema';
 import { criarConta, SENHA_MINIMA } from '@/lib/auth';
 import { emailParece, mensagemDeErro } from '@/lib/erros';
 
@@ -108,34 +108,34 @@ export default function Cadastro() {
 
 const estilos = StyleSheet.create({
   tela: {
-    backgroundColor: Cores.fundo,
+    backgroundColor: tema.fundo,
     flex: 1,
   },
   conteudo: {
     flexGrow: 1,
-    gap: Espaco.cinco,
+    gap: espaco.n8,
     justifyContent: 'center',
-    padding: Espaco.quatro,
+    padding: espaco.n6,
   },
   titulo: {
-    color: Cores.texto,
+    color: tema.texto,
     fontSize: 32,
     fontWeight: '800',
     letterSpacing: -0.5,
   },
   subtitulo: {
-    color: Cores.textoFraco,
+    color: tema.textoFraco,
     fontSize: 15,
-    marginTop: Espaco.dois,
+    marginTop: espaco.n2,
   },
   formulario: {
-    gap: Espaco.tres,
+    gap: espaco.n4,
   },
   acoes: {
-    gap: Espaco.dois,
+    gap: espaco.n2,
   },
   erro: {
-    color: Cores.perigo,
+    color: tema.erro,
     fontSize: 14,
     fontWeight: '600',
   },

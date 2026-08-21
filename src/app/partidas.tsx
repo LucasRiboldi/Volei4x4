@@ -3,16 +3,16 @@ import { useCallback, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Avatar } from '@/components/avatar';
-import { Cores, Espaco, Raio } from '@/constants/theme';
+import { espaco, quebras, raio, tema, tipografia } from '@/design/tema';
 import { useAuth } from '@/contexts/auth';
 import { mensagemDeErro } from '@/lib/erros';
 import { listarPartidas, type EscalacaoDaPartida } from '@/lib/partidas';
 import { estadoDaAvaliacao, type EstadoDaAvaliacao } from '@/nucleo/janela';
 
 const SELO: Record<EstadoDaAvaliacao, { texto: string; cor: string }> = {
-  'ainda-nao': { texto: 'Avaliações amanhã', cor: Cores.areia },
-  aberta: { texto: 'Avaliações abertas', cor: Cores.sucesso },
-  encerrada: { texto: 'Avaliações encerradas', cor: Cores.textoFraco },
+  'ainda-nao': { texto: 'Avaliações amanhã', cor: tema.primaria },
+  aberta: { texto: 'Avaliações abertas', cor: tema.sucesso },
+  encerrada: { texto: 'Avaliações encerradas', cor: tema.textoFraco },
 };
 
 export default function Partidas() {
@@ -48,7 +48,7 @@ export default function Partidas() {
       <Stack.Screen options={{ headerShown: true, title: 'Partidas' }} />
       <View style={estilos.tela}>
         {partidas === null ? (
-          <ActivityIndicator color={Cores.areia} style={estilos.espera} />
+          <ActivityIndicator color={tema.primaria} style={estilos.espera} />
         ) : (
           <FlatList
             contentContainerStyle={estilos.lista}
@@ -114,18 +114,18 @@ export default function Partidas() {
 }
 
 const estilos = StyleSheet.create({
-  tela: { backgroundColor: Cores.fundo, flex: 1, paddingHorizontal: Espaco.tres },
-  espera: { marginTop: Espaco.seis },
-  lista: { gap: Espaco.dois, paddingVertical: Espaco.tres },
-  vazio: { color: Cores.textoFraco, fontSize: 15, lineHeight: 22, marginTop: Espaco.seis, textAlign: 'center' },
-  carta: { backgroundColor: Cores.fundoCartao, borderRadius: Raio.grande, gap: Espaco.dois, padding: Espaco.tres },
+  tela: { backgroundColor: tema.fundo, flex: 1, paddingHorizontal: espaco.n4 },
+  espera: { marginTop: espaco.n12 },
+  lista: { gap: espaco.n2, paddingVertical: espaco.n4 },
+  vazio: { color: tema.textoFraco, fontSize: 15, lineHeight: 22, marginTop: espaco.n12, textAlign: 'center' },
+  carta: { backgroundColor: tema.superficie, borderRadius: raio.lg, gap: espaco.n2, padding: espaco.n4 },
   pressionado: { opacity: 0.7 },
   topo: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' },
-  data: { color: Cores.texto, fontSize: 16, fontWeight: '800', textTransform: 'uppercase' },
+  data: { color: tema.texto, fontSize: 16, fontWeight: '800', textTransform: 'uppercase' },
   selo: { fontSize: 12, fontWeight: '700' },
-  time: { alignItems: 'center', flexDirection: 'row', gap: Espaco.dois },
-  nomeDoTime: { color: Cores.textoFraco, fontSize: 12, fontWeight: '700', width: 52 },
+  time: { alignItems: 'center', flexDirection: 'row', gap: espaco.n2 },
+  nomeDoTime: { color: tema.textoFraco, fontSize: 12, fontWeight: '700', width: 52 },
   avatares: { flexDirection: 'row', flex: 1, gap: 2 },
-  placar: { color: Cores.texto, fontSize: 20, fontVariant: ['tabular-nums'], fontWeight: '800' },
-  chamada: { color: Cores.mar, fontSize: 13, fontWeight: '700', paddingTop: Espaco.um },
+  placar: { color: tema.texto, fontSize: 20, fontVariant: ['tabular-nums'], fontWeight: '800' },
+  chamada: { color: tema.primaria, fontSize: 13, fontWeight: '700', paddingTop: espaco.n1 },
 });

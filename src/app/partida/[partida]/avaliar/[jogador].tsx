@@ -5,7 +5,7 @@ import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-nat
 import { Avatar } from '@/components/avatar';
 import { Botao } from '@/components/botao';
 import { Estrelas } from '@/components/estrelas';
-import { Cores, Espaco, Raio } from '@/constants/theme';
+import { espaco, quebras, raio, tema, tipografia } from '@/design/tema';
 import { avaliarNaPartida, minhasNotasNaPartida, type Notas } from '@/lib/avaliacoes-de-partida';
 import { mensagemDeErro } from '@/lib/erros';
 import { listarJogadores, type Jogador } from '@/lib/jogadores';
@@ -81,7 +81,7 @@ export default function Avaliar() {
       <>
         <Stack.Screen options={{ headerShown: true, title: 'Avaliar' }} />
         <View style={[estilos.tela, estilos.centralizado]}>
-          <ActivityIndicator color={Cores.areia} />
+          <ActivityIndicator color={tema.primaria} />
         </View>
       </>
     );
@@ -137,7 +137,7 @@ export default function Avaliar() {
 
 const estilos = StyleSheet.create({
   tela: {
-    backgroundColor: Cores.fundo,
+    backgroundColor: tema.fundo,
     flex: 1,
   },
   centralizado: {
@@ -145,44 +145,44 @@ const estilos = StyleSheet.create({
     justifyContent: 'center',
   },
   conteudo: {
-    gap: Espaco.quatro,
-    padding: Espaco.tres,
+    gap: espaco.n6,
+    padding: espaco.n4,
   },
   cabecalho: {
     alignItems: 'center',
-    backgroundColor: Cores.fundoCartao,
-    borderRadius: Raio.grande,
+    backgroundColor: tema.superficie,
+    borderRadius: raio.lg,
     flexDirection: 'row',
-    gap: Espaco.tres,
-    padding: Espaco.tres,
+    gap: espaco.n4,
+    padding: espaco.n4,
   },
   identificacao: {
     flex: 1,
     gap: 2,
   },
   nome: {
-    color: Cores.texto,
+    color: tema.texto,
     fontSize: 20,
     fontWeight: '700',
   },
   apelido: {
-    color: Cores.textoFraco,
+    color: tema.textoFraco,
     fontSize: 14,
   },
   caracteristicas: {
-    gap: Espaco.tres,
+    gap: espaco.n4,
   },
   aviso: {
-    color: Cores.textoFraco,
+    color: tema.textoFraco,
     fontSize: 13,
     lineHeight: 19,
   },
   erro: {
-    color: Cores.perigo,
+    color: tema.erro,
     fontSize: 14,
     fontWeight: '600',
   },
   acoes: {
-    padding: Espaco.tres,
+    padding: espaco.n4,
   },
 });
