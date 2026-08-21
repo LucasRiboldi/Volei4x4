@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { espaco, quebras, raio, tema, tipografia } from '@/design/tema';
+import { espaco, tema } from '@/design/tema';
 import { NOTA_MAXIMA, NOTA_MINIMA } from '@/nucleo/atributos';
 
 type Props = {

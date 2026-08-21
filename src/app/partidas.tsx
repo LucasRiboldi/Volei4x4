@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Avatar } from '@/components/avatar';
-import { espaco, quebras, raio, tema, tipografia } from '@/design/tema';
+import { espaco, raio, tema } from '@/design/tema';
 import { useAuth } from '@/contexts/auth';
 import { mensagemDeErro } from '@/lib/erros';
 import { listarPartidas, type EscalacaoDaPartida } from '@/lib/partidas';

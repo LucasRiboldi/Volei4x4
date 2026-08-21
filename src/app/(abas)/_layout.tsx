@@ -1,7 +1,7 @@
 import { Tabs } from 'expo-router';
 import { Text, type ColorValue } from 'react-native';
 
-import { espaco, quebras, raio, tema, tipografia } from '@/design/tema';
+import { tema } from '@/design/tema';
 
 /**
  * As tres areas do aplicativo.

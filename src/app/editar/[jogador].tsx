@@ -13,7 +13,7 @@ import {
 import { Avatar } from '@/components/avatar';
 import { Botao } from '@/components/botao';
 import { Campo } from '@/components/campo';
-import { espaco, quebras, raio, tema, tipografia } from '@/design/tema';
+import { espaco, tema } from '@/design/tema';
 import { mensagemDeErro } from '@/lib/erros';
 import {
   APELIDO_MAXIMO,

@@ -6,7 +6,7 @@ deploy. Nada aqui foi escrito de memória.
 **No ar:** https://volei4x4.vercel.app — conferido com requisição direta: HTTP
 200, sem Deployment Protection, servindo o `index.html` do SPA.
 
-**Saúde do código:** `npx tsc --noEmit` sem erros; `npm run teste` com 65 testes
+**Saúde do código:** `npm run lint` sem erros; `npx tsc --noEmit` sem erros; `npm run teste` com 102 testes
 passando; 4.336 linhas de TypeScript e 1.888 de SQL.
 
 As três listas abaixo — o que funciona, o que precisa de correção e o que falta
@@ -80,16 +80,22 @@ PostgREST, que é onde a garantia mora — interface escondida não prova nada.
 
 ### Coberto por teste automatizado
 
-65 testes, com `npm run teste`.
+102 testes, com `npm run teste`.
 
 - **Motor de sorteio** (11) — as 35 divisões, força e diferença, recusa de
   quantidade ≠ 8, equilíbrio por modo, e o empate que travaria sem o epsilon.
 - **Janela de avaliação** (8) — os cinco cenários do documento e as duas viradas
   exatas.
-- **Contraste WCAG AA** (46) — cada par de cor dos dois temas, medido.
+- **Contraste WCAG AA** (46) — cada par de cor dos dois temas, medido. Desde a
+  conversão do C-05, medem a paleta que está no ar.
+- **`src/lib/`** (37) — mensagens de erro, o achatamento do vínculo aninhado do
+  PostgREST, o filtro da janela e da participação, e a ordem de preferência do
+  nome do perfil.
 
-Os 46 de contraste mediam tokens que nenhuma tela usava — a ressalva que
-ficava aqui. Desde a conversão do C-05, medem a paleta que está no ar.
+O que os testes de `src/lib/` **não** provam, e não fingem provar: RLS, policy,
+grant, tipo de coluna. Essas garantias são do banco e só se provam contra o
+banco — estão na tabela acima, verificadas por requisição direta. Um duplo que
+"passasse" numa policy daria confiança falsa, que é pior que nenhuma.
 
 ---
 

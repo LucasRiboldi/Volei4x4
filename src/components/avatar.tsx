@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { espaco, quebras, raio, tema, tipografia } from '@/design/tema';
+import { espaco, tema } from '@/design/tema';
 
 type Props = {
   nome: string;

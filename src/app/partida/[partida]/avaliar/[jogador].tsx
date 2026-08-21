@@ -5,7 +5,7 @@ import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-nat
 import { Avatar } from '@/components/avatar';
 import { Botao } from '@/components/botao';
 import { Estrelas } from '@/components/estrelas';
-import { espaco, quebras, raio, tema, tipografia } from '@/design/tema';
+import { espaco, raio, tema } from '@/design/tema';
 import { avaliarNaPartida, minhasNotasNaPartida, type Notas } from '@/lib/avaliacoes-de-partida';
 import { mensagemDeErro } from '@/lib/erros';
 import { listarJogadores, type Jogador } from '@/lib/jogadores';

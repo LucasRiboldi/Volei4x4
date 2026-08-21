@@ -5,7 +5,7 @@ import { DefaultTheme, Stack, ThemeProvider, useRouter, useSegments } from 'expo
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 
-import { espaco, quebras, raio, tema, tipografia } from '@/design/tema';
+import { quebras, tema } from '@/design/tema';
 import { AuthProvider, useAuth } from '@/contexts/auth';
 
 /**

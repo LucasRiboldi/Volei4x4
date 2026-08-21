@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Avatar } from '@/components/avatar';
-import { espaco, quebras, raio, tema, tipografia } from '@/design/tema';
+import { espaco, raio, tema } from '@/design/tema';
 import { useAuth } from '@/contexts/auth';
 import { meusAvaliadosInicialmente } from '@/lib/avaliacao-inicial';
 import { minhasPartidasParaAvaliar, type PartidaParaAvaliar } from '@/lib/avaliacoes-de-partida';

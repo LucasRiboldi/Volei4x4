@@ -1,6 +1,6 @@
 import { StyleSheet, Text, TextInput, View, type TextInputProps } from 'react-native';
 
-import { espaco, quebras, raio, tema, tipografia } from '@/design/tema';
+import { espaco, raio, tema } from '@/design/tema';
 
 type Props = TextInputProps & {
   rotulo: string;

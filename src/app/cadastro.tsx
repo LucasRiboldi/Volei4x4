@@ -4,7 +4,7 @@ import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } fr
 
 import { Botao } from '@/components/botao';
 import { Campo } from '@/components/campo';
-import { espaco, quebras, raio, tema, tipografia } from '@/design/tema';
+import { espaco, tema } from '@/design/tema';
 import { criarConta, SENHA_MINIMA } from '@/lib/auth';
 import { emailParece, mensagemDeErro } from '@/lib/erros';
 

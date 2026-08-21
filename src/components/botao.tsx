@@ -1,6 +1,6 @@
 import { ActivityIndicator, Pressable, StyleSheet, Text, type ViewStyle } from 'react-native';
 
-import { espaco, quebras, raio, tema, tipografia } from '@/design/tema';
+import { espaco, raio, tema } from '@/design/tema';
 
 type Props = {
   titulo: string;

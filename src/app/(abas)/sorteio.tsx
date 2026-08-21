@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Avatar } from '@/components/avatar';
 import { Botao } from '@/components/botao';
-import { espaco, quebras, raio, tema, tipografia } from '@/design/tema';
+import { espaco, raio, tema } from '@/design/tema';
 import { mensagemDeErro } from '@/lib/erros';
 import { listarJogadores, type Jogador } from '@/lib/jogadores';
 import { criarPartida } from '@/lib/partidas';
