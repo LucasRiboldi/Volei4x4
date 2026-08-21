@@ -112,9 +112,7 @@ Restam dois, os dois pequenos.
 | # | Situação |
 |---|---|
 | **A-01** | A chave anon na Vercel está quebrada em linhas. O app funciona porque `src/lib/supabase.ts` limpa espaço em branco — mas se alguém remover a limpeza sem saber por que ela existe, o bug volta. 🧑 |
-| **A-02** | Os 13 jogadores de demonstração estão sem foto: foram semeados antes de o bucket existir. Basta rodar `python scripts/semear.py` de novo — é idempotente. |
 | **A-03** | Dados de teste no banco: 22 jogadores, dos quais 13 fictícios (`@volei4x4-teste.com`) e ~8 contas de teste minhas; 9 partidas e 224 avaliações semeadas. Reversível por `scripts/semear-avaliacoes.py --desfazer`. 🧑 Apagar contas exige `service_role`. |
-| **A-04** | Bruno Carvalho está com cidade "Esteio" — resíduo do teste de edição por administrador. |
 | **A-05** | O gatilho de perfil pode não estar instalado. A `0013` tenta e tolera falha de privilégio. Se não instalou, contas criadas fora do app só ganham perfil no primeiro acesso — o que funciona. |
 | **A-06** | Sem backup e sem monitoramento. **Risco aceito por decisão**, não esquecimento — ver `decisoes.md`. Deixa de ser aceitável se o grupo passar a depender do histórico de avaliações. |
 
@@ -127,6 +125,14 @@ Restam dois, os dois pequenos.
 | ✅ | A `0011` abortava em instalação limpa, e o e-mail pessoal estava versionado | Promoção movida para `supabase/manual/promover-admin.sql`, parametrizada. Nenhum arquivo rastreado contém mais o e-mail |
 | ✅ | A contagem de avaliadores permitia deduzir voto por subtração | `0016` tira a coluna do retorno; `src/lib/ratings.ts` e `(abas)/index.tsx` acompanham. **Aplicada em produção** — `conferir-o-alcance.sql` devolve `ok` para as seis funções, então o `grant execute` sobreviveu ao `drop function` que a migração exigiu |
 | ✅ | `supabase/testes/conferir-o-alcance.sql` fora do versionamento | Versionado |
+
+### Já corrigido — scripts
+
+| # | O que era | O que foi feito |
+|---|---|---|
+| ✅ | `semear.py` falhava nos 13 jogadores com `42501 permission denied for table jogadores` | Era a defesa funcionando: a `0009` tirou o UPDATE de tabela e deixou só as colunas de perfil, e o *upsert* manda o `id` junto. Trocado por PATCH e, se não casar linha, INSERT — sem afrouxar grant nenhum |
+| ✅ | 13 jogadores de demonstração sem foto (A-02) | Resolvido pela mesma corrida: os 13 têm `foto_url` |
+| ✅ | Bruno Carvalho com cidade "Esteio" (A-04) | Voltou a "Gravatai" |
 
 ### Já corrigido — Fase 3
 

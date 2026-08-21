@@ -163,18 +163,55 @@ def entrar_ou_criar(base: str, anon: str, jogador: dict):
 
 
 def gravar_perfil(base: str, anon: str, token: str, uid: str, jogador: dict) -> str:
+    """
+    Grava o perfil. Sem upsert -- e nao da para usar upsert aqui.
+
+    Este script usava `Prefer: resolution=merge-duplicates`, e isso parou de
+    funcionar na 0009, com
+
+        42501  permission denied for table jogadores
+
+    Nao e defeito do banco: e a defesa funcionando. A 0009 tirou de
+    `authenticated` o UPDATE na tabela inteira e concedeu apenas nas colunas de
+    perfil -- `nome`, `apelido`, `cidade`, `foto_url`. `admin` ficou de fora, e e
+    ESSA linha, e nao a policy, que impede alguem de virar administrador por uma
+    requisicao. O upsert manda o `id` junto, que tambem esta fora das colunas
+    concedidas, entao o Postgres recusa a requisicao inteira.
+
+    Afrouxar o grant para o script funcionar seria trocar a trava mais
+    importante do banco por comodidade de semeadura. Quem muda e o script.
+
+    A ordem e PATCH primeiro, INSERT depois: o caso comum e a linha ja existir,
+    criada pelo gatilho do banco ou por uma execucao anterior.
+    """
     cabec = {
         "apikey": anon,
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json",
-        "Prefer": "resolution=merge-duplicates",
+        # Sem isto, um PATCH que nao casa com nenhuma linha responde 200 e lista
+        # vazia, e o script diria que gravou. E a armadilha registrada em
+        # `docs/armadilhas.md`: operacao que nao acha alvo e sucesso, nao erro.
+        "Prefer": "return=representation",
     }
-    status, corpo = pedir(
-        f"{base}/rest/v1/jogadores", "POST", cabec,
-        {"id": uid, "nome": jogador["nome"], "apelido": jogador["apelido"], "cidade": jogador["cidade"]},
-    )
-    if status not in (200, 201, 204):
-        return f"perfil falhou: {corpo}"
+    campos = {
+        "nome": jogador["nome"],
+        "apelido": jogador["apelido"],
+        "cidade": jogador["cidade"],
+    }
+
+    status, corpo = pedir(f"{base}/rest/v1/jogadores?id=eq.{uid}", "PATCH", cabec, campos)
+    if status not in (200, 204):
+        return f"perfil falhou ao atualizar: {corpo}"
+    if corpo:
+        return ""
+
+    # Zero linhas: o perfil ainda nao existe. Acontece quando o gatilho
+    # `ao_criar_usuario` nao pode ser instalado -- ver a 0013 --, e e o mesmo
+    # buraco que `garantirMeuPerfil()` tapa no aplicativo. A policy
+    # `jogadores_cria_o_proprio` deixa criar o proprio, e so o proprio.
+    status, corpo = pedir(f"{base}/rest/v1/jogadores", "POST", cabec, {"id": uid, **campos})
+    if status not in (200, 201):
+        return f"perfil falhou ao criar: {corpo}"
     return ""
 
 
@@ -207,11 +244,21 @@ def enviar_avatar(base: str, anon: str, token: str, uid: str, jogador: dict) -> 
     url = f"{base}/storage/v1/object/public/avatares/{caminho}"
     status, corpo = pedir(
         f"{base}/rest/v1/jogadores?id=eq.{uid}", "PATCH",
-        {"apikey": anon, "Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+        {
+            "apikey": anon,
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+            # Mesma armadilha do `gravar_perfil`: sem pedir o retorno, um PATCH
+            # que nao acha a linha responde 200 e o script diria que a foto foi
+            # ligada ao perfil. A imagem estaria no bucket e ninguem a veria.
+            "Prefer": "return=representation",
+        },
         {"foto_url": url},
     )
     if status not in (200, 204):
         return f"foto_url falhou: {corpo}"
+    if not corpo:
+        return "foto_url falhou: o perfil nao existe, entao a foto ficou solta"
     return ""
 
 
