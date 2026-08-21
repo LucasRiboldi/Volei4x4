@@ -190,11 +190,11 @@
 <text x="536" y="792" class="coluna">atualizado_em</text>
 <text x="786" y="792" class="tipo">timestamptz</text>
 </g>
-<g class="tabela" data-tabela="avaliacoes">
-<rect x="900" y="430" width="330" height="130" rx="10" fill="#FDF9F0" stroke="#845808" stroke-width="2" stroke-dasharray="6 4"/>
-<rect x="900" y="430" width="330" height="46" rx="10" fill="#845808"/>
-<rect x="900" y="466" width="330" height="10" fill="#845808"/>
-<text x="914" y="451" class="titulo">avaliacoes</text><text x="914" y="467" class="sub">Aposentada — escrita revogada</text>
+<g class="tabela" data-tabela="avaliacoes_iniciais">
+<rect x="900" y="430" width="330" height="130" rx="10" fill="#FFFFFF" stroke="#1A6A8F" stroke-width="2"/>
+<rect x="900" y="430" width="330" height="46" rx="10" fill="#1A6A8F"/>
+<rect x="900" y="466" width="330" height="10" fill="#1A6A8F"/>
+<text x="914" y="451" class="titulo">avaliacoes_iniciais</text><text x="914" y="467" class="sub">A primeira impressão — uma por par</text>
 <text x="914" y="492" class="marca">PK FK</text>
 <text x="966" y="492" class="coluna">avaliador_id</text>
 <text x="1216" y="492" class="tipo">uuid</text>
@@ -209,7 +209,7 @@
 <rect x="900" y="640" width="330" height="106" rx="10" fill="#F7F8FA" stroke="#8B939B" stroke-width="2" stroke-dasharray="6 4"/>
 <rect x="900" y="640" width="330" height="46" rx="10" fill="#8B939B"/>
 <rect x="900" y="676" width="330" height="10" fill="#8B939B"/>
-<text x="914" y="661" class="titulo">autoavaliacoes</text><text x="914" y="677" class="sub">Sem uso — fora do produto</text>
+<text x="914" y="661" class="titulo">autoavaliacoes</text><text x="914" y="677" class="sub">Vazia — a ideia saiu do produto</text>
 <text x="914" y="702" class="marca">PK FK</text>
 <text x="966" y="702" class="coluna">jogador_id</text>
 <text x="1216" y="702" class="tipo">uuid</text>
@@ -261,9 +261,9 @@
             vocês são pessoas diferentes, e a janela está aberta</td>
       </tr>
       <tr>
-        <td><code>avaliacoes</code></td>
+        <td><code>avaliacoes_iniciais</code></td>
         <td>apenas as suas</td>
-        <td>revogada — substituída pela avaliação por partida</td>
+        <td>uma vez por par, e nunca corrigível — não há policy de update</td>
       </tr>
       <tr>
         <td><code>autoavaliacoes</code></td>

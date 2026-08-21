@@ -19,7 +19,7 @@ const COLUNAS_DE_NOTA = ATRIBUTOS.join(', ');
 
 /** De quem VOCE ja fez a avaliacao inicial. */
 export async function meusAvaliadosInicialmente(): Promise<Set<string>> {
-  const { data, error } = await supabase.from('avaliacoes').select('avaliado_id');
+  const { data, error } = await supabase.from('avaliacoes_iniciais').select('avaliado_id');
 
   if (error) throw error;
   return new Set((data ?? []).map((linha: { avaliado_id: string }) => linha.avaliado_id));
@@ -28,7 +28,7 @@ export async function meusAvaliadosInicialmente(): Promise<Set<string>> {
 /** A nota que voce deu na inicial, ou null. Serve para a tela abrir preenchida. */
 export async function minhaAvaliacaoInicialDe(jogadorId: string): Promise<Notas | null> {
   const { data, error } = await supabase
-    .from('avaliacoes')
+    .from('avaliacoes_iniciais')
     .select(COLUNAS_DE_NOTA)
     .eq('avaliado_id', jogadorId)
     .maybeSingle<Notas>();
@@ -52,7 +52,7 @@ export async function avaliarInicialmente(jogadorId: string, notas: Notas): Prom
   if (eu === jogadorId) throw new Error('Você não pode avaliar a si mesmo.');
 
   const { error } = await supabase
-    .from('avaliacoes')
+    .from('avaliacoes_iniciais')
     .insert({ avaliador_id: eu, avaliado_id: jogadorId, ...notas });
 
   if (error) throw error;

@@ -111,8 +111,6 @@ utilizável. Ordenado por gravidade.
 |---|---|---|---|
 | **C-05** | **As telas não usam o design system.** `src/design/tokens.ts` existe, tem 295 linhas e 42 testes; as 13 rotas leem `src/constants/theme.ts`, a paleta escura. Duas paletas convivem, e o tema que está no ar é o que **não** tem verificação de contraste. | `src/design/` × `src/constants/` | ⬜ pendente — decisão de produto |
 | **C-06** | Consequência do C-05: `app.json` declara `userInterfaceStyle: "light"` e fundo `#FDF7EE`; as telas pintam `#0E1B2A`. | `app.json` | ⬜ pendente |
-| **C-07** | `docs/mer.html` marca `avaliacoes` como "Aposentada — escrita revogada". A `0015` devolveu o insert e a transformou na avaliação inicial: o diagrama diz o oposto do que é verdade. `autoavaliacoes` também aparece sem marca de inativa. | `scripts/gerar-mer.py` | ⬜ pendente |
-| **C-10** | O nome `avaliacoes` não descreve mais a tabela: hoje ela é a avaliação **inicial**. Custo cognitivo permanente para quem chega. | banco | ⬜ pendente |
 
 ### Baixo
 
@@ -148,6 +146,8 @@ utilizável. Ordenado por gravidade.
 |---|---|---|
 | ✅ | `LICENSE` em nome da Expo (C-09) | MIT em nome de Lucas Riboldi, 2026 |
 | ✅ | `salvarPlacar()` sem chamador (C-12) | Removida, por decisão: o placar não se escreve pelo app. A **leitura** fica — o histórico mostra o que houver, e um traço quando não há |
+| 🔶 | `avaliacoes` não descrevia mais a tabela (C-10) | Renomeada para `avaliacoes_iniciais` na `0018`, junto com o índice, a constraint, o gatilho e as duas policies — nome de objeto que mente é pior que nome feio. **Falta aplicar a `0018`** |
+| ✅ | O MER dizia que `avaliacoes` estava aposentada (C-07) | Regenerado: a tabela aparece como ativa, com o nome novo e a regra certa na tabela de permissões. `autoavaliacoes` segue marcada como vazia |
 | ✅ | "Onde roda o sorteio" em aberto desde a etapa 06 (C-16) | Decidido e registrado no plano: continua no navegador. Forjar times rende escolher a própria escalação numa pelada; o rating, que é o que importa, é do banco, e `criar_partida()` recusa escalação inválida |
 
 ### Já corrigido — Fase 2

@@ -66,12 +66,12 @@ TABELAS = [
         ("criado_em", "timestamptz", ""),
         ("atualizado_em", "timestamptz", ""),
     ]),
-    ("avaliacoes", "avaliacoes", "Aposentada — escrita revogada", 900, 430, "aposentada", [
+    ("avaliacoes_iniciais", "avaliacoes_iniciais", "A primeira impressão — uma por par", 900, 430, "ativa", [
         ("avaliador_id", "uuid", "pkfk"),
         ("avaliado_id", "uuid", "pkfk"),
         ("ataque … equipe", "8 x smallint 1-5", ""),
     ]),
-    ("autoavaliacoes", "autoavaliacoes", "Sem uso — fora do produto", 900, 640, "inativa", [
+    ("autoavaliacoes", "autoavaliacoes", "Vazia — a ideia saiu do produto", 900, 640, "inativa", [
         ("jogador_id", "uuid", "pkfk"),
         ("ataque … equipe", "8 x smallint 1-5", ""),
     ]),
@@ -86,7 +86,7 @@ RELACOES = [
     ("partida_jogadores", "jogador_id", "jogadores", "id", "N : 1", "d"),
     ("avaliacoes_de_partida", "partida_id", "partidas", "id", "N : 1", "e"),
     ("avaliacoes_de_partida", "avaliador_id", "jogadores", "id", "N : 1", "d"),
-    ("avaliacoes", "avaliador_id", "jogadores", "id", "N : 1", "d"),
+    ("avaliacoes_iniciais", "avaliador_id", "jogadores", "id", "N : 1", "d"),
     ("autoavaliacoes", "jogador_id", "jogadores", "id", "1 : 1", "d"),
 ]
 
@@ -295,9 +295,9 @@ PAGINA = """<!doctype html>
             vocês são pessoas diferentes, e a janela está aberta</td>
       </tr>
       <tr>
-        <td><code>avaliacoes</code></td>
+        <td><code>avaliacoes_iniciais</code></td>
         <td>apenas as suas</td>
-        <td>revogada — substituída pela avaliação por partida</td>
+        <td>uma vez por par, e nunca corrigível — não há policy de update</td>
       </tr>
       <tr>
         <td><code>autoavaliacoes</code></td>
