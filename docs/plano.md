@@ -154,6 +154,50 @@ O custo e uma migracao para tirar a coluna do retorno, o tipo em
 Some da tela um numero que era informativo; e o preco de a nota continuar
 privada.
 
+**O sorteio continua rodando no navegador.** Fecha o item que estava em aberto
+desde a etapa 06 -- a decisao ja tinha sido tomada de fato, e nunca registrada.
+
+Sim, da para forjar times mexendo no cliente: `sortearTimes` roda no aparelho e
+ninguem confere a divisao depois. O que isso rende a quem fizer e escolher a
+propria escalacao numa pelada, o que ja se consegue conversando. O que
+realmente importa proteger -- o rating -- e calculado no banco, e
+`criar_partida()` recusa escalacao invalida: menos de quatro por time, id
+repetido, jogador inexistente. Mover o motor para o banco custaria perder o
+teste deterministico com fonte de aleatoriedade injetavel, que e o que permite
+provar que o modo rigoroso nunca sai pior que o solto.
+
+**O placar nao se escreve pelo aplicativo.** O banco aceita, a policy existe, o
+historico ja exibe -- e a tela que digitaria o numero nao vai ser feita. A
+`salvarPlacar()` foi removida por isso: funcao sem chamador parece
+funcionalidade pronta para quem le o modulo depois. A leitura fica, e mostra um
+traco quando nao ha placar, que e a verdade.
+
+**As telas passam a usar o design system.** Escolhida a conversao das nove
+telas para os tokens de `src/design/tokens.ts`, e nao o caminho barato de
+congelar os tokens e mover o teste de contraste para a paleta escura. O custo e
+refazer as telas; em troca, os 42 testes de contraste passam a medir o que as
+pessoas realmente veem, e o `app.json` volta a dizer a verdade sobre o tema.
+
+**A tabela `avaliacoes` vira `avaliacoes_iniciais`.** O nome parou de descrever
+a tabela quando a 0015 a transformou na avaliacao inicial. O custo e concreto e
+foi aceito de olhos abertos: `ratings_dos_jogadores()` le dessa tabela, entao
+renomear obriga a redefinir a funcao mais uma vez, logo depois de a 0017 ter
+consolidado as cinco copias em uma. Essa e a ultima copia.
+
+**A documentacao se separa em `/docs`.** O README passou de 500 linhas e virou
+quatro documentos em um. O estado do projeto continua tendo fonte unica; o que
+muda e que ela deixa de dividir arquivo com o manual de uso.
+
+**Um projeto Supabase so.** Nao havera banco separado de desenvolvimento. E a
+raiz do problema que as contas de teste criaram -- elas vivem no mesmo banco que
+o app real --, e a decisao e conviver com isso: a mitigacao e a senha estar fora
+do repositorio e ser trocavel por script.
+
+**Sem backup, conscientemente.** O plano gratuito do Supabase tem retencao
+curta, e nao havera rotina de backup enquanto isto for um grupo de amigos. Fica
+registrado como risco aceito, e nao como esquecimento -- se o grupo passar a
+depender do historico de avaliacoes, a decisao precisa ser revista.
+
 ## Armadilhas ja encontradas
 
 - **`esbuild` precisa de aprovacao de script no npm 11.** O vitest depende dele,
@@ -219,10 +263,6 @@ privada.
 
 ## Em aberto
 
-- **Onde roda o sorteio.** O motor sera TypeScript puro e testavel. Se rodar so
-  no aplicativo, da para forjar times mexendo no cliente. O rating, que e o que
-  realmente importa proteger, fica no banco de qualquer forma. Decidir na etapa
-  06 se vale mover o sorteio para uma funcao do banco.
 - **Grupos.** Hoje a lista de jogadores e global: todo mundo que se cadastra ve
   todo mundo. Serve para um grupo unico. Se o app passar a atender varios
   grupos, `jogadores` precisara de um vinculo e a RLS muda junto.

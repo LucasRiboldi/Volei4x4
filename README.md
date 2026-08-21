@@ -255,16 +255,13 @@ utilizável. Ordenado por gravidade.
 | **C-05** | **As telas não usam o design system.** `src/design/tokens.ts` existe, tem 295 linhas e 42 testes; as 13 rotas leem `src/constants/theme.ts`, a paleta escura. Duas paletas convivem, e o tema que está no ar é o que **não** tem verificação de contraste. | `src/design/` × `src/constants/` | ⬜ pendente — decisão de produto |
 | **C-06** | Consequência do C-05: `app.json` declara `userInterfaceStyle: "light"` e fundo `#FDF7EE`; as telas pintam `#0E1B2A`. | `app.json` | ⬜ pendente |
 | **C-07** | `docs/mer.html` marca `avaliacoes` como "Aposentada — escrita revogada". A `0015` devolveu o insert e a transformou na avaliação inicial: o diagrama diz o oposto do que é verdade. `autoavaliacoes` também aparece sem marca de inativa. | `scripts/gerar-mer.py` | ⬜ pendente |
-| **C-09** | `LICENSE` atribui o copyright a "650 Industries, Inc. (aka Expo)". É o arquivo do template, não do projeto. | `LICENSE` | ⬜ pendente |
 | **C-10** | O nome `avaliacoes` não descreve mais a tabela: hoje ela é a avaliação **inicial**. Custo cognitivo permanente para quem chega. | banco | ⬜ pendente |
 
 #### Baixo
 
 | # | Problema | Onde | Situação |
 |---|---|---|---|
-| **C-12** | `salvarPlacar()` existe e não tem chamador. O banco aceita placar; nenhuma tela oferece. | `src/lib/partidas.ts` | ⬜ pendente |
 | **C-13** | Nada leva ao histórico. `/partidas` funciona e nenhuma tela aponta para ela. | — | ⬜ pendente |
-| **C-16** | O plano lista "onde roda o sorteio" como item em aberto, a decidir na etapa 06. A etapa 06 está concluída e o sorteio roda no cliente: a decisão foi tomada de fato e nunca registrada. | `docs/plano.md` | ⬜ pendente |
 | **C-17** | `supabase/manual/` e `supabase/testes/` têm propósitos vizinhos — os dois guardam SQL que não é migração. | `supabase/` | ⬜ pendente |
 
 #### Ambiente e dados, não código
@@ -287,6 +284,14 @@ utilizável. Ordenado por gravidade.
 | ✅ | A `0011` abortava em instalação limpa, e o e-mail pessoal estava versionado | Promoção movida para `supabase/manual/promover-admin.sql`, parametrizada. Nenhum arquivo rastreado contém mais o e-mail |
 | ✅ | A contagem de avaliadores permitia deduzir voto por subtração | `0016` tira a coluna do retorno; `src/lib/ratings.ts` e `(abas)/index.tsx` acompanham. **Aplicada em produção** — `conferir-o-alcance.sql` devolve `ok` para as seis funções, então o `grant execute` sobreviveu ao `drop function` que a migração exigiu |
 | ✅ | `supabase/testes/conferir-o-alcance.sql` fora do versionamento | Versionado |
+
+#### Já corrigido — Fase 3
+
+| # | O que era | O que foi feito |
+|---|---|---|
+| ✅ | `LICENSE` em nome da Expo (C-09) | MIT em nome de Lucas Riboldi, 2026 |
+| ✅ | `salvarPlacar()` sem chamador (C-12) | Removida, por decisão: o placar não se escreve pelo app. A **leitura** fica — o histórico mostra o que houver, e um traço quando não há |
+| ✅ | "Onde roda o sorteio" em aberto desde a etapa 06 (C-16) | Decidido e registrado no plano: continua no navegador. Forjar times rende escolher a própria escalação numa pelada; o rating, que é o que importa, é do banco, e `criar_partida()` recusa escalação inválida |
 
 #### Já corrigido — Fase 2
 

@@ -70,15 +70,16 @@ export async function listarPartidas(limite = 20): Promise<EscalacaoDaPartida[]>
   }));
 }
 
-export async function salvarPlacar(
-  partidaId: string,
-  placarA: number,
-  placarB: number
-): Promise<void> {
-  const { error } = await supabase
-    .from('partidas')
-    .update({ placar_a: placarA, placar_b: placarB })
-    .eq('id', partidaId);
-
-  if (error) throw error;
-}
+// O placar nao se escreve pelo aplicativo, e isso e decisao, nao pendencia.
+//
+// Havia aqui uma `salvarPlacar()` sem nenhum chamador: o banco aceitava o
+// placar, o historico ja o exibia, e a tela que digitaria o numero nunca foi
+// feita. Funcao que existe sem ser chamada acaba parecendo funcionalidade
+// pronta para quem le o modulo depois -- e nao era.
+//
+// A LEITURA fica. As colunas `placar_a` e `placar_b` continuam no banco e o
+// historico continua mostrando o que houver nelas, com um traco quando nao ha.
+// Nada disso mente: e um placar que ninguem informou.
+//
+// Se um dia a tela existir, o caminho de volta e curto -- a policy
+// `partidas_placar_de_quem_jogou` e o grant por coluna continuam de pe na 0008.
