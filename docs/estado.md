@@ -98,16 +98,7 @@ ficava aqui. Desde a conversão do C-05, medem a paleta que está no ar.
 Nada aqui é emergencial no sentido de derrubar o app — ele está no ar e
 utilizável. Ordenado por gravidade.
 
-### Crítico e alto
-
-| # | Problema | Onde | Situação |
-|---|---|---|---|
-| **C-03** | Consolidada na `0017`: os números saem para `rating_parametros()`, e mudar um peso passa a ser mexer numa função de dez linhas em vez de reescrever cento e trinta. As cinco anteriores ganharam aviso de superada. | `supabase/migrations/0017` | 🔶 **escrita; falta aplicar a `0017`** |
-
-### Médio
-
-| # | Problema | Onde | Situação |
-|---|---|---|---|
+Restam dois, os dois pequenos.
 
 ### Baixo
 
@@ -125,7 +116,7 @@ utilizável. Ordenado por gravidade.
 | **A-03** | Dados de teste no banco: 22 jogadores, dos quais 13 fictícios (`@volei4x4-teste.com`) e ~8 contas de teste minhas; 9 partidas e 224 avaliações semeadas. Reversível por `scripts/semear-avaliacoes.py --desfazer`. 🧑 Apagar contas exige `service_role`. |
 | **A-04** | Bruno Carvalho está com cidade "Esteio" — resíduo do teste de edição por administrador. |
 | **A-05** | O gatilho de perfil pode não estar instalado. A `0013` tenta e tolera falha de privilégio. Se não instalou, contas criadas fora do app só ganham perfil no primeiro acesso — o que funciona. |
-| **A-06** | Sem backup e sem monitoramento. Aceitável nesta escala; deixa de ser se o grupo passar a depender dos dados. |
+| **A-06** | Sem backup e sem monitoramento. **Risco aceito por decisão**, não esquecimento — ver `decisoes.md`. Deixa de ser aceitável se o grupo passar a depender do histórico de avaliações. |
 
 ### Já corrigido — 20/08/2026
 
@@ -145,7 +136,7 @@ utilizável. Ordenado por gravidade.
 | ✅ | `salvarPlacar()` sem chamador (C-12) | Removida, por decisão: o placar não se escreve pelo app. A **leitura** fica — o histórico mostra o que houver, e um traço quando não há |
 | ✅ | As telas não usavam o design system (C-05) | As 13 rotas e os 4 componentes convertidos para `src/design/tokens.ts`, via `src/design/tema.ts`. `src/constants/theme.ts` removido. Provado no bundle: **nenhuma** das 9 cores da paleta escura sobrou, e as da clara entraram |
 | ✅ | `app.json` prometia tema claro e as telas pintavam escuro (C-06) | Deixou de ser contradição sozinho, ao fechar o C-05. `DarkTheme` → `DefaultTheme` no navegador, e a barra de status virou escura sobre fundo claro |
-| 🔶 | `avaliacoes` não descrevia mais a tabela (C-10) | Renomeada para `avaliacoes_iniciais` na `0018`, junto com o índice, a constraint, o gatilho e as duas policies — nome de objeto que mente é pior que nome feio. **Falta aplicar a `0018`** |
+| ✅ | `avaliacoes` não descrevia mais a tabela (C-10) | Renomeada para `avaliacoes_iniciais` na `0018`, junto com o índice, a constraint, o gatilho e as duas policies — nome de objeto que mente é pior que nome feio. `0018` aplicada, e os ratings conferidos contra a linha de base: 22 jogadores × 10 campos, nenhuma diferença |
 | ✅ | O MER dizia que `avaliacoes` estava aposentada (C-07) | Regenerado: a tabela aparece como ativa, com o nome novo e a regra certa na tabela de permissões. `autoavaliacoes` segue marcada como vazia |
 | ✅ | "Onde roda o sorteio" em aberto desde a etapa 06 (C-16) | Decidido e registrado no plano: continua no navegador. Forjar times rende escolher a própria escalação numa pelada; o rating, que é o que importa, é do banco, e `criar_partida()` recusa escalação inválida |
 
@@ -165,71 +156,52 @@ utilizável. Ordenado por gravidade.
 
 ## 📋 Falta executar
 
-Na ordem. As fases seguem o plano de correção da auditoria de 20/08/2026.
+### Fases 1, 2 e 3 — concluídas em 20/08/2026
 
-### Fase 1 — correções críticas
+Ver as três tabelas de [Já corrigido](#já-corrigido--fase-3). Sobrou uma coisa
+só, herdada da Fase 3:
 
-✅ **Concluída em 20/08/2026.** Os quatro itens estão em
-[Já corrigido](#já-corrigido--20082026).
-
-A senha nova vive só no `.env.local`, que é ignorado pelo git. Se ela se perder,
-`scripts/trocar-senha-de-teste.py` roda de novo com a que estiver valendo em
-`VOLEI_SENHA_ANTIGA` — e reconhece conta já trocada, então falha no meio não
-obriga a recomeçar.
-
-### Fase 2 — simplificação
-
-Concluída em 20/08/2026 — ver [Já corrigido — Fase 2](#já-corrigido--fase-2).
-Sobrou:
-
-- **Decidir `salvarPlacar()`**: ligar a uma tela ou remover (C-12). O banco
-  aceita placar, a policy `partidas_placar_de_quem_jogou` existe, o `grant` é
-  por coluna e o histórico já mostra o placar quando existe — falta só a tela
-  que o informa. Remover jogaria fora um caminho pronto e verificado
-
-### Fase 3 — consolidação
-
-- 🧑 **Aplicar a `0017` no SQL Editor**, e conferir contra a linha de base: 22
-  jogadores, 13 confiáveis, ratings de 3,57 a 7,28. Nenhum número deve se mexer
-  — a fórmula é a mesma, só os literais viraram campos de configuração
-- Regenerar `docs/mer.html` (C-07)
-- Reorganizar a documentação; unir `supabase/manual/` e `supabase/testes/` (C-17)
-- Escrever um `AGENTS.md` de verdade: arquitetura, regras invioláveis, como
-  rodar e testar, e o link para as armadilhas do plano
-- Registrar a decisão sobre onde roda o sorteio (C-16)
-- Extrair o componente comum das duas telas de avaliar
-- Link para o histórico de partidas a partir de alguma aba (C-13)
-- Corrigir o `LICENSE` (C-09)
+- Extrair o componente comum das duas telas de avaliar. Elas têm a mesma
+  estrutura e as mesmas chaves de estilo, com formatação diferente
 
 ### Fase 4 — qualidade
 
-- **Decidir o destino do design system** (C-05): converter as telas, ou congelar
-  os tokens e mover o teste de contraste para a paleta que está no ar
-- Adotar eslint com o lockfile no commit
-- Testes para `src/lib/` com o Supabase simulado
-- Testar **pela tela**: registrar partida, salvar avaliação e enviar foto — hoje
-  verificados só pela API
-- Testar as telas `/admin` e `/editar/[jogador]`
+É onde o projeto está agora.
+
+- 🧑 **Abrir o app e olhar.** A conversão para o design system foi provada pelo
+  bundle — nenhuma cor da paleta escura sobrou —, mas ninguém viu a tela. Não
+  havia painel de navegador na sessão em que foi feita. Contraste medido não é
+  o mesmo que layout bom
+- Adotar eslint, com o lockfile no commit. Hoje a única análise estática é o
+  `tsc`, e o `?? 0` do sorteio é o tipo de coisa que passa por ele
+- Testes para `src/lib/` com o Supabase simulado — hoje há zero
+- Testar **pela tela**: registrar partida, salvar avaliação e enviar foto. Os
+  três são verificados só pela API
+- Testar as telas `/admin` e `/editar/[jogador]`, que nunca foram exercitadas
 - Tratar os `any` do mapeamento do PostgREST em `partidas.ts` e
   `avaliacoes-de-partida.ts`
+- Link para o histórico a partir de alguma aba (C-13)
+- Unir `supabase/manual/` e `supabase/testes/` (C-17)
 
 ### Fase 5 — continuidade
 
-- Backlog de produto num arquivo só
 - `CHANGELOG.md`
-- Definir a postura de backup do Supabase (A-06)
-- Avaliar um projeto Supabase separado para desenvolvimento — é a raiz do C-01
+- Backlog de produto num arquivo só
+
+Os outros dois itens que estavam aqui viraram decisão e saíram: não haverá
+projeto Supabase separado, nem rotina de backup. Ver `decisoes.md`.
 
 ### Produto — depois das fases acima
 
-- Registrar o placar pela tela (o banco já aceita)
 - Indicador de quem venceu, no histórico
 - Marcador de pendência na barra de navegação
 - Perfil público do jogador — ⚠️ expõe as oito médias por jogador; exige
   reavaliar a privacidade antes, pelo mesmo raciocínio que tirou a contagem de
-  avaliadores da tela — oito médias por jogador dão oito equações, e é mais
-  material para inverter, não menos
+  avaliadores da tela: oito médias dão oito equações, e é mais material para
+  inverter, não menos
 - Animação do sorteio, estados vazios e *skeletons*
 - Layout de tablet e desktop além da moldura
 - Acessibilidade: foco visível, navegação por teclado, *reduced motion*
-- Grupos, com código de convite — desenho já esboçado no plano
+- Grupos, com código de convite — desenho já esboçado em `decisoes.md`
+
+O placar por tela saiu do backlog: virou decisão de não fazer.
